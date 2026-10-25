@@ -7,6 +7,7 @@ Spring Boot & AI 과정의 수업 자료를 모아두는 저장소입니다.
 | 날짜 | 주제 | HTML |
 | --- | --- | --- |
 | 2026-11-02 | OT · Git · GitHub 협업 · Java 팀 실습 | [수업 자료](./2026-11-02/index.html) |
+| 2026-11-05 | 교재 웹 핵심 · Spring Boot 생성·구조 · Gradle · IoC/DI·AOP | [수업 자료](./2026-11-05/index.html) |
 
 ## GitHub Pages
 
@@ -14,6 +15,7 @@ Spring Boot & AI 과정의 수업 자료를 모아두는 저장소입니다.
 
 - 자료 목록: https://graygreat.github.io/mentoring-archive/
 - 11월 2일 수업: https://graygreat.github.io/mentoring-archive/2026-11-02/
+- 11월 5일 수업: https://graygreat.github.io/mentoring-archive/2026-11-05/
 
 최초 설정: **Settings → Pages → Build and deployment → Deploy from a branch → main / (root) → Save**
 
