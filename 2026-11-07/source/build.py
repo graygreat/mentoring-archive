@@ -5,7 +5,10 @@ R=Path(__file__).resolve().parent
 OUT=R.parent
 S=[]
 def esc(s):return html.escape(str(s))
-def code(s):return '<pre><code>'+esc(textwrap.dedent(s).strip())+'</code></pre>'
+def code(s,*,preserve_whitespace=False):
+ # File continuations retain their original indentation, including the first line.
+ rendered=s if preserve_whitespace else textwrap.dedent(s).strip('\n')
+ return '<pre><code>'+esc(rendered)+'</code></pre>'
 def call(s):return '<div class="callout">'+s+'</div>'
 def table(rows):return '<table class="lesson-table">'+''.join('<tr>'+''.join(f'<{("th" if i==0 else "td")}>{x}</{("th" if i==0 else "td")}>' for x in row)+'</tr>' for i,row in enumerate(rows))+'</table>'
 def steps(*xs):return '<ol class="steps">'+''.join('<li>'+x+'</li>' for x in xs)+'</ol>'
@@ -13,9 +16,9 @@ def cards(*xs):return '<div class="cols'+(' three' if len(xs)==3 else '')+'">'+'
 def add(ch,title,body='',sub='',note='',kind='',source=None):S.append(dict(ch=ch,title=title,body=body,sub=sub,note=note,kind=kind,source=source))
 def section(n,title,sub):add(title,title,'<div class="section-number">'+n+'</div>',sub,kind='section')
 def filepages(ch,key,goal):
- lines=SOURCES[key].rstrip().splitlines();chunks=[lines[i:i+14] for i in range(0,len(lines),14)]
+ lines=SOURCES[key].splitlines();chunks=[lines[i:i+14] for i in range(0,len(lines),14)]
  for i,chunk in enumerate(chunks):
-  add(ch,key+f' · {i+1}/{len(chunks)}',code('\n'.join(chunk)),f'{goal} · '+('파일 처음부터 작성' if i==0 else '앞 코드 바로 다음 줄에 이어 작성'),note='전체 코드 버튼으로 package와 import를 포함한 파일 전체를 확인할 수 있습니다. 새 클래스 틀과 중복되지 않게 작성합니다. 파일 경로는 코드 보기 창 상단에 표시됩니다.',kind='code-slide file-slide',source=key)
+  add(ch,key+f' · {i+1}/{len(chunks)}',code('\n'.join(chunk),preserve_whitespace=True),f'{goal} · '+('파일 처음부터 작성' if i==0 else '앞 코드 바로 다음 줄에 이어 작성'),note='전체 코드 버튼으로 package와 import를 포함한 파일 전체를 확인할 수 있습니다. 새 클래스 틀과 중복되지 않게 작성합니다. 파일 경로는 코드 보기 창 상단에 표시됩니다.',kind='code-slide file-slide',source=key)
 # SVG diagrams are native vector drawings; no external image or font dependency.
 _diagram_id=0
 def svg(title,inner,h=300):

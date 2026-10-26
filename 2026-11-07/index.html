@@ -65,7 +65,7 @@ public class Product {
         }
         if (price &lt; 0) {
             throw new IllegalArgumentException(&quot;가격은 0 이상이어야 합니다&quot;);
-        }</code></pre></div><footer class="foot"><span>2026.11.07</span><span>54 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="54" data-slide-id="lesson3-54" aria-label="Product.java · 2/2" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · Domain</span></div><h1>Product.java · 2/2</h1><button class="source-button" data-source-key="Product.java">파일 전체 코드 ↗</button><div class="subtitle">상품 정보와 규칙 작성 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>this.id = id;
+        }</code></pre></div><footer class="foot"><span>2026.11.07</span><span>54 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="54" data-slide-id="lesson3-54" aria-label="Product.java · 2/2" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · Domain</span></div><h1>Product.java · 2/2</h1><button class="source-button" data-source-key="Product.java">파일 전체 코드 ↗</button><div class="subtitle">상품 정보와 규칙 작성 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>        this.id = id;
         this.name = name.strip();
         this.price = price;
     }
@@ -95,19 +95,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class MemoryProductRepository implements ProductRepository {
     private final Map&lt;Long, Product&gt; store = new ConcurrentHashMap&lt;&gt;();
-    private final AtomicLong sequence = new AtomicLong();</code></pre></div><footer class="foot"><span>2026.11.07</span><span>59 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="59" data-slide-id="lesson3-59" aria-label="MemoryProductRepository.java · 2/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · 저장소 구현</span></div><h1>MemoryProductRepository.java · 2/3</h1><button class="source-button" data-source-key="MemoryProductRepository.java">파일 전체 코드 ↗</button><div class="subtitle">Class로 생성 · implements 확인 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>@Override
-public Product save(String name, int price) {
-    long id = sequence.incrementAndGet();
-    Product product = new Product(id, name, price);
-    store.put(id, product);
-    return product;
-}
+    private final AtomicLong sequence = new AtomicLong();</code></pre></div><footer class="foot"><span>2026.11.07</span><span>59 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="59" data-slide-id="lesson3-59" aria-label="MemoryProductRepository.java · 2/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · 저장소 구현</span></div><h1>MemoryProductRepository.java · 2/3</h1><button class="source-button" data-source-key="MemoryProductRepository.java">파일 전체 코드 ↗</button><div class="subtitle">Class로 생성 · implements 확인 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>
+    @Override
+    public Product save(String name, int price) {
+        long id = sequence.incrementAndGet();
+        Product product = new Product(id, name, price);
+        store.put(id, product);
+        return product;
+    }
 
-@Override
-public List&lt;Product&gt; findAll() {
-    return store.values().stream()
-            .sorted(Comparator.comparingLong(Product::getId))
-            .toList();</code></pre></div><footer class="foot"><span>2026.11.07</span><span>60 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="60" data-slide-id="lesson3-60" aria-label="MemoryProductRepository.java · 3/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · 저장소 구현</span></div><h1>MemoryProductRepository.java · 3/3</h1><button class="source-button" data-source-key="MemoryProductRepository.java">파일 전체 코드 ↗</button><div class="subtitle">Class로 생성 · implements 확인 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>}
+    @Override
+    public List&lt;Product&gt; findAll() {
+        return store.values().stream()
+                .sorted(Comparator.comparingLong(Product::getId))
+                .toList();</code></pre></div><footer class="foot"><span>2026.11.07</span><span>60 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="60" data-slide-id="lesson3-60" aria-label="MemoryProductRepository.java · 3/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · 저장소 구현</span></div><h1>MemoryProductRepository.java · 3/3</h1><button class="source-button" data-source-key="MemoryProductRepository.java">파일 전체 코드 ↗</button><div class="subtitle">Class로 생성 · implements 확인 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>    }
 
     @Override
     public Optional&lt;Product&gt; findById(long id) {
@@ -134,7 +135,7 @@ public class ProductService {
         this.repository = repository;
     }
 
-    public Product create(String name, int price) {</code></pre></div><footer class="foot"><span>2026.11.07</span><span>64 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="64" data-slide-id="lesson3-64" aria-label="ProductService.java · 2/2" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · Service</span></div><h1>ProductService.java · 2/2</h1><button class="source-button" data-source-key="ProductService.java">파일 전체 코드 ↗</button><div class="subtitle">생성자 주입으로 저장소 사용 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>return repository.save(name, price);
+    public Product create(String name, int price) {</code></pre></div><footer class="foot"><span>2026.11.07</span><span>64 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="64" data-slide-id="lesson3-64" aria-label="ProductService.java · 2/2" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · Service</span></div><h1>ProductService.java · 2/2</h1><button class="source-button" data-source-key="ProductService.java">파일 전체 코드 ↗</button><div class="subtitle">생성자 주입으로 저장소 사용 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>        return repository.save(name, price);
     }
 
     public List&lt;Product&gt; findAll() {
@@ -161,20 +162,20 @@ class ProductServiceTest {
     void createAndFind() {
         Product saved = service.create(&quot;노트&quot;, 3000);
         assertEquals(&quot;노트&quot;, service.findById(saved.getId()).getName());
-        assertEquals(1, service.findAll().size());</code></pre></div><footer class="foot"><span>2026.11.07</span><span>68 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="68" data-slide-id="lesson3-68" aria-label="ProductServiceTest.java · 2/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · 테스트</span></div><h1>ProductServiceTest.java · 2/3</h1><button class="source-button" data-source-key="ProductServiceTest.java">파일 전체 코드 ↗</button><div class="subtitle">src/test/java의 같은 패키지에 생성 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>}
+        assertEquals(1, service.findAll().size());</code></pre></div><footer class="foot"><span>2026.11.07</span><span>68 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="68" data-slide-id="lesson3-68" aria-label="ProductServiceTest.java · 2/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · 테스트</span></div><h1>ProductServiceTest.java · 2/3</h1><button class="source-button" data-source-key="ProductServiceTest.java">파일 전체 코드 ↗</button><div class="subtitle">src/test/java의 같은 패키지에 생성 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>    }
 
-@Test
-void rejectInvalidPrice() {
-    assertThrows(IllegalArgumentException.class,
-            () -&gt; service.create(&quot;노트&quot;, -1));
-    assertTrue(service.findAll().isEmpty());
-}
+    @Test
+    void rejectInvalidPrice() {
+        assertThrows(IllegalArgumentException.class,
+                () -&gt; service.create(&quot;노트&quot;, -1));
+        assertTrue(service.findAll().isEmpty());
+    }
 
-@Test
-void rejectMissingProduct() {
-    assertThrows(ProductNotFoundException.class,
-            () -&gt; service.findById(999));
-}</code></pre></div><footer class="foot"><span>2026.11.07</span><span>69 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="69" data-slide-id="lesson3-69" aria-label="ProductServiceTest.java · 3/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · 테스트</span></div><h1>ProductServiceTest.java · 3/3</h1><button class="source-button" data-source-key="ProductServiceTest.java">파일 전체 코드 ↗</button><div class="subtitle">src/test/java의 같은 패키지에 생성 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>}</code></pre></div><footer class="foot"><span>2026.11.07</span><span>70 / 109</span></footer></section><section class="slide code-slide" data-index="70" data-slide-id="lesson3-70" aria-label="정상 · 잘못된 값 · 없는 상품" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · 테스트 실행</span></div><h1>정상 · 잘못된 값 · 없는 상품</h1><div class="content"><pre><code># macOS / Linux · 프로젝트 루트
+    @Test
+    void rejectMissingProduct() {
+        assertThrows(ProductNotFoundException.class,
+                () -&gt; service.findById(999));
+    }</code></pre></div><footer class="foot"><span>2026.11.07</span><span>69 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="69" data-slide-id="lesson3-69" aria-label="ProductServiceTest.java · 3/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · 테스트</span></div><h1>ProductServiceTest.java · 3/3</h1><button class="source-button" data-source-key="ProductServiceTest.java">파일 전체 코드 ↗</button><div class="subtitle">src/test/java의 같은 패키지에 생성 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>}</code></pre></div><footer class="foot"><span>2026.11.07</span><span>70 / 109</span></footer></section><section class="slide code-slide" data-index="70" data-slide-id="lesson3-70" aria-label="정상 · 잘못된 값 · 없는 상품" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 A · 테스트 실행</span></div><h1>정상 · 잘못된 값 · 없는 상품</h1><div class="content"><pre><code># macOS / Linux · 프로젝트 루트
 ./gradlew test
 
 # Windows PowerShell
@@ -192,7 +193,7 @@ public class TimingAspect {
     @Around(&quot;execution(* com.example.product.ProductService.*(..))&quot;)
     public Object measure(ProceedingJoinPoint joinPoint) throws Throwable {
         long started = System.nanoTime();
-        try {</code></pre></div><footer class="foot"><span>2026.11.07</span><span>74 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="74" data-slide-id="lesson3-74" aria-label="TimingAspect.java · 2/2" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">AOP 실습 · 시간 기록</span></div><h1>TimingAspect.java · 2/2</h1><button class="source-button" data-source-key="TimingAspect.java">파일 전체 코드 ↗</button><div class="subtitle">서비스 호출 전후에 시간 측정 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>return joinPoint.proceed();
+        try {</code></pre></div><footer class="foot"><span>2026.11.07</span><span>74 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="74" data-slide-id="lesson3-74" aria-label="TimingAspect.java · 2/2" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">AOP 실습 · 시간 기록</span></div><h1>TimingAspect.java · 2/2</h1><button class="source-button" data-source-key="TimingAspect.java">파일 전체 코드 ↗</button><div class="subtitle">서비스 호출 전후에 시간 측정 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>            return joinPoint.proceed();
         } finally {
             long elapsedMs = (System.nanoTime() - started) / 1_000_000;
             System.out.println(joinPoint.getSignature().getName()
@@ -220,7 +221,7 @@ public class CreateProductRequest {
     @Min(value = 0, message = &quot;가격은 0 이상이어야 합니다&quot;)
     private Integer price;
 
-    public String getName() { return name; }</code></pre></div><footer class="foot"><span>2026.11.07</span><span>79 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="79" data-slide-id="lesson3-79" aria-label="CreateProductRequest.java · 2/2" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 B · 요청 DTO</span></div><h1>CreateProductRequest.java · 2/2</h1><button class="source-button" data-source-key="CreateProductRequest.java">파일 전체 코드 ↗</button><div class="subtitle">이름과 가격 입력값 정의 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>public void setName(String name) { this.name = name; }
+    public String getName() { return name; }</code></pre></div><footer class="foot"><span>2026.11.07</span><span>79 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="79" data-slide-id="lesson3-79" aria-label="CreateProductRequest.java · 2/2" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 B · 요청 DTO</span></div><h1>CreateProductRequest.java · 2/2</h1><button class="source-button" data-source-key="CreateProductRequest.java">파일 전체 코드 ↗</button><div class="subtitle">이름과 가격 입력값 정의 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>    public void setName(String name) { this.name = name; }
     public Integer getPrice() { return price; }
     public void setPrice(Integer price) { this.price = price; }
 }</code></pre></div><footer class="foot"><span>2026.11.07</span><span>80 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="80" data-slide-id="lesson3-80" aria-label="ProductResponse.java · 1/2" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 B · 응답 DTO</span></div><h1>ProductResponse.java · 1/2</h1><button class="source-button" data-source-key="ProductResponse.java">파일 전체 코드 ↗</button><div class="subtitle">공개할 상품 정보 정의 · 파일 처음부터 작성</div><div class="content"><pre><code>package com.example.product;
@@ -236,7 +237,7 @@ public class ProductResponse {
         this.price = product.getPrice();
     }
 
-    public long getId() { return id; }</code></pre></div><footer class="foot"><span>2026.11.07</span><span>81 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="81" data-slide-id="lesson3-81" aria-label="ProductResponse.java · 2/2" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 B · 응답 DTO</span></div><h1>ProductResponse.java · 2/2</h1><button class="source-button" data-source-key="ProductResponse.java">파일 전체 코드 ↗</button><div class="subtitle">공개할 상품 정보 정의 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>public String getName() { return name; }
+    public long getId() { return id; }</code></pre></div><footer class="foot"><span>2026.11.07</span><span>81 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="81" data-slide-id="lesson3-81" aria-label="ProductResponse.java · 2/2" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 B · 응답 DTO</span></div><h1>ProductResponse.java · 2/2</h1><button class="source-button" data-source-key="ProductResponse.java">파일 전체 코드 ↗</button><div class="subtitle">공개할 상품 정보 정의 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>    public String getName() { return name; }
     public int getPrice() { return price; }
 }</code></pre></div><footer class="foot"><span>2026.11.07</span><span>82 / 109</span></footer></section><section class="slide code-slide" data-index="82" data-slide-id="lesson3-82" aria-label="객체 주입과 URL 매핑을 연결" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 B · Controller 읽기</span></div><h1>객체 주입과 URL 매핑을 연결</h1><div class="content"><pre><code>@RestController
 @RequestMapping(&quot;/products&quot;)
@@ -273,7 +274,7 @@ public class ProductController {
             @Valid @RequestBody CreateProductRequest request) {
         Product product = service.create(request.getName(), request.getPrice());
         URI location = URI.create(&quot;/products/&quot; + product.getId());
-        return ResponseEntity.created(location).body(new ProductResponse(product));</code></pre></div><footer class="foot"><span>2026.11.07</span><span>85 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="85" data-slide-id="lesson3-85" aria-label="ProductController.java · 3/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 B · 요청 연결</span></div><h1>ProductController.java · 3/3</h1><button class="source-button" data-source-key="ProductController.java">파일 전체 코드 ↗</button><div class="subtitle">GET과 POST 메서드 구현 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>}
+        return ResponseEntity.created(location).body(new ProductResponse(product));</code></pre></div><footer class="foot"><span>2026.11.07</span><span>85 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="85" data-slide-id="lesson3-85" aria-label="ProductController.java · 3/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 B · 요청 연결</span></div><h1>ProductController.java · 3/3</h1><button class="source-button" data-source-key="ProductController.java">파일 전체 코드 ↗</button><div class="subtitle">GET과 POST 메서드 구현 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>    }
 
     @GetMapping
     public List&lt;ProductResponse&gt; findAll() {
@@ -309,20 +310,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ApiExceptionHandler {
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; notFound(ProductNotFoundException ex) {</code></pre></div><footer class="foot"><span>2026.11.07</span><span>94 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="94" data-slide-id="lesson3-94" aria-label="ApiExceptionHandler.java · 2/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 C · 오류 응답</span></div><h1>ApiExceptionHandler.java · 2/3</h1><button class="source-button" data-source-key="ApiExceptionHandler.java">파일 전체 코드 ↗</button><div class="subtitle">기존 프로젝트의 같은 패키지에 생성 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(Map.of(&quot;message&quot;, ex.getMessage()));
-}
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; notFound(ProductNotFoundException ex) {</code></pre></div><footer class="foot"><span>2026.11.07</span><span>94 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="94" data-slide-id="lesson3-94" aria-label="ApiExceptionHandler.java · 2/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 C · 오류 응답</span></div><h1>ApiExceptionHandler.java · 2/3</h1><button class="source-button" data-source-key="ApiExceptionHandler.java">파일 전체 코드 ↗</button><div class="subtitle">기존 프로젝트의 같은 패키지에 생성 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of(&quot;message&quot;, ex.getMessage()));
+    }
 
-@ExceptionHandler({MethodArgumentNotValidException.class,
-        HttpMessageNotReadableException.class})
-public ResponseEntity&lt;Map&lt;String, String&gt;&gt; invalidInput(Exception ex) {
-    return ResponseEntity.badRequest()
-            .body(Map.of(&quot;message&quot;, &quot;요청값을 확인하세요&quot;));
-}
+    @ExceptionHandler({MethodArgumentNotValidException.class,
+            HttpMessageNotReadableException.class})
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; invalidInput(Exception ex) {
+        return ResponseEntity.badRequest()
+                .body(Map.of(&quot;message&quot;, &quot;요청값을 확인하세요&quot;));
+    }
 
-@ExceptionHandler(IllegalArgumentException.class)
-public ResponseEntity&lt;Map&lt;String, String&gt;&gt; invalidValue(IllegalArgumentException ex) {
-    return ResponseEntity.badRequest()</code></pre></div><footer class="foot"><span>2026.11.07</span><span>95 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="95" data-slide-id="lesson3-95" aria-label="ApiExceptionHandler.java · 3/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 C · 오류 응답</span></div><h1>ApiExceptionHandler.java · 3/3</h1><button class="source-button" data-source-key="ApiExceptionHandler.java">파일 전체 코드 ↗</button><div class="subtitle">기존 프로젝트의 같은 패키지에 생성 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>.body(Map.of(&quot;message&quot;, ex.getMessage()));
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; invalidValue(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest()</code></pre></div><footer class="foot"><span>2026.11.07</span><span>95 / 109</span></footer></section><section class="slide code-slide file-slide" data-index="95" data-slide-id="lesson3-95" aria-label="ApiExceptionHandler.java · 3/3" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 C · 오류 응답</span></div><h1>ApiExceptionHandler.java · 3/3</h1><button class="source-button" data-source-key="ApiExceptionHandler.java">파일 전체 코드 ↗</button><div class="subtitle">기존 프로젝트의 같은 패키지에 생성 · 앞 코드 바로 다음 줄에 이어 작성</div><div class="content"><pre><code>                .body(Map.of(&quot;message&quot;, ex.getMessage()));
     }
 }</code></pre></div><footer class="foot"><span>2026.11.07</span><span>96 / 109</span></footer></section><section class="slide code-slide" data-index="96" data-slide-id="lesson3-96" aria-label="가격이 잘못되거나 빠진 요청" aria-hidden="true"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">실습 C · 실패 사례</span></div><h1>가격이 잘못되거나 빠진 요청</h1><div class="content"><pre><code>{&quot;name&quot;:&quot;노트&quot;,&quot;price&quot;:-1}
 

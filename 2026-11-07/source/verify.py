@@ -37,11 +37,35 @@ assert not d.xpath('//*[@contenteditable]') and 'localStorage' not in text
 assert not any('note' in x for x in meta)
 assert not re.search('GRAY|강사 시연',text,re.I)
 assert all(b.get('data-source-key') in SOURCES for b in d.xpath('//button[@data-source-key]'))
+file_page_count=0
 for key,src in sources.items():
- # All lines of every canonical file appear on slide code pages, in order.
- shown='\n'.join(s.xpath('.//pre/code/text()')[0] for s in slides if s.xpath('./button[@data-source-key=$k]',k=key))
- assert re.sub(r'\s+','',src)==re.sub(r'\s+','',shown),key
-assert all(len(s.xpath('.//pre/code/text()')[0].splitlines())<=14 for s in slides if s.xpath('./button[@data-source-key]'))
+ # Compare each chunk verbatim: whitespace normalization hid broken continuation indents.
+ lines=src.splitlines()
+ expected=['\n'.join(lines[i:i+14]) for i in range(0,len(lines),14)]
+ pages=[s for s in slides if s.xpath('./button[@data-source-key=$k]',k=key)]
+ shown=[s.xpath('.//pre/code')[0].text_content() for s in pages]
+ assert len(shown)==len(expected),f'{key}: file page count'
+ for n,(actual,wanted) in enumerate(zip(shown,expected),1):
+  assert actual==wanted,f'{key} page {n}: source whitespace mismatch'
+ assert '\n'.join(shown)=='\n'.join(lines),f'{key}: full source reconstruction'
+ file_page_count+=len(pages)
+ # Canonical Java examples use four-space indentation and no tabs/trailing spaces.
+ for n,line in enumerate(lines,1):
+  assert '\t' not in line and line==line.rstrip(),f'{key}:{n}: whitespace'
+  assert (len(line)-len(line.lstrip(' ')))%4==0,f'{key}:{n}: indentation'
+assert file_page_count==25
+# Audit all displayed blocks, including ordinary snippets and command/HTTP examples.
+# Folder listings intentionally use two-space indentation; Java snippets use four.
+java_snippet_markers=r'public |private |return |new |@(?:Configuration|RestController|PostMapping)|long started|try \{'
+for n,block in enumerate(d.xpath('//pre/code'),1):
+ snippet=block.text_content()
+ for line_no,line in enumerate(snippet.splitlines(),1):
+  assert '\t' not in line and line==line.rstrip(),f'code block {n}:{line_no}: whitespace'
+  if re.search(java_snippet_markers,snippet):
+   assert (len(line)-len(line.lstrip(' ')))%4==0,f'Java block {n}:{line_no}: indentation'
+# Regression: Product's second page begins inside its constructor, eight spaces deep.
+product_pages=[s for s in slides if s.xpath('./button[@data-source-key="Product.java"]')]
+assert product_pages[1].xpath('.//pre/code')[0].text_content().startswith('        this.id = id;')
 assert 'spring-boot-starter-aspectj' in text and 'spring-boot-starter-validation' in text
 assert '@Valid @RequestBody CreateProductRequest request' in SOURCES['ProductController.java']
 assert 'private Integer price' in SOURCES['CreateProductRequest.java']
@@ -95,5 +119,5 @@ public class Check {
  subprocess.run(['java','-m','jdk.compiler/com.sun.tools.javac.Main','-encoding','UTF-8','-d',str(classes),*[str(p) for p in root.glob('*.java')]],check=True)
  subprocess.run(['java','-cp',str(classes),'com.example.product.Check'],check=True)
 subprocess.run(['node','--check',str(R/'engine.js')],check=True)
-print('PASS: 109 slides, 14 diagrams, 12 full source files, unique IDs, concepts-before-practice order, code-page integrity, read-only publication, JavaScript syntax')
+print('PASS: 109 slides, 14 diagrams, 12 full source files, unique IDs, concepts-before-practice order, 25 exact-whitespace code pages, all snippet whitespace, read-only publication, JavaScript syntax')
 print('Scope: Java core execution verified; actual Spring server and browser rendering are not exercised by this checker.')
