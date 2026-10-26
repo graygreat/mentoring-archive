@@ -7,7 +7,7 @@ OUT=R.parent
 text=(OUT/'index.html').read_text();d=html.fromstring(text)
 slides=d.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," slide ")]')
 meta=json.loads(d.xpath('//script[@id="deck-data"]/text()')[0]);sources=json.loads(d.xpath('//script[@id="source-data"]/text()')[0])
-assert len(slides)==len(meta)==109
+assert len(slides)==len(meta)==115
 assert sources==SOURCES and len(sources)==12
 
 # Concepts precede all project creation, file writing, and configuration exercises.
@@ -29,7 +29,23 @@ assert not any(x.xpath('./button[@data-source-key]') for x in slides[:practice_s
 assert not any(x['ch'].startswith(('실습 A ·','실습 B ·','실습 C ·','AOP 실습 ·')) for x in meta[share_start:])
 assert [x.get('data-index') for x in slides]==[str(i) for i in range(len(slides))]
 assert [x.get('data-slide-id') for x in slides]==[f'lesson3-{i}' for i in range(len(slides))]
-assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v2-practice-last']
+assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v3-assignments']
+# Independent assignments follow wrap-up and precede references, without answer files.
+assignment_start=titles.index('별도 과제 · 상품 API 확장')
+assert share_start < titles.index('요청 하나로 오늘 배운 것을 연결') < assignment_start
+assert assignment_start < titles.index('교재와 공식 문서')
+assignments=slides[assignment_start:-1]
+assert len(assignments)==8
+assert not any(x.xpath('./button[@data-source-key]') for x in assignments)
+assert not any(x['ch'].startswith('빠른 팀') for x in meta)
+assignment_text='\n'.join(x.text_content() for x in assignments)
+for requirement in ['필수 1~2단계','도전 3~4단계','GET /products?name=노트',
+                    'GET /products?maxPrice=5000','PUT /products/{id}','DELETE /products/{id}',
+                    '200 + []','id 오름차순','두 조건을 모두 만족','204 · 응답 본문 없음',
+                    '400 응답','404 응답','기존 이름·가격·id 유지','테스트 코드']:
+ assert requirement in assignment_text,requirement
+assert not re.search(r'public class|private final|@RestController',assignment_text)
+
 
 ids=d.xpath('//@id');assert len(ids)==len(set(ids)), 'duplicate HTML/SVG IDs'
 assert len(d.xpath('//svg'))==14
@@ -119,5 +135,5 @@ public class Check {
  subprocess.run(['java','-m','jdk.compiler/com.sun.tools.javac.Main','-encoding','UTF-8','-d',str(classes),*[str(p) for p in root.glob('*.java')]],check=True)
  subprocess.run(['java','-cp',str(classes),'com.example.product.Check'],check=True)
 subprocess.run(['node','--check',str(R/'engine.js')],check=True)
-print('PASS: 109 slides, 14 diagrams, 12 full source files, unique IDs, concepts-before-practice order, 25 exact-whitespace code pages, all snippet whitespace, read-only publication, JavaScript syntax')
+print('PASS: 115 slides, 14 diagrams, 12 full source files, unique IDs, concepts-before-practice order, 25 exact-whitespace code pages, all snippet whitespace, read-only publication, JavaScript syntax')
 print('Scope: Java core execution verified; actual Spring server and browser rendering are not exercised by this checker.')
