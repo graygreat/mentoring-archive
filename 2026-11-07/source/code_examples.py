@@ -282,3 +282,29 @@ public class ApiExceptionHandler {
 }
 '''
 }
+
+SOURCES['ProductWiringTest.java'] = """package com.example.product;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+class ProductWiringTest {
+    @Autowired
+    private ProductService service;
+
+    @Test
+    void injectedServiceUsesAopProxy() {
+        assertTrue(AopUtils.isAopProxy(service));
+        Product saved = service.create("연결 확인", 3000);
+        Product found = service.findById(saved.getId());
+        assertEquals("연결 확인", found.getName());
+        assertEquals(3000, found.getPrice());
+        assertTrue(service.findAll().stream()
+                .anyMatch(product -> product.getId() == saved.getId()));
+    }
+}
+"""

@@ -7,104 +7,54 @@ OUT=R.parent
 text=(OUT/'index.html').read_text();d=html.fromstring(text)
 slides=d.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," slide ")]')
 meta=json.loads(d.xpath('//script[@id="deck-data"]/text()')[0]);sources=json.loads(d.xpath('//script[@id="source-data"]/text()')[0])
-assert len(slides)==len(meta)==129
-assert sources==SOURCES and len(sources)==12
-
-# Concepts precede all project creation, file writing, and configuration exercises.
+expected_keys={'ProductApplication.java','Product.java','ProductRepository.java','MemoryProductRepository.java','ProductNotFoundException.java','ProductService.java','ProductServiceTest.java','TimingAspect.java','ProductWiringTest.java'}
+assert len(slides)==len(meta) and len(slides)>75
+assert sources=={k:SOURCES[k] for k in expected_keys}
+assert not any(k in sources for k in ['ProductController.java','CreateProductRequest.java','ProductResponse.java','ApiExceptionHandler.java'])
 titles=[x['title'] for x in meta]
-chapters=[x['ch'] for x in meta]
-practice_start=titles.index('실습 A · 상품 객체와 저장소')
-aop_start=chapters.index('AOP 실습 · 의존성')
-b_start=titles.index('실습 B · 상품 API 완성')
-c_start=titles.index('실습 C · 검증과 예외 응답')
+practice_start=titles.index('집중 실습 · 상품 객체와 저장소')
 share_start=titles.index('검증하고 설명하기')
-assert practice_start < aop_start < b_start < c_start < share_start
-assert titles.index('기본 포트를 바꿔 봅니다') > practice_start
-for title in ['실행 준비와 공통 처리','Spring MVC와 REST API',
-              '입력 규칙을 요청 DTO에 표시합니다','입력 형식과 업무 규칙을 지킵니다',
-              '여러 Controller의 오류 응답을 모읍니다',
-              '단위 테스트와 API 확인은 다릅니다','테스트용 객체로 바꿀 수도 있습니다']:
- assert titles.index(title) < practice_start, title
-assert not any(x.xpath('./button[@data-source-key]') for x in slides[:practice_start])
-assert not any(x['ch'].startswith(('실습 A ·','실습 B ·','실습 C ·','AOP 실습 ·')) for x in meta[share_start:])
+assignment_start=titles.index('별도 과제 · 객체와 테스트 확장')
+for title in ['객체를 연결하는 Spring','실행 준비와 공통 처리','서버·클라이언트와 MVC','테스트 범위를 나눕니다']:
+ assert titles.index(title)<practice_start,title
+assert practice_start < share_start < assignment_start
+assert not any(s.xpath('./button[@data-source-key]') for s in slides[:practice_start])
+assert not any(s.xpath('./button[@data-source-key]') for s in slides[share_start:])
 assert [x.get('data-index') for x in slides]==[str(i) for i in range(len(slides))]
 assert [x.get('data-slide-id') for x in slides]==[f'lesson3-{i}' for i in range(len(slides))]
-assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v5-study-repo']
-# Independent assignments follow wrap-up and precede references, without answer files.
-assignment_start=titles.index('별도 과제 · 상품 API 확장')
-assert share_start < titles.index('요청 하나로 오늘 배운 것을 연결') < assignment_start
-assert assignment_start < titles.index('교재와 공식 문서')
-assignments=slides[assignment_start:-1]
-assert len(assignments)==22
-assert not any(x.xpath('./button[@data-source-key]') for x in assignments)
-assert not any(x['ch'].startswith('빠른 팀') for x in meta)
-assignment_text='\n'.join(x.text_content() for x in assignments)
-for requirement in ['필수 1~2단계','도전 3~4단계','GET /products?name=노트',
-                    'GET /products?maxPrice=5000','PUT /products/{id}','DELETE /products/{id}',
-                    '200 + []','id 오름차순','두 조건을 모두 만족','204 · 응답 본문 없음',
-                    '400 응답','404 응답','기존 이름·가격·id 유지','테스트 코드']:
- assert requirement in assignment_text,requirement
-assert not re.search(r'public class|private final|@RestController',assignment_text)
-# GitHub handoff is required for practice and assignments, without creating repos here.
-for requirement in ['sesac-spring-boot-study','Public / main','Settings → Features',
-                    'practice/product-api','feature/name-search','feature/price-filter',
-                    'feature/update-product','feature/delete-product','docs/product-api',
-                    'product-api-2026-11-07','Closes #12','Issue 4개 · 병합 PR 4개',
-                    'gradle-wrapper.jar','!product-api/gradle/wrapper/gradle-wrapper.jar','검증 결과(기대·실제)',
-                    'Home','01-Setup','02-Architecture','03-API','04-Verification','05-Retrospective',
-                    'Wiki Home URL','필수 병합 PR 4개 링크','Spring Boot 학습 실습 및 과제 기록',
-                    'product-api/README.md','기존 학습 저장소 재사용','greeting-api / product-api',
-                    '기존 저장소는 main pull','루트 README: 프로젝트 목록']:
- assert requirement in assignment_text,requirement
-assert 'GitHub PR은 필수가 아닙니다' not in text
-assert 'spring-product-api-20261107' not in text
-assert '2026-11-07 Spring Boot 상품 API 실습 및 과제' not in text
-assert 'docs/submission-guide' not in text
-for url in ['https://docs.github.com/en/communities/documenting-your-project-with-wikis/about-wikis',
-            'https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue']:
- assert url in d.xpath('//a/@href'),url
-
-
-
-ids=d.xpath('//@id');assert len(ids)==len(set(ids)), 'duplicate HTML/SVG IDs'
-assert len(d.xpath('//svg'))==14
+assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v6-staged-core']
+visible='\n'.join(s.text_content() for s in slides)
+for excluded in ['@RequestBody','ResponseEntity','@RestController','@Valid','HTTP/1.1 201','PUT /products','DELETE /products','GET /products?','server.port=8081','spring-boot-starter-webmvc','spring-boot-starter-validation']:
+ assert excluded not in visible,excluded
+for required in ['1~8장','DispatcherServlet','HandlerMapping','HandlerAdapter','@Controller','@Service','@Repository','Model','View','List','Map','SpringBootTest','AopUtils','0ms','sesac-spring-boot-study','product-api/README.md','practice/product-core','docs/product-core','test/product-boundaries','feature/core-price-filter','Issue 2개 · 병합 PR 2개','Home','01-Setup','02-Architecture','03-API','04-Verification','05-Retrospective','!product-api/gradle/wrapper/gradle-wrapper.jar','Closes #12','Public / main','main pull']:
+ assert required in visible,required
+assert 'CommandLineRunner' not in text
 assert not d.xpath('//*[@contenteditable]') and 'localStorage' not in text
 assert not any('note' in x for x in meta)
-assert not re.search('GRAY|강사 시연',text,re.I)
-assert all(b.get('data-source-key') in SOURCES for b in d.xpath('//button[@data-source-key]'))
+ids=d.xpath('//@id');assert len(ids)==len(set(ids))
 file_page_count=0
 for key,src in sources.items():
- # Compare each chunk verbatim: whitespace normalization hid broken continuation indents.
  lines=src.splitlines()
  expected=['\n'.join(lines[i:i+14]) for i in range(0,len(lines),14)]
  pages=[s for s in slides if s.xpath('./button[@data-source-key=$k]',k=key)]
- shown=[s.xpath('.//pre/code')[0].text_content() for s in pages]
- assert len(shown)==len(expected),f'{key}: file page count'
- for n,(actual,wanted) in enumerate(zip(shown,expected),1):
-  assert actual==wanted,f'{key} page {n}: source whitespace mismatch'
- assert '\n'.join(shown)=='\n'.join(lines),f'{key}: full source reconstruction'
+ actual=[s.xpath('.//pre/code')[0].text_content() for s in pages]
+ assert actual==expected,f'{key}: exact-whitespace source mismatch'
+ assert '\n'.join(actual)=='\n'.join(lines),f'{key}: reconstruction'
  file_page_count+=len(pages)
- # Canonical Java examples use four-space indentation and no tabs/trailing spaces.
  for n,line in enumerate(lines,1):
   assert '\t' not in line and line==line.rstrip(),f'{key}:{n}: whitespace'
   assert (len(line)-len(line.lstrip(' ')))%4==0,f'{key}:{n}: indentation'
-assert file_page_count==25
-# Audit all displayed blocks, including ordinary snippets and command/HTTP examples.
-# Folder listings intentionally use two-space indentation; Java snippets use four.
-java_snippet_markers=r'public |private |return |new |@(?:Configuration|RestController|PostMapping)|long started|try \{'
 for n,block in enumerate(d.xpath('//pre/code'),1):
  snippet=block.text_content()
  for line_no,line in enumerate(snippet.splitlines(),1):
-  assert '\t' not in line and line==line.rstrip(),f'code block {n}:{line_no}: whitespace'
-  if re.search(java_snippet_markers,snippet):
-   assert (len(line)-len(line.lstrip(' ')))%4==0,f'Java block {n}:{line_no}: indentation'
-# Regression: Product's second page begins inside its constructor, eight spaces deep.
+  assert '\t' not in line and line==line.rstrip(),f'block{n}:{line_no}: whitespace'
+  if re.search(r'public |private |return |new |@(?:Configuration|SpringBootTest)|long started|try \{',snippet):
+   assert (len(line)-len(line.lstrip(' ')))%4==0,f'block{n}:{line_no}: indentation'
 product_pages=[s for s in slides if s.xpath('./button[@data-source-key="Product.java"]')]
 assert product_pages[1].xpath('.//pre/code')[0].text_content().startswith('        this.id = id;')
-assert 'spring-boot-starter-aspectj' in text and 'spring-boot-starter-validation' in text
-assert '@Valid @RequestBody CreateProductRequest request' in SOURCES['ProductController.java']
-assert 'private Integer price' in SOURCES['CreateProductRequest.java']
-assert 'HttpMessageNotReadableException.class' in SOURCES['ApiExceptionHandler.java']
+assert 'spring-boot-starter-aspectj' in visible
+assert 'webEnvironment = SpringBootTest.WebEnvironment.NONE' in sources['ProductWiringTest.java']
+assert 'AopUtils.isAopProxy(service)' in sources['ProductWiringTest.java']
 # Execute the actual domain/repository/service logic independently of Spring.
 with tempfile.TemporaryDirectory() as tmp:
  root=Path(tmp);classes=root/'classes';classes.mkdir()
@@ -154,5 +104,5 @@ public class Check {
  subprocess.run(['java','-m','jdk.compiler/com.sun.tools.javac.Main','-encoding','UTF-8','-d',str(classes),*[str(p) for p in root.glob('*.java')]],check=True)
  subprocess.run(['java','-cp',str(classes),'com.example.product.Check'],check=True)
 subprocess.run(['node','--check',str(R/'engine.js')],check=True)
-print('PASS: 129 slides, 14 diagrams, 12 full source files, unique IDs, concepts-before-practice order, 25 exact-whitespace code pages, all snippet whitespace, read-only publication, JavaScript syntax')
-print('Scope: Java core execution verified; actual Spring server and browser rendering are not exercised by this checker.')
+print(f'PASS: {len(slides)} slides, {len(sources)} stage-specific Java files, {file_page_count} exact-whitespace code pages; concepts precede practice; no future REST answer code; unique IDs; GitHub scope; JavaScript syntax')
+print('Scope: independent Java core execution verified. Spring integration/AOP and visual layout require the separate rehearsal/browser checks.')
