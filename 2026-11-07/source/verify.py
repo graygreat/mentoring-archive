@@ -7,7 +7,7 @@ OUT=R.parent
 text=(OUT/'index.html').read_text();d=html.fromstring(text)
 slides=d.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," slide ")]')
 meta=json.loads(d.xpath('//script[@id="deck-data"]/text()')[0]);sources=json.loads(d.xpath('//script[@id="source-data"]/text()')[0])
-assert len(slides)==len(meta)==115
+assert len(slides)==len(meta)==129
 assert sources==SOURCES and len(sources)==12
 
 # Concepts precede all project creation, file writing, and configuration exercises.
@@ -29,13 +29,13 @@ assert not any(x.xpath('./button[@data-source-key]') for x in slides[:practice_s
 assert not any(x['ch'].startswith(('실습 A ·','실습 B ·','실습 C ·','AOP 실습 ·')) for x in meta[share_start:])
 assert [x.get('data-index') for x in slides]==[str(i) for i in range(len(slides))]
 assert [x.get('data-slide-id') for x in slides]==[f'lesson3-{i}' for i in range(len(slides))]
-assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v3-assignments']
+assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v4-github-submission']
 # Independent assignments follow wrap-up and precede references, without answer files.
 assignment_start=titles.index('별도 과제 · 상품 API 확장')
 assert share_start < titles.index('요청 하나로 오늘 배운 것을 연결') < assignment_start
 assert assignment_start < titles.index('교재와 공식 문서')
 assignments=slides[assignment_start:-1]
-assert len(assignments)==8
+assert len(assignments)==22
 assert not any(x.xpath('./button[@data-source-key]') for x in assignments)
 assert not any(x['ch'].startswith('빠른 팀') for x in meta)
 assignment_text='\n'.join(x.text_content() for x in assignments)
@@ -45,6 +45,20 @@ for requirement in ['필수 1~2단계','도전 3~4단계','GET /products?name=�
                     '400 응답','404 응답','기존 이름·가격·id 유지','테스트 코드']:
  assert requirement in assignment_text,requirement
 assert not re.search(r'public class|private final|@RestController',assignment_text)
+# GitHub handoff is required for practice and assignments, without creating repos here.
+for requirement in ['spring-product-api-20261107','Public / main','Settings → Features',
+                    'practice/product-api','feature/name-search','feature/price-filter',
+                    'feature/update-product','feature/delete-product','docs/submission-guide',
+                    'product-api-2026-11-07','Closes #12','Issue 4개 · 병합 PR 4개',
+                    'gradle-wrapper.jar','!gradle/wrapper/gradle-wrapper.jar','검증 결과(기대·실제)',
+                    'Home','01-Setup','02-Architecture','03-API','04-Verification','05-Retrospective',
+                    'Wiki Home URL','필수 병합 PR 4개 링크']:
+ assert requirement in assignment_text,requirement
+assert 'GitHub PR은 필수가 아닙니다' not in text
+for url in ['https://docs.github.com/en/communities/documenting-your-project-with-wikis/about-wikis',
+            'https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue']:
+ assert url in d.xpath('//a/@href'),url
+
 
 
 ids=d.xpath('//@id');assert len(ids)==len(set(ids)), 'duplicate HTML/SVG IDs'
@@ -135,5 +149,5 @@ public class Check {
  subprocess.run(['java','-m','jdk.compiler/com.sun.tools.javac.Main','-encoding','UTF-8','-d',str(classes),*[str(p) for p in root.glob('*.java')]],check=True)
  subprocess.run(['java','-cp',str(classes),'com.example.product.Check'],check=True)
 subprocess.run(['node','--check',str(R/'engine.js')],check=True)
-print('PASS: 115 slides, 14 diagrams, 12 full source files, unique IDs, concepts-before-practice order, 25 exact-whitespace code pages, all snippet whitespace, read-only publication, JavaScript syntax')
+print('PASS: 129 slides, 14 diagrams, 12 full source files, unique IDs, concepts-before-practice order, 25 exact-whitespace code pages, all snippet whitespace, read-only publication, JavaScript syntax')
 print('Scope: Java core execution verified; actual Spring server and browser rendering are not exercised by this checker.')
