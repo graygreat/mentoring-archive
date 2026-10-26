@@ -31,6 +31,8 @@ for required in ['1~8장','DispatcherServlet','HandlerMapping','HandlerAdapter',
 assert 'CommandLineRunner' not in text
 assert not d.xpath('//*[@contenteditable]') and 'localStorage' not in text
 assert not any('note' in x for x in meta)
+assert not d.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," subtitle ")]')
+assert '교재 CH 09 · 12 일부 선행 · 1~8장 복습은 5일에' not in text
 ids=d.xpath('//@id');assert len(ids)==len(set(ids))
 file_page_count=0
 for key,src in sources.items():
