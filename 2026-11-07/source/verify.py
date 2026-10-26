@@ -46,7 +46,7 @@ for requirement in ['필수 1~2단계','도전 3~4단계','GET /products?name=�
  assert requirement in assignment_text,requirement
 assert not re.search(r'public class|private final|@RestController',assignment_text)
 # GitHub handoff is required for practice and assignments, without creating repos here.
-for requirement in ['spring-boot-study','Public / main','Settings → Features',
+for requirement in ['sesac-spring-boot-study','Public / main','Settings → Features',
                     'practice/product-api','feature/name-search','feature/price-filter',
                     'feature/update-product','feature/delete-product','docs/product-api',
                     'product-api-2026-11-07','Closes #12','Issue 4개 · 병합 PR 4개',

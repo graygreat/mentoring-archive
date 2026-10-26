@@ -84,8 +84,8 @@ Request DTO·Response DTO·Controller·전역 예외 핸들러를 같은 프로�
 
 ## GitHub 제출 운영 규칙
 
-- Spring 학습 내내 재사용할 개인별 본인 계정의 Public 저장소 이름은 `spring-boot-study`, 설명은 `Spring Boot 학습 실습 및 과제 기록`, 기본 브랜치는 `main`입니다. Issues와 Wiki를 활성화합니다. 각자 계정이므로 같은 이름이 가능합니다. 진행자가 대신 저장소·Issue를 생성하지 않습니다.
-- 기존 학습 저장소를 재사용합니다. 날짜별 이름이면 spring-boot-study로 이름을 변경하며 추가 새 저장소를 만들 의무는 없습니다. 저장소가 없을 때만 README와 Java .gitignore로 main을 초기화합니다. Settings → Features에서 Issues·Wiki를 확인합니다. 처음 접근은 clone, 이미 작업 중이면 최신 main을 pull합니다. practice/product-api에서 product-api/ 안에 실습 파일을 복사하며 기존 .git 폴더는 복사하지 않습니다. greeting-api/ 등 기존 프로젝트와 기록을 보존합니다. 기존 루트의 Java 프로젝트는 해당 프로젝트 폴더로 옮겨 완료 실습 PR에서 함께 정리할 수 있고 별도 PR을 강제하지 않습니다. 완료한 실습은 결과 정리 Issue를 만들고 `practice/product-api`에서 코드·실행 파일·테스트를 추가하여 PR로 제출합니다. 실습 전에 Issue를 작성했던 것처럼 기록하지 않습니다.
+- Spring 학습 내내 재사용할 개인별 본인 계정의 Public 저장소 이름은 `sesac-spring-boot-study`, 설명은 `Spring Boot 학습 실습 및 과제 기록`, 기본 브랜치는 `main`입니다. Issues와 Wiki를 활성화합니다. 각자 계정이므로 같은 이름이 가능합니다. 진행자가 대신 저장소·Issue를 생성하지 않습니다.
+- 기존 학습 저장소를 재사용합니다. 날짜별 이름이면 sesac-spring-boot-study로 이름을 변경하며 추가 새 저장소를 만들 의무는 없습니다. 저장소가 없을 때만 README와 Java .gitignore로 main을 초기화합니다. Settings → Features에서 Issues·Wiki를 확인합니다. 처음 접근은 clone, 이미 작업 중이면 최신 main을 pull합니다. practice/product-api에서 product-api/ 안에 실습 파일을 복사하며 기존 .git 폴더는 복사하지 않습니다. greeting-api/ 등 기존 프로젝트와 기록을 보존합니다. 기존 루트의 Java 프로젝트는 해당 프로젝트 폴더로 옮겨 완료 실습 PR에서 함께 정리할 수 있고 별도 PR을 강제하지 않습니다. 완료한 실습은 결과 정리 Issue를 만들고 `practice/product-api`에서 코드·실행 파일·테스트를 추가하여 PR로 제출합니다. 실습 전에 Issue를 작성했던 것처럼 기록하지 않습니다.
 - 실습 이후 모든 단계는 Issue 생성 → 최신 main에서 지정 브랜치 생성 → 구현·테스트 → commit·push → main 대상 PR → 자체 확인·병합 → 로컬 main pull 순서입니다. 기능 코드를 main에 직접 push하지 않습니다. 타인 승인은 필수가 아니며 최소 커밋 개수도 강제하지 않습니다. 메시지는 목적에 맞게 `feat:`, `test:`, `docs:`, `fix:`를 사용합니다.
 
 | 브랜치 | Issue와 PR의 동일 제목 |
