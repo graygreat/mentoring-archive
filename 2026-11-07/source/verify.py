@@ -29,7 +29,7 @@ assert not any(x.xpath('./button[@data-source-key]') for x in slides[:practice_s
 assert not any(x['ch'].startswith(('실습 A ·','실습 B ·','실습 C ·','AOP 실습 ·')) for x in meta[share_start:])
 assert [x.get('data-index') for x in slides]==[str(i) for i in range(len(slides))]
 assert [x.get('data-slide-id') for x in slides]==[f'lesson3-{i}' for i in range(len(slides))]
-assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v4-github-submission']
+assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v5-study-repo']
 # Independent assignments follow wrap-up and precede references, without answer files.
 assignment_start=titles.index('별도 과제 · 상품 API 확장')
 assert share_start < titles.index('요청 하나로 오늘 배운 것을 연결') < assignment_start
@@ -46,15 +46,20 @@ for requirement in ['필수 1~2단계','도전 3~4단계','GET /products?name=�
  assert requirement in assignment_text,requirement
 assert not re.search(r'public class|private final|@RestController',assignment_text)
 # GitHub handoff is required for practice and assignments, without creating repos here.
-for requirement in ['spring-product-api-20261107','Public / main','Settings → Features',
+for requirement in ['spring-boot-study','Public / main','Settings → Features',
                     'practice/product-api','feature/name-search','feature/price-filter',
-                    'feature/update-product','feature/delete-product','docs/submission-guide',
+                    'feature/update-product','feature/delete-product','docs/product-api',
                     'product-api-2026-11-07','Closes #12','Issue 4개 · 병합 PR 4개',
-                    'gradle-wrapper.jar','!gradle/wrapper/gradle-wrapper.jar','검증 결과(기대·실제)',
+                    'gradle-wrapper.jar','!product-api/gradle/wrapper/gradle-wrapper.jar','검증 결과(기대·실제)',
                     'Home','01-Setup','02-Architecture','03-API','04-Verification','05-Retrospective',
-                    'Wiki Home URL','필수 병합 PR 4개 링크']:
+                    'Wiki Home URL','필수 병합 PR 4개 링크','Spring Boot 학습 실습 및 과제 기록',
+                    'product-api/README.md','기존 학습 저장소 재사용','greeting-api / product-api',
+                    '기존 저장소는 main pull','루트 README: 프로젝트 목록']:
  assert requirement in assignment_text,requirement
 assert 'GitHub PR은 필수가 아닙니다' not in text
+assert 'spring-product-api-20261107' not in text
+assert '2026-11-07 Spring Boot 상품 API 실습 및 과제' not in text
+assert 'docs/submission-guide' not in text
 for url in ['https://docs.github.com/en/communities/documenting-your-project-with-wikis/about-wikis',
             'https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue']:
  assert url in d.xpath('//a/@href'),url

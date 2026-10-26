@@ -84,8 +84,8 @@ Request DTO·Response DTO·Controller·전역 예외 핸들러를 같은 프로�
 
 ## GitHub 제출 운영 규칙
 
-- 개인별 본인 계정의 Public 저장소 이름은 `spring-product-api-20261107`, 설명은 `2026-11-07 Spring Boot 상품 API 실습 및 과제`, 기본 브랜치는 `main`입니다. Issues와 Wiki를 활성화합니다. 각자 계정이므로 같은 이름이 가능합니다. 진행자가 대신 저장소·Issue를 생성하지 않습니다.
-- 초기 main에는 README와 Java .gitignore만 만듭니다. Settings → Features에서 Issues·Wiki를 확인합니다. 저장소를 clone한 뒤 실습 파일을 복사하며 기존 .git 폴더는 복사하지 않습니다. 완료한 실습은 결과 정리 Issue를 만들고 `practice/product-api`에서 코드·실행 파일·테스트를 추가하여 PR로 제출합니다. 실습 전에 Issue를 작성했던 것처럼 기록하지 않습니다.
+- Spring 학습 내내 재사용할 개인별 본인 계정의 Public 저장소 이름은 `spring-boot-study`, 설명은 `Spring Boot 학습 실습 및 과제 기록`, 기본 브랜치는 `main`입니다. Issues와 Wiki를 활성화합니다. 각자 계정이므로 같은 이름이 가능합니다. 진행자가 대신 저장소·Issue를 생성하지 않습니다.
+- 기존 학습 저장소를 재사용합니다. 날짜별 이름이면 spring-boot-study로 이름을 변경하며 추가 새 저장소를 만들 의무는 없습니다. 저장소가 없을 때만 README와 Java .gitignore로 main을 초기화합니다. Settings → Features에서 Issues·Wiki를 확인합니다. 처음 접근은 clone, 이미 작업 중이면 최신 main을 pull합니다. practice/product-api에서 product-api/ 안에 실습 파일을 복사하며 기존 .git 폴더는 복사하지 않습니다. greeting-api/ 등 기존 프로젝트와 기록을 보존합니다. 기존 루트의 Java 프로젝트는 해당 프로젝트 폴더로 옮겨 완료 실습 PR에서 함께 정리할 수 있고 별도 PR을 강제하지 않습니다. 완료한 실습은 결과 정리 Issue를 만들고 `practice/product-api`에서 코드·실행 파일·테스트를 추가하여 PR로 제출합니다. 실습 전에 Issue를 작성했던 것처럼 기록하지 않습니다.
 - 실습 이후 모든 단계는 Issue 생성 → 최신 main에서 지정 브랜치 생성 → 구현·테스트 → commit·push → main 대상 PR → 자체 확인·병합 → 로컬 main pull 순서입니다. 기능 코드를 main에 직접 push하지 않습니다. 타인 승인은 필수가 아니며 최소 커밋 개수도 강제하지 않습니다. 메시지는 목적에 맞게 `feat:`, `test:`, `docs:`, `fix:`를 사용합니다.
 
 | 브랜치 | Issue와 PR의 동일 제목 |
@@ -95,25 +95,25 @@ Request DTO·Response DTO·Controller·전역 예외 핸들러를 같은 프로�
 | feature/price-filter | [과제 2] 가격 조건 검색 |
 | feature/update-product | [과제 3] 상품 수정 |
 | feature/delete-product | [과제 4] 상품 삭제 |
-| docs/submission-guide | [문서] README와 Wiki 제출 문서 작성 |
+| docs/product-api | [문서] 상품 API README와 Wiki 정리 |
 
 - 라벨 `practice`, `assignment`, `docs`, `bug`를 생성합니다. 실습·과제·문서에 해당 라벨을 붙이고 bug는 오류 수정에 사용합니다. milestone은 `product-api-2026-11-07`, 마감일은 미지정이며 assignee는 본인입니다.
 - Issue 본문 제목은 **목표 / 구현할 일 체크리스트 / 완료 기준 / 검증 결과(기대·실제) / 관련 PR**입니다. PR 본문 제목은 **변경 내용 / 검증 결과 / 관련 Issue**이며 `Closes #실제번호`로 연결합니다. 번호는 실제 자동 발급 번호로 바꿉니다. 기본 브랜치 main에 병합하여 Issue가 닫혔는지 확인합니다.
 - 필수 실습·과제 1·과제 2·문서는 Issue 4개와 병합 PR 4개입니다. 도전 3·4는 수행한 경우 각각 Issue·PR 1개씩 더하여 모두 수행하면 각각 6개입니다. 미수행 도전의 Issue 생성 의무는 없습니다. 필요에 따른 버그 Issue는 별도입니다.
-- README 고정 섹션은 **프로젝트 소개 / 개발 환경(Java·실제 Boot) / 실행·테스트 방법 / 구현 현황(실습·1~4, 필수·도전) / API 목록 / Wiki 링크**입니다. 문서 브랜치 PR에 README와 Wiki 링크·작성 확인을 포함합니다.
+- 루트 README는 프로젝트 목록·각 폴더 README 링크·Wiki 링크를 담는 공통 목차입니다. `product-api/README.md`의 고정 섹션은 **프로젝트 소개 / 개발 환경(Java·실제 Boot) / 실행·테스트 방법 / 구현 현황(실습·1~4, 필수·도전) / API 목록 / Wiki 링크**입니다. 문서 브랜치 PR에 README와 Wiki 링크·작성 확인을 포함합니다.
 
 | Wiki 고정 페이지 | 필수 내용 |
 | --- | --- |
-| Home | 다섯 페이지로 이동하는 링크 목차 |
+| Home | 공통 목차와 프로젝트별 링크 |
 | 01-Setup | 실제 JDK·Boot, 실행·테스트 명령, 포트 |
 | 02-Architecture | Controller-Service-Repository, DI 역할, AOP |
 | 03-API | 구현 API의 메서드·경로·요청·응답·상태 |
 | 04-Verification | 실습 201·200·400·404, AOP 로그, 각 단계 성공·실패 기대/실제, 테스트 결과, Issue·PR 링크 |
 | 05-Retrospective | 해결 오류 최소 1개(없으면 가장 헷갈린 점), 원인·해결·배운 점 |
 
-- Wiki는 GitHub Wiki 화면에서 Home부터 생성하여 작성합니다. 일반 코드 PR에 자동 포함되지 않으므로 링크가 실제 열리고 여섯 페이지가 있는지 별도 확인합니다. GitHub Free의 Public 저장소에서도 Wiki를 사용할 수 있습니다.
-- 제출 파일은 `src`, `build.gradle`, `settings.gradle`, `gradlew`, `gradlew.bat`, `gradle/wrapper`이며 생성된 wrapper jar도 포함합니다. GitHub Java .gitignore의 `*.jar` 규칙으로 누락되지 않도록 `!gradle/wrapper/gradle-wrapper.jar` 예외를 추가·확인합니다. Initializr .gitignore를 복사할 때도 wrapper 예외를 유지합니다. `.gitignore`에서 `build/`, `.gradle/`, `.idea/`, `*.iml`, `.env` 등을 제외하고 비밀값이 없는지 확인합니다.
-- 최종 제출은 **저장소 URL + Wiki Home URL + 필수 병합 PR 4개 링크 + 도전 구현 여부와 해당 PR 링크**입니다. main에서 실습과 필수 1·2가 실행되고 기존 POST·GET·400·404가 유지되어야 합니다.
+- 기존 여섯 Wiki 페이지를 유지하며 각 페이지에 greeting-api/product-api 등 프로젝트별 섹션을 누적하고 기존 내용을 덮어쓰지 않습니다. Wiki가 없을 때만 GitHub Wiki 화면에서 Home부터 생성합니다. 일반 코드 PR에 자동 포함되지 않으므로 링크가 실제 열리고 여섯 페이지가 있는지 별도 확인합니다. GitHub Free의 Public 저장소에서도 Wiki를 사용할 수 있습니다.
+- 실행·테스트는 `product-api/` 폴더에서 진행합니다. 원래 실습 명령은 이 폴더에서 실행합니다. 이 폴더 안의 제출 파일은 `src`, `build.gradle`, `settings.gradle`, `gradlew`, `gradlew.bat`, `gradle/wrapper`이며 생성된 wrapper jar도 포함합니다. GitHub Java .gitignore의 `*.jar` 규칙으로 누락되지 않도록 `!product-api/gradle/wrapper/gradle-wrapper.jar` 예외를 저장소 루트 .gitignore에 추가·확인하며 기존 greeting-api wrapper 예외도 유지합니다. build/와 .gradle/ 패턴은 하위 프로젝트에도 적용합니다. Initializr .gitignore를 복사할 때도 wrapper 예외를 유지합니다. `.gitignore`에서 `build/`, `.gradle/`, `.idea/`, `*.iml`, `.env` 등을 제외하고 비밀값이 없는지 확인합니다.
+- 최종 제출은 **저장소 URL + Wiki Home URL + 필수 병합 PR 4개 링크 + 도전 구현 여부와 해당 PR 링크**입니다. main의 product-api/에서 실습과 필수 1·2가 실행되고 기존 POST·GET·400·404가 유지되어야 합니다.
 - 제출 절차는 시연 없이 안내·질문·결과 피드백으로 진행합니다. 기존 8시간 실습 배분을 늘리지 않으며 별도 마감일을 임의로 설정하지 않습니다.
 - README에도 아래 공식 문서 두 링크를 넣습니다. 공식 근거: [Wiki](https://docs.github.com/en/communities/documenting-your-project-with-wikis/about-wikis), [PR과 Issue 연결](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue).
 
