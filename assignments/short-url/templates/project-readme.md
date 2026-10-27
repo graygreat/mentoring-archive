@@ -8,6 +8,8 @@
 
 Java / Spring Boot / Gradle / 실행 포트:
 
+프론트: 순수 HTML·CSS·JavaScript. 외부 라이브러리·프레임워크·CDN 없이 static/index.html·styles.css·app.js 사용.
+
 ## 실행·테스트
 
 short-url/에서 실행합니다.

@@ -2,7 +2,7 @@
 
 수업의 공통 프로젝트는 책의 상품 관리 앱입니다. 이 과제는 배운 계층·REST·검증·테스트를 새 문제에 스스로 적용하는 작업입니다. 백엔드 정답 코드는 제공하지 않습니다. 프론트는 AI를 활용합니다. 마감은 별도 공지입니다. 로컬 학습 환경에서 진행하며 공개 배포·악용 방지 정책은 별도 확장으로 다룹니다.
 
-[과제 안내](./index.html) · [설계 템플릿](./templates/design.md) · [검증 템플릿](./templates/verification.md) · [AI 프롬프트](./templates/ai-prompts.md) · [프로젝트 README 틀](./templates/project-readme.md)
+[과제 안내](./index.html) · [설계 템플릿](./templates/design.md) · [검증 템플릿](./templates/verification.md) · [프론트 기본 설정](./templates/frontend-setup.md) · [프로젝트 README 틀](./templates/project-readme.md)
 
 ## 단계와 범위
 
@@ -30,15 +30,16 @@
 - 생성 응답의 Location이 가리키는 곳과 원본 이동 응답의 Location을 구분한다. 원본 이동은 설계한 3xx와 원본 주소 Location을 실제로 확인한다.
 - 빈 값·잘못된 주소·없는 코드·충돌/중복 정책을 테스트한다. 구현하지 않은 선택 기능은 검증 완료로 기록하지 않는다.
 - 프론트는 입력/버튼/생성 결과/복사/이동 링크/로딩/오류 메시지를 갖춘다. 성공·실패 뒤 버튼 상태가 복구된다.
-- `src/main/resources/static/index.html`과 필요한 CSS/JS를 사용한다. Spring Boot가 제공하는 같은 origin에서 상대 경로로 API를 호출한다.
+- 프론트는 **순수 HTML·CSS·JavaScript만** 사용한다. 외부 라이브러리·프레임워크·CDN은 사용하지 않는다.
+- `src/main/resources/static/`에 `index.html`, `styles.css`, `app.js`를 둔다. 프론트 빌드 도구나 패키지 설치 없이 Spring Boot가 제공하는 같은 origin에서 상대 경로로 API를 호출한다.
 - 서버를 실행한 `http://localhost:실제포트/`로 접근한다. HTML을 파일로 직접 열거나 별도 개발 서버를 띄우지 않는다.
 - 사용자 URL·오류 메시지는 textContent 등 텍스트로 표시한다. innerHTML로 주입하지 않는다. 복사는 HTTPS/localhost 환경에서 확인하고 실패 시 선택해서 복사할 안내를 제공한다.
 
 ## AI 사용 범위
 
-프론트 생성과 프론트 오류 해결에 AI를 활용합니다. 백엔드 구현 답안 전체를 AI에 대신 작성시키는 과제가 아닙니다. 프롬프트에는 실제 API 명세만 넣고 비밀값·개인정보를 넣지 않습니다.
+프론트 생성과 프론트 오류 해결에 AI를 활용합니다. 백엔드 구현 답안 전체를 AI에 대신 작성시키는 과제가 아닙니다. 프롬프트는 본인이 자유롭게 작성하며 비밀값·개인정보를 넣지 않습니다.
 
-AI 초안에서 API 경로·메서드·JSON 필드·상태 처리·링크를 멘티가 확인하고 수정합니다. 요청/응답 흐름을 설명할 수 있어야 합니다. [프롬프트 템플릿](./templates/ai-prompts.md)을 본인 명세로 채워 사용하고 프롬프트·수정 이유·검증을 `short-url/docs/ai-log.md`에 남깁니다.
+AI 초안에서 API 경로·메서드·JSON 필드·상태 처리·링크를 멘티가 확인하고 수정합니다. 요청/응답 흐름을 설명할 수 있어야 합니다. [프론트 기본 설정](./templates/frontend-setup.md)을 지키고 프롬프트·수정 이유·검증을 `short-url/docs/ai-log.md`에 남깁니다.
 
 ## GitHub 제출 규칙
 
