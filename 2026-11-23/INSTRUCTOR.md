@@ -6,9 +6,9 @@
 
 | 블록 | 45분 활동 | 15분 |
 |---|---|---|
-| 1 | 19일 결과 확인, 책 저장 계층 비교, 영속성 컨텍스트·동일성 | 휴식 |
-| 2 | 변경 감지·flush/clear·준영속·LAZY 실험 | 휴식 |
-| 3 | SQL 예측, N+1 재현, fetch join 개선·비교 | 휴식 |
+| 1 | 19일 결과 확인, 3행·6행 표, PK/FK·SQL JOIN | 휴식 |
+| 2 | 한 주문의 LAZY 관찰, 동일 객체·flush/clear 실험 | 휴식 |
+| 3 | SQL 예측, N+1 재현, fetch join 개선·동일 결과 비교 | 휴식 |
 | 4 | 동료/면접 설명, 단축 URL 결과 공유, GitHub | 제출 정리 |
 
 완성 코드를 먼저 읽히기보다 **예측 → 실행 → 결과 비교 → 원인 설명** 순서로 운영한다. 강사 코딩 시연은 없다. 코드가 있는 참고 자료와 새 기능을 요구사항부터 작성하는 과제를 구분한다.
@@ -24,12 +24,19 @@ PurchaseOrder → OrderItem은 단방향 @OneToMany LAZY, JoinColumn, Cascade AL
 ## 실행·완료 기준
 
 ```sh
-./gradlew test --tests '*PersistenceContextTest'
-./gradlew test --tests '*OrderQueryTest'
+./gradlew test --tests '*PersistenceContextTest' --info --rerun-tasks
+./gradlew test --tests '*OrderQueryTest' --info --rerun-tasks
 ./gradlew test
 ```
 
-Windows는 `gradlew.bat` 사용. 실행 폴더는 order-query-lab이다.
+실행 폴더는 order-query-lab이다. `--rerun-tasks`는 이전 성공 결과 때문에 테스트가 생략되지 않게 하고, `--info`는 성공한 테스트의 SQL 표준 출력도 콘솔에 표시한다. PowerShell:
+
+```powershell
+.\gradlew.bat test --tests '*PersistenceContextTest' --info --rerun-tasks
+.\gradlew.bat test --tests '*OrderQueryTest' --info --rerun-tasks
+```
+
+콘솔이 길면 `build/reports/tests/test/index.html`을 브라우저에서 열고 Classes → `com.example.orderlab.OrderQueryTest` → **Standard output** 탭에서 SQL과 `lazy-select-count`·`fetch-select-count`를 확인한다. 동일성 실험은 `com.example.orderlab.PersistenceContextTest`의 **Standard output**을 선택한다. 보고서는 마지막 테스트 실행으로 갱신되므로 각 실행 후 기록을 남긴다.
 
 PersistenceContextTest:
 
@@ -65,3 +72,13 @@ prepareStatementCount는 모든 prepared statement 수다. 본 실험에서는 s
 order-query-lab/README에는 실행 조건·데이터 준비·4→1 비교·결과 내용·한계를 기록한다. 공통 Wiki Home, 01-Setup, 02-Architecture, 03-API, 04-Verification, 05-Retrospective에 프로젝트별로 누적한다. 03-API에는 이 랩이 API 구현 프로젝트가 아님을 표시한다. Wiki 링크는 PR에서 확인한다.
 
 별도 [단축 URL 과제](../assignments/short-url/)는 AI 프론트·백엔드 연동을 권장 공유한다. 생성·복사·이동·오류 표시, 프롬프트와 본인 수정, 실제 API 계약을 설명하게 한다. 제출 마감은 별도 안내이며 JPA 랩 필수 완료와 섞지 않는다.
+
+## 초보 진행 순서
+
+[쉬운 작업지](BEGINNER-WORKSHEET.md)를 중심으로 진행한다. [DB 기초](../shared/db-basics/README.md)의 표·PK·FK·JOIN 복습을 1블록에 포함한다. 추상 상태 이름을 먼저 외우게 하지 않는다. purchase_orders 3행과 order_items 6행을 읽고 FK 화살표를 그린 다음 SQL과 Java를 연결한다.
+
+2블록의 한 주문 관찰은 IDE Debug 중단점에서 label과 items 접근 시점을 나눠 보게 한다. 디버거 자동 컬렉션 펼침도 SQL을 발생시킬 수 있다. 관찰 후 테스트를 일반 실행해 최종 통계를 다시 확인한다. 디버거 사용이 어렵다면 기본 테스트의 SQL 로그와 접근 코드를 대응해 읽는 것으로 대체한다.
+
+3블록에서 같은 결과의 기본 조회 4 SELECT와 fetch join 1 SELECT를 확인한다. seed의 flush는 준비 SQL 완료, EntityManager.clear는 준비 객체 제거, statistics.clear는 측정 숫자 초기화다. 세 행동을 같은 의미로 설명하지 않는다. SQL JOIN은 표 결과 결합이며, JPQL join fetch는 ORM의 연관 객체 초기화를 함께 요구한다. 일반 join만으로 관계 초기화를 보장하지 않는다.
+
+진도가 밀리면 EntityGraph·페이징·배치 튜닝은 뒤 참고로 남긴다. 표·한 주문 접근·SQL 수·동일 결과를 필수로 확인한다. 같은 컨텍스트에서 같은 id의 동일 객체 범위와 flush/commit/clear 차이도 작업지 표에서 추적한다. 원본 ZIP·Java는 바꾸지 않고 관찰 중심으로 진행한다.

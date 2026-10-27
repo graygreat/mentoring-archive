@@ -40,3 +40,9 @@ Entity와 Spring Data Repository는 16일 출발 코드에 이미 존재한다. 
 ## 23일로 인계
 
 학생별 완료 여부, 재현 가능한 오류, 구현체 선택/트랜잭션/테스트 격리 질문을 기록한다. 23일은 독립 주문 관계 예제로 지연 로딩과 N+1을 관찰하므로 상품 API에 관계를 덧붙이지 않는다.
+
+## 초보 진행 보완
+
+[DB 기초](../shared/db-basics/README.md) → [16일 쉬운 작업지](../2026-11-16/BEGINNER-WORKSHEET.md) → [19일 작업지](STUDENT-WORKSHEET.md)의 A~E 순서로 연결한다. HANDOFF의 초기 5분 진단은 1교시 안에 포함한다. 새 개념 강의는 추가하지 않는다.
+
+Repository 두 종류는 기존 Product 업무 계약과 Entity용 Spring Data 도구로 구분한다. 노트 3000을 저장하고 실제 id의 가격을 3500으로 바꾼 뒤 SQL 로그·행 값·재시작 조회까지 같은 사례로 추적한다. API 정상 응답만으로 JPA 사용을 증명했다고 판정하지 않는다.

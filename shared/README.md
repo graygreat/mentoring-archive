@@ -44,3 +44,9 @@ Java 17 / Spring Boot 4.1.2 / Gradle Wrapper 9.8.2 / H2에서 실행했습니다
 - [Spring Boot 테스트와 JPA slice](https://docs.spring.io/spring-boot/reference/testing/spring-boot-applications.html)
 - [Spring Data JPA 쿼리 메서드·JPQL](https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html)
 - [Hibernate ORM 영속성·연관관계·조회](https://docs.hibernate.org/orm/current/userguide/html_single/)
+
+## DB·JPA 입문 보충
+
+[DB 기초 화면](db-basics/) · [DB 멘티 작업지](db-basics/STUDENT-WORKSHEET.md) · [16일 첫 JPA 작업지](../2026-11-16/BEGINNER-WORKSHEET.md) · [23일 SQL·지연 로딩 작업지](../2026-11-23/BEGINNER-WORKSHEET.md)
+
+독립 H2 메모리 SQL 연습은 기존 상품 API의 설정·Java·데이터를 바꾸지 않습니다. DB 기초 페이지 생성에는 작성 도구 markdown-it-py가 필요하며 `python3 shared/db-basics/build.py`로 HTML을 재생성합니다.

@@ -1,0 +1,14 @@
+// Run from the existing product-api folder. This does not change application settings.
+allprojects {
+    repositories { mavenCentral() }
+    configurations.create('dbBasicsRuntime')
+    dependencies.add('dbBasicsRuntime', 'com.h2database:h2:2.4.240')
+    tasks.register('dbBasics', JavaExec) {
+        group = 'learning'
+        description = 'Open an isolated in-memory H2 SQL shell for DB basics'
+        classpath = configurations.dbBasicsRuntime
+        mainClass = 'org.h2.tools.Shell'
+        args '-url', 'jdbc:h2:mem:db_basics', '-user', 'sa', '-password', ''
+        standardInput = System.in
+    }
+}

@@ -126,10 +126,12 @@ Java 17 / Spring Boot 4.1.2 / Gradle Wrapper 포함.
 학습 저장소 안 order-query-lab/에 둡니다. 중첩 git init은 하지 않습니다.
 
 1. 먼저 findAllByOrderByIdAsc로 읽고 항목 수를 더할 때 SQL 수를 예상합니다.
-2. ./gradlew test --tests '*OrderQueryTest.lazyCollectionsProduceOnePlusNQueries'
+2. ./gradlew test --tests '*OrderQueryTest.lazyCollectionsProduceOnePlusNQueries' --info --rerun-tasks
 3. 참고 findAllWithItems/@Query를 보기 전에 본인 개선안을 작성합니다.
-4. ./gradlew test --tests '*OrderQueryTest' 후 SQL과 결과를 비교합니다.
-5. ./gradlew test --tests '*PersistenceContextTest'
+4. ./gradlew test --tests '*OrderQueryTest' --info --rerun-tasks 후 SQL과 결과를 비교합니다.
+5. ./gradlew test --tests '*PersistenceContextTest' --info --rerun-tasks
+SQL 출력은 --info로 표시하고 --rerun-tasks로 반복 관찰을 보장합니다.
+출력이 길면 build/reports/tests/test/index.html에서 해당 클래스의 Standard output을 확인합니다.
 Windows는 ./gradlew 대신 .\\gradlew.bat 사용.
 
 참고답안 fetch join과 검증 테스트가 포함됩니다. 메서드와 해당 테스트를 읽고

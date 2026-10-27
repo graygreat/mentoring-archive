@@ -26,6 +26,10 @@ for key,source in SOURCES.items():
 text=doc.text_content()
 for token in ['sesac-spring-boot-study','Closes #실제번호','Home','01-Setup','02-Architecture','03-API','04-Verification','05-Retrospective','gradle-wrapper.jar','메모리' if False else 'Memory','../assignments/short-url/']:
  assert token in (raw if token.startswith('../') else text),token
+for token in ['DBMS','H2','NULL','NOT NULL','COMMIT','ROLLBACK','lab_products','ORDER BY','WHERE','SQL','@Entity','@Id','70분']:
+ assert token in text, token
+assert '../shared/db-basics/' in raw
+assert '../shared/db-basics/STUDENT-WORKSHEET.md' in raw
 assert 'contenteditable=' not in raw and 'localStorage' not in raw
 assert (R.parent/'INSTRUCTOR.md').exists()
 with tempfile.NamedTemporaryFile(suffix='.js',mode='w') as f:

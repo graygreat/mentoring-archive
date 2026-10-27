@@ -28,6 +28,12 @@ for token in ['sesac-spring-boot-study','Closes #실제번호','Home','01-Setup'
  assert token in (raw if token.startswith('../') else text),token
 assert 'contenteditable=' not in raw and 'localStorage' not in raw
 assert (R.parent/'INSTRUCTOR.md').exists()
+worksheet=(R.parent/'BEGINNER-WORKSHEET.md').read_text()
+for token in ['ProductEntity', 'SpringDataProductRepository', 'price <= 1000', '실제 id', 'rollback', 'Memory', '19일']:
+ assert token in worksheet, token
+assert 'BEGINNER-WORKSHEET.md' in raw
+for token in ['JPA · Hibernate · Spring Data · DB', '두 Repository의 차이', '테스트 성공과 API DB 전환은 다릅니다', '준비 → 행동 → 기대']:
+ assert token in text, token
 with tempfile.NamedTemporaryFile(suffix='.js',mode='w') as f:
  f.write('\n'.join(doc.xpath('//script[not(@type)]/text()')));f.flush()
  try:
