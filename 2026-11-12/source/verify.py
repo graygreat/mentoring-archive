@@ -48,10 +48,10 @@ else:
  assert set(SOURCES)=={'CreateProductRequest.java','ProductController.java','ApiExceptionHandler.java'}
  assert '@Valid @RequestBody' in SOURCES['ProductController.java']
  assert '@NotNull' in SOURCES['CreateProductRequest.java']
- for x in ['400','404','가격 0','불변','멱등','Level 0','Level 1','Level 2','Level 3','가정','교재 근거','short-url/docs/design.md','14일','practice/product-validation','docs/short-url-design','필수 Issue 2개','선택 검색 보존','findAll 검색 코드']:
+ for x in ['400','404','가격 0','불변','멱등','Level 0','Level 1','Level 2','Level 3','가정','교재 근거','product-api/docs/crud-design.md','14일','practice/product-validation','docs/product-crud-design','필수 Issue 2개','선택 검색 보존','findAll 검색 코드']:
   assert x in text,x
  assert titles.index('HTTP와 REST를 설명하기')<practice
- assert titles.index('교재 과제 기반 설계 · 2시간')>practice
+ assert titles.index('상품 CRUD 설계 · 2시간')>practice
 # Canonical complete reference files match the 7-day source module without executing it.
 import ast
 module=ast.parse((OUT.parent/'2026-11-07/source/code_examples.py').read_text())

@@ -6,14 +6,14 @@ header='''# 2026-11-12 강사용 가이드 · REST 실습2시간 + 서비스 설
 
 ## 진행 원칙과 시간표
 
-기존 product-api에 검증/예외를 추가하고, 교재 문제를 바탕으로 새 기능을 설계합니다. 강사 구현 시연 없이 개념 → 자율 실습 → 검증/피드백. 4블록 총240분:
+기존 product-api에 검증/예외를 추가하고, 책의 상품 관리 앱에서 남은 CRUD 기능을 설계합니다. 강사 구현 시연 없이 개념 → 자율 실습 → 검증/피드백. 4블록 총240분:
 
 1. 검증·예외와 HTTP 메서드/상태/멱등성/REST 성숙도 45분 + 휴식15분.
 2. 멘티 오류 실습·정상 회귀·결과 설명45분 + 정리/휴식15분.
-3. 교재 CH13 읽기10분, 요구20분, 도메인10분, 점검5분 + 휴식15분.
+3. 교재 상품 CRUD 읽기10분, 요구20분, 도메인10분, 점검5분 + 휴식15분.
 4. API15분, 테스트15분, 동료설명10분, 수정5분, 제출정리15분.
 
-앞120분은 CH10 검증·예외 실습, 뒤120분은 CH13 설계입니다. CH14 주문관리는 공통 설계를 마친 뒤 선택 설계입니다. 교재 부록B의 테스트 풀이 흐름을 연결합니다. 1~8장 복습은5일, CH12 객체지향·테스트는7일 선행, CH11 DB/JDBC 방식은 이후 JPA와 구분합니다.
+앞120분은 CH10 검증·예외 실습, 뒤120분은 상품 CRUD 설계입니다. 단축 URL과 주문 전체 구현은 별도 과제입니다. 교재 부록B의 테스트 풀이 흐름을 연결합니다. 1~8장 복습은5일, CH12 객체지향·테스트는7일 선행, CH11 DB/JDBC 방식은 이후 JPA와 구분합니다.
 
 ## 단계 코드 계약
 
@@ -43,37 +43,37 @@ product-api/에서 ./gradlew test 및 ./gradlew bootRun. Windows는 .\\gradlew.b
 
 HTTP 면접 설명: GET 안전·멱등, POST는 일반적 멱등 보장 없음, PUT/DELETE 멱등. 재삭제404여도 최종 상태가 같을 수 있습니다. REST 성숙도0/1/2/3는 토론 틀로 소개하며 오늘 구현은Level2 범위입니다. JSON만으로 REST 판단하지 않음, Level3 하이퍼미디어 구현은 요구하지 않음.
 
-## 교재 기반 설계
+## 상품 CRUD 설계 · 뒤 2시간
 
-책 CH13의 과제·테스트 제시를 학생이 직접 읽고 설계합니다. 자료는 원문을 복제하거나 미확인 세부 정책을 책의 요구라고 단정하지 않습니다. 단축 코드 길이, 중복, 통계, 만료 등은 교재 명시 여부를 확인합니다. 미지정 정책은 질문 또는 가정으로 표시합니다. 단축URL이 전체CRUD/모든JSON이어야 한다고 강요하지 않습니다. 리다이렉션 요구라면 상태/Location을 설계합니다.
+수업 공통 프로젝트는 책의 상품 관리 애플리케이션입니다. CH09 남은 CRUD 요구와 CH10 검증, CH12 테스트 관련 절을 함께 읽습니다. 페이지·세부 정책은 실제 판본에서 확인합니다. 슬라이드는 길 안내와 보충 예제이며 본문이나 교재 정답 코드를 전재하지 않습니다. 생성·조회는 그대로 보존하고 수정·삭제를 설계합니다. 새 프로젝트는 만들지 않습니다.
 
-필수 산출물 `short-url/docs/design.md`:
+1. 상품 수정·삭제의 필수/선택/가정, 교재 근거.
+2. 사용자 시나리오와 Product·Controller·Service·Repository 책임.
+3. 기존 생성·조회와 연결한 API표: 메서드/경로/입력/성공/실패.
+4. PUT 전체 교체 또는 PATCH 부분 변경의 선택 근거, DELETE 후 응답과 재삭제 정책.
+5. 정상·없는 id·잘못된 입력·경계값·실패 후 상태 보존 테스트.
+6. 구현 순서·동료 피드백·미정 질문.
 
-1. 요구사항: 필수/선택/가정 및 교재 근거(장·절/페이지).
-2. 사용자 시나리오.
-3. 도메인 규칙·계층별 책임.
-4. API표: 메서드/경로/헤더·경로·본문/정상·실패 응답.
-5. 테스트: 정상·실패·경계값, 준비/실행/기대 결과.
-6. 구현 순서·미해결 질문·동료 피드백과 반영.
+필수 문서는 product-api/docs/crud-design.md입니다. 뒤 첫 블록은 책 읽기10분·요구20분·도메인10분·점검5분+휴식15분, 둘째 블록은 API15분·테스트15분·동료검토10분·수정5분+정리15분으로 운영합니다. 책의 예제와 수업 보충 코드를 비교하고 왜 다른지 기록합니다.
 
-오늘 새 Java프로젝트/DB/JPA 구현은 필수가 아닙니다. 해설은 독립 설계 뒤 비교합니다. 선택 CH14 주문관리도 실제 교재 요구를 읽고 같은 틀로 `order-api/docs/design.md`에 설계하며 재고·결제 등을 임의 필수화하지 않습니다.
+단축 URL은 별도 과제입니다. [과제 안내](../assignments/short-url/index.html)에 설계→백엔드 직접 구현→AI 프론트→테스트·Git 제출을 안내했습니다. 메모리 저장+AI 화면 연결은 필수, DB 전환은 선택, 마감은 별도 공지입니다. 주문 전체 API도 선택입니다. 23일 주문 최소 예제는 JPA 관계·N+1 공통 실습용이며 전체 주문 과제와 구분합니다.
 
 ## GitHub 제출
 
-sesac-spring-boot-study 재사용, greeting-api/product-api 보존. 필수 Issue2개와 병합 PR2개:
+Public 저장소 sesac-spring-boot-study의 main을 계속 사용합니다. 필수 Issue2개와 병합 PR2개:
 
 | 브랜치 | Issue·PR 제목 |
 |---|---|
 | practice/product-validation | [실습] 상품 API 검증과 예외 응답 |
-| docs/short-url-design | [설계] 단축 URL 요구사항과 API 설계 |
+| docs/product-crud-design | [설계] 상품 CRUD 요구사항과 테스트 설계 |
 
-본인 Assignee, milestone product-api-2026-11-12(마감미지정), 검증작업 practice/docs, 설계작업 assignment/docs 라벨. 최신 main→Issue→branch→작업/검증/문서→commit/push→PR(base main)→자체확인/병합. Closes는 실제 Issue번호. 별도 문서PR 강제 안 함. Wiki 변경은 코드PR에 자동포함되지 않으므로 별도 편집 후 링크/체크를 남김.
+Assignee 본인, milestone product-api-2026-11-12(마감 별도), 라벨 practice/docs. 최신 main→Issue→branch→구현/설계/검증→commit/push→PR(base main, Closes 실제번호)→자체확인/병합→main pull. 별도 문서PR은 추가로 요구하지 않습니다.
 
-루트README에 프로젝트·설계 링크. product-api/README는 소개/실제환경/실행·테스트/현황/API/Wiki 여섯항목. Wiki Home/01-Setup/02-Architecture/03-API/04-Verification/05-Retrospective에 프로젝트·날짜별 누적, 기존 내용 보존. 단축URL은 실행 결과 대신 설계 계획이라고 표시. 오류가 없었다면 헷갈린 점의 원인/해결/배운 점을 회고.
+product-api/README에 소개·실제 환경·실행/테스트·현황·API·Wiki 링크를 누적합니다. 루트README에 기존 프로젝트와 CRUD 설계 링크를 보존합니다. Wiki Home/01-Setup/02-Architecture/03-API/04-Verification/05-Retrospective는 같은 여섯 페이지를 프로젝트·날짜별로 누적합니다. Wiki는 별도 저장소이므로 코드PR과 자동 동기화되지 않습니다. 편집 후 PR에 실제 링크·작성 확인을 남깁니다.
 
-실제 수행한 정상/오류 기대·실제, 테스트, AOP, Issue/PR링크 기록. Public/main 및 Issues/Wiki 유지. Wrapper jar와 루트 .gitignore의 product-api/greeting-api 예외 유지. build/.gradle/IDE파일/.env·비밀값 제외. short-url은 설계문서만 있으며14일 프로젝트 추가 때 Wrapper도 포함.
+검증된 API와 아직 구현 전인 수정·삭제 계획을 구분합니다. Wrapper와 기존 greeting-api/product-api를 보존합니다. build/.gradle/.idea/.env·비밀값과 중첩 .git은 제외합니다. 루트 .gitignore의 !product-api/gradle/wrapper/gradle-wrapper.jar와 greeting-api 예외를 유지합니다.
 
-최종 제출: 저장소URL, WikiHomeURL, 필수PR2개, 선택 수행 여부.14일 첫6시간은 설계 기반 최소 기능→실패 처리→테스트·피드백, 뒤2시간은 ORM/JPA 개념 진입. CH11 JDBC 방식과 동일 구현이라고 설명하지 않습니다.
+최종 제출: 저장소URL·WikiHomeURL·필수PR2개·실제 검증 기록·CRUD 설계 문서. 14일 앞6시간은 책을 보며 상품 CRUD 구현·테스트, 뒤2시간은 JPA 입문·매핑 활동입니다. 교재11장 JDBC와 JPA를 같은 구현이라고 설명하지 않습니다.
 
 ## 실행 리허설 근거 · 2026-10-26
 

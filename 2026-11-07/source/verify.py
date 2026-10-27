@@ -15,8 +15,8 @@ titles=[x['title'] for x in meta]
 practice_start=titles.index('집중 실습 · 상품 객체와 저장소')
 share_start=titles.index('검증하고 설명하기')
 assignment_start=titles.index('별도 과제 · 객체와 테스트 확장')
-for title in ['객체를 연결하는 Spring','실행 준비와 공통 처리','서버·클라이언트와 MVC','테스트 범위를 나눕니다']:
- assert titles.index(title)<practice_start,title
+assert titles.index('객체를 연결하는 Spring') < practice_start
+assert practice_start < titles.index('실행 준비와 공통 처리') < titles.index('서버·클라이언트와 MVC') < share_start
 assert practice_start < share_start < assignment_start
 assert not any(s.xpath('./button[@data-source-key]') for s in slides[:practice_start])
 assert not any(s.xpath('./button[@data-source-key]') for s in slides[share_start:])
@@ -106,5 +106,5 @@ public class Check {
  subprocess.run(['java','-m','jdk.compiler/com.sun.tools.javac.Main','-encoding','UTF-8','-d',str(classes),*[str(p) for p in root.glob('*.java')]],check=True)
  subprocess.run(['java','-cp',str(classes),'com.example.product.Check'],check=True)
 subprocess.run(['node','--check',str(R/'engine.js')],check=True)
-print(f'PASS: {len(slides)} slides, {len(sources)} stage-specific Java files, {file_page_count} exact-whitespace code pages; concepts precede practice; no future REST answer code; unique IDs; GitHub scope; JavaScript syntax')
+print(f'PASS: {len(slides)} slides, {len(sources)} stage-specific Java files, {file_page_count} exact-whitespace code pages; book reading and implementation alternate; no future REST answer code; unique IDs; GitHub scope; JavaScript syntax')
 print('Scope: independent Java core execution verified. Spring integration/AOP and visual layout require the separate rehearsal/browser checks.')
