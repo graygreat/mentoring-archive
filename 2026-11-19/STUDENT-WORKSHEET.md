@@ -153,11 +153,10 @@
 
 - [ ] 실행 DB 파일이 `data/`에 있고 재시작 후 데이터가 남았다.
 - [ ] README에 실행·DB 경로·테스트·현재 API를 적었다.
-- [ ] Wiki의 Home, 01-Setup, 02-Architecture, 03-API, 04-Verification, 05-Retrospective에 기존 내용을 보존하며 누적했다.
 - [ ] DB 파일·build·.gradle·IDE·.env를 Git에서 제외했다.
 - [ ] Gradle Wrapper jar를 포함했다. 루트 ignore의 `!product-api/gradle/wrapper/gradle-wrapper.jar`를 확인했다.
 
-저장소 `sesac-spring-boot-study`, 브랜치 `practice/product-jpa-migration`, Issue/PR 제목 **`[실습] 상품 API 데이터 접근 JPA 전환`**. 필수 Issue 1개와 병합 PR 1개다. main pull → Issue → 브랜치 → 작업·검증 → commit/push → base main PR → 자체 확인·병합 → main pull 순서로 진행한다. PR에는 `Closes #실제번호`, 테스트·HTTP·재시작 증거와 Wiki 링크를 넣는다. Wiki는 별도로 편집한다.
+저장소 `sesac-spring-boot-study`, 브랜치 `practice/product-jpa-migration`, Issue/PR 제목 **`[실습] 상품 API 데이터 접근 JPA 전환`**. 필수 Issue 1개와 병합 PR 1개다. main pull → Issue → 브랜치 → 작업·검증 → commit/push → base main PR → 자체 확인·병합 → main pull 순서로 진행한다. PR에는 `Closes #실제번호`, 테스트·HTTP·재시작 증거를 넣는다.
 
 ## 막힐 때 사용하는 힌트
 

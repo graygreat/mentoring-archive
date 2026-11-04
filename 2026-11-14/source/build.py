@@ -48,66 +48,30 @@ def mvc():
 def proxy():return linear('호출이 프록시를 지나 실제 Service로 전달되고 공통 처리가 앞뒤에서 실행됩니다',[('호출하는 코드','Service를 사용'),('프록시','공통 처리 → 위임'),('실제 Service','상품 업무 처리')])
 DAY='2026-11-14'
 TITLE='상품 CRUD 집중 실습과 DB 기초'
-add('여섯 번째 수업','책과 함께 완성하는<br>상품 관리 애플리케이션','<div class="cover-bottom"><span>2026.11.14 SAT · 8시간</span><strong>CRUD 직접 구현·테스트 → DB 기초·JPA 맛보기</strong></div>',kind='cover')
-add('책과 함께','책을 읽고 직접 구현하는 하루',steps('책 CH 09에서 상품 수정·삭제와 계층 흐름 함께 읽기','CH 10의 검증·예외, CH 12의 추상화·테스트와 연결','멘티가 작성·실행하고 실제 결과를 동료와 비교','CH 11 DB 접근은 JDBC와 JPA의 차이를 보며 연결'),note='책의 쪽수와 본문 코드를 확인하지 않은 자료입니다. 장 제목을 기준으로 실제 책에서 해당 절을 찾습니다. 제공 코드는 수업 독립 예제이며 교재 코드의 복제 또는 정답이라고 설명하지 않습니다.')
-add('주말 운영','설명보다 구현하고 확인하는 시간',table([['시간 블록','수업 활동'],['1–2교시','책 읽기·계약 정리 → 수정 구현'],['3–4교시','삭제 구현 → 정상·실패 회귀 테스트'],['5–6교시','독립 보완·동료 검증·GitHub 제출'],['7–8교시','상품 표·SQL 읽기 → DB 기초·매핑 활동']])+call('매 블록 45분 활동 + 15분 휴식·정리 · 점심 별도'),note='8개 블록 총480분. 설명·읽기·설계 활동 약90분, 자율 구현·실습330분, 결과 확인·피드백60분을 휴식 포함 운영 블록으로 배분합니다. 실제 집중 활동은 각45분, 나머지는 휴식과 정리입니다. 연속 강의나 강사 코딩 시연 없이 막힌 공통 지점만 짧게 보충합니다.')
-add('오늘 완료 기준','상품 CRUD를 테스트 결과로 설명',steps('기존 생성·목록·단건 조회와 400·404 동작 유지','PUT 수정과 DELETE 삭제를 직접 구현','실패 요청 뒤 기존 상품이 보존됨을 확인','상품 표·SQL·식별자를 설명하고 객체와 연결'))
-section('01','책에서 계약 찾기','')
-add('읽기 질문','수정·삭제는 어느 계층의 책임인가요?',table([['책을 보며 찾을 것','설명할 질문'],['Controller 입력과 응답','경로 id와 본문의 값은 어디서 받나요?'],['Service의 처리 순서','존재 확인과 변경은 어떤 순서인가요?'],['Repository의 역할','저장·교체·삭제를 어떻게 추상화하나요?'],['검증·예외','실패하면 기존 값은 어떻게 되나요?']]))
-add('수업 독립 계약','PUT과 DELETE의 완료 상태',table([['요청','성공','실패'],['PUT /products/{id}','200 · 수정 상품 JSON','없는 id 404 · 잘못된 본문 400'],['DELETE /products/{id}','204 · 본문 없음','없는 id 404'],['기존 POST · GET','기존 상태·본문 유지','기존 예외 계약 유지']])+call('이 표는 수업 예제의 계약 · 교재와 다른 선택은 근거를 비교합니다.'))
-add('PUT 수정 범위','이름과 가격을 한 번에 교체',steps('경로 id로 기존 상품 존재 확인','요청 name·price를 모두 검증','같은 id와 새 값으로 상품을 교체','변경된 상품을 응답하고 다시 조회'),note='부분 수정 PATCH는 필수가 아닙니다. id는 새로 발급하지 않습니다. 불변 Product를 유지하여 새 값으로 교체하고 실패 도중 기존 객체가 부분 변경되는 일을 방지합니다.')
-add('DELETE와 멱등성','응답 코드와 최종 상태를 구분',table([['상황','수업의 응답과 상태'],['첫 삭제','204 · 본문 없음 · 상품 부재'],['같은 id 재삭제','404 · 상품 부재 유지'],['다른 상품 조회','기존 값 유지']])+call('응답이 달라도 반복 후 최종 자원 상태가 같으면 멱등 의미와 모순되지 않습니다.'))
-add('실패 후 상태','성공뿐 아니라 보존도 확인',steps('기존 상품 이름·가격과 목록 개수를 기록','잘못된 PUT을 전송하고 400 확인','기존 상품이 바뀌지 않았는지 재조회','없는 상품 수정·삭제 뒤 다른 상품이 남는지 확인'))
-section('02','자율 실습 · 상품 CRUD','')
-add('실습 시작','새 프로젝트 없이 product-api를 이어 사용',steps('최신 main → practice/product-crud 브랜치','12일 정상·오류 API와 기존 테스트 먼저 실행','책의 수정·삭제 절을 읽고 변경 파일 목록 작성','선택 검색 과제 코드는 보존하고 수정점만 반영'),note='기준 예제는 필수 생성·조회만 포함합니다. 선택 이름·가격 검색을 구현했다면 Controller/Service 전체 파일을 덮어쓰지 않습니다. 같은 클래스 중복 생성도 금지합니다.')
-add('작업 1','수정·삭제 테스트를 먼저 문장으로',table([['테스트','기대 결과'],['정상 수정','id 유지 · 이름·가격 교체'],['잘못된 수정','예외 · 기존 값 보존'],['없는 상품 수정·삭제','ProductNotFoundException'],['정상 삭제','목록과 단건 조회에서 제거']])+call('준비 → 실행 → 기대 결과를 적고 코드로 옮깁니다.'))
-add('작업 2','도메인·저장소·Service를 구현',steps('기존 Product.java는 변경 없이 입력 규칙·불변 필드 유지','Repository에 수정·삭제 계약을 추가','Memory 저장소에서 실제 교체·삭제 구현','Service에서 대상 확인 후 저장소 호출'),note='이 작업에서는 HTTP가 없어도 단위 테스트로 실행 가능해야 합니다. 코어가 통과한 뒤 Controller를 연결합니다.')
-for key in ['ProductRepository.java','MemoryProductRepository.java','ProductService.java']:
- filepages('비교용 코드 · 코어',key,'먼저 자율 구현한 뒤 비교')
-add('첫 중간 점검','HTTP 없이 수정·삭제를 증명',steps('수정 뒤 id는 같은가요?','이름 공백 정리와 가격 0이 유지되나요?','음수·빈 이름 수정 뒤 기존 값이 남나요?','없는 상품을 수정·삭제하면 무엇이 발생하나요?'))
-add('작업 3','Controller에 HTTP 계약 연결',steps('PUT에 기존 요청 DTO·@Valid 연결','수정 결과를 ProductResponse로 변환','DELETE 성공은 ResponseEntity.noContent()','기존 전역 예외 처리기로 400·404 확인'),note='ApiExceptionHandler와 CreateProductRequest는12일 파일을 유지합니다. 새 Update DTO나 예외를 무조건 늘리지 않습니다. 경로 id는 본문 id와 중복 관리하지 않습니다.')
-filepages('비교용 코드 · HTTP','ProductController.java','기존 선택 검색이 있으면 변경점만 반영')
-add('작업 4','Service 단위 테스트로 회귀 확인',steps('기존 생성·목록·없는 id 테스트 보존','수정·실패 후 값 보존·삭제 테스트 추가','./gradlew test로 전체 테스트 실행','실패는 기대·실제·원인을 기록하고 수정'))
-filepages('비교용 코드 · 테스트','ProductCrudTest.java','기존 ProductServiceTest를 유지하고 새 테스트 추가')
-add('HTTP 검증 순서','실제 생성 id로 끝까지 확인',table([['순서','요청·확인'],['1','POST로 상품 두 개 생성 → 실제 id 기록'],['2','PUT 첫 상품 → 200 · 같은 id · 새 값'],['3','잘못된 PUT → 400 · 재조회 값 보존'],['4','없는 id PUT/DELETE → 404'],['5','DELETE 첫 상품 → 204 · 빈 본문'],['6','삭제 상품 GET 404 · 다른 상품 GET 200']]))
-add('추가 회귀','예전 기능도 같은 결과인가요?',steps('새 서버 빈 목록은 200 + []','정상 POST 201 · Location과 응답 id 일치','이름·가격 오류와 잘못된 JSON은 400','상품 조회·순서·AOP 로그·Wiring 테스트 유지'),note='메모리 저장이므로 재시작 후 데이터가 사라지는 것은 오늘의 예상 동작입니다. 번호의 연속성이나 특정 고정 id를 가정하지 않습니다.')
-add('동료 피드백','책과 내 구현의 차이를 설명',steps('동료에게 클래스 이름 대신 요청 흐름 설명','교재와 수업 예제의 계약 차이 한 가지 찾기','정상·실패 요청을 동료가 직접 재현','실패 후 데이터 보존의 근거를 제시'))
-add('별도 과제','책에 없는 조건을 직접 확장',table([['필수 응용','선택 도전'],['가격 범위 검색과 경계 테스트 보완','동시 요청에서 저장소가 지킬 조건 조사'],['필터 결과 없음은 빈 목록','수정 이력 설계 문서 작성'],['기존 API 회귀 결과 기록','PATCH와 PUT의 차이 설명']])+call('단축 URL·AI 프론트 과제는 별도 과제 안내에서 단계별 진행합니다.'))
-add('단축 URL 과제','수업 밖에서 배운 내용을 적용','<div class="card"><h3>설계 → 백엔드 → AI 프론트 → 통합 검증</h3><p>상품 관리는 공통 수업 프로젝트입니다. 단축 URL은 별도 과제로 수행하며 필수 수업 진도를 대신하지 않습니다.</p><p><a href="../assignments/short-url/">단축 URL 과제 안내 ↗</a></p></div>')
-section('03','상품 표로 시작하는 데이터베이스','')
-add('뒤 2시간 운영','10분 설명 뒤 직접 표를 채워요',table([['블록','45분 집중 활동 + 15분 휴식·정리'],['7교시','설명 10분 → 상품 표·값 비교 20분 → SQL 읽기 15분'],['8교시','설명 10분 → SQL 결과 예측·매핑 25분 → 완료 점검 10분']])+call('뒤 90분 집중 활동 중 직접 활동·점검 70분 · 새 Java 코드는 다음 시간'),note='앞6블록 상품 CRUD는 유지합니다. 뒤2블록 총120분에 휴식30분을 포함합니다. 이 페이지부터 빠르게 낭독하지 말고 작업지에 답할 시간을 줍니다. 14일은 DB·표·SQL을 먼저 이해하며 영속성 컨텍스트 암기는 요구하지 않습니다.')
-add('저장이란','서버를 껐다 켜면 상품이 남을까요?',table([['저장 위치','서버를 재시작하면'],['현재 Memory 저장소','실행 중 JVM 메모리에만 있어 상품이 사라짐'],['H2 파일 DB','같은 파일을 다시 연결하면 상품이 남음'],['H2 메모리 DB','일반적인 설정에서는 종료 후 데이터가 사라짐']])+call('DB라는 이름만으로 영구 보존이 보장되지는 않아요.'),note='설정 URL의 mem과 file 차이를16일에 확인합니다. 파일 DB도 파일 삭제·다른 경로 연결 시 이전 상품을 볼 수 없습니다. 오늘의 상품 API는 Memory를 계속 사용합니다.')
-add('DB와 DBMS','상품을 담는 곳과 관리하는 프로그램',table([['용어','상품 예시'],['데이터베이스(DB)','정리해 저장한 상품 데이터의 모음'],['DBMS','저장·검색·변경과 규칙을 관리하는 프로그램'],['H2','이번 수업에서 사용할 DBMS'],['접속 URL','어느 DB에 어떤 방식으로 연결할지 적은 주소']])+call('jdbc:h2:file:./data/product-db → 실행 폴더 아래 파일 DB'),note='접속 URL은 브라우저 HTTP 주소와 다릅니다. 작업 폴더가 달라지면 상대 경로가 다른 파일을 가리킬 수 있습니다. 파일을 직접 편집하지 않습니다. 실제 H2 설치·접속·실행은16일 준비 코드로 진행합니다.')
-add('테이블·행·열','상품 한 개는 표의 한 행',table([['id','name','price'],['101','노트','3000'],['102','펜','1000']])+steps('표 전체 products는 테이블','세로 id·name·price는 열(컬럼)','가로 101·노트·3000은 한 행(레코드)'),note='활동: 지우개 1000원을 새 상품으로 추가할 때 행이 늘어나는지 열이 늘어나는지 답합니다. 행의 출력 순서는 ORDER BY 없이는 보장되지 않습니다.')
-add('같은 상품의 세 가지 모습','객체·JSON·DB 행을 구별해요',table([['위치','표현'],['Java 메모리','Product(id=101, name="노트", price=3000)'],['HTTP로 주고받는 JSON','{"id":101,"name":"노트","price":3000}'],['products 테이블의 행','101 | 노트 | 3000']])+call('값은 같아도 역할과 저장 위치가 달라요. JSON 자체가 DB 행은 아니에요.'),note='Product(...)는 모습 설명을 위한 표기이며 실행할 생성자 코드는 아닙니다. 짝에게 생성 요청에서 Java 객체와 DB 행으로 바뀌는 순서를 말하게 합니다.')
-add('자료형과 기본 키','이름이 같은 상품도 id로 구별해요',table([['열','자료형·역할'],['id','정수 BIGINT · 기본 키(PK) · 중복과 NULL 금지'],['name','문자열 VARCHAR · 상품 이름'],['price','정수 INTEGER · 원 단위 가격']])+call('DB 전환 뒤 id는 생성 전략에 맡깁니다. 다음 번호를 직접 계산하지 않아요.'),note='자동 생성 전략과 @GeneratedValue는16일에 설명합니다. id에 빈 번호가 있어도 실패가 아니며 이전 id 재사용·연속성은 가정하지 않습니다. VARCHAR 길이는 교재 요구를 확인하고 수업 예제의 선택을 구분합니다.')
-add('NULL·빈 문자열·0','값이 없다는 뜻과 숫자 0은 달라요',table([['값','뜻 · 예시'],['NULL','값이 없음 · 아직 입력되지 않은 가격'],['빈 문자열 \'\'','문자 수 0 · 빈 상품 이름'],['공백 문자열 \'   \'','문자는 있지만 공백뿐인 이름'],['0','입력된 정수 · 수업에서는 가격 0 허용']])+call('NOT NULL은 NULL을 막아요. 빈 이름·음수까지 모두 막아주지는 않아요.'),note='활동: 가격 NULL과0 중 무료 상품은 어느 쪽인가요? 이름 NOT NULL이면 공백 이름도 통과할까요? API 입력 검증·도메인 규칙·DB 제약은 서로 보완합니다. 오늘은 NOT NULL만으로 모든 입력 규칙이 보장된다고 설명하지 않습니다.')
-add('SQL은 DB에 하는 요청','먼저 명령의 뜻을 읽어봐요',table([['SQL','상품 관리에서 하는 일'],['INSERT','새 상품 한 행 넣기'],['SELECT','조건에 맞는 행 읽기'],['UPDATE','기존 행의 값 바꾸기'],['DELETE','기존 행 지우기']])+call('SQL의 DELETE와 HTTP DELETE는 서로 다른 층의 명령이에요.'))
-add('SQL 읽기 1','노트를 넣고 가격순으로 읽기',code("""INSERT INTO lab_products (id, name, price)
-VALUES (101, '노트', 3000);
+add('책과 함께 · 주말 8시간','상품 CRUD를 완성하고<br>개인 프로젝트를 발표합니다','<div class="cover-bottom"><strong>책 CRUD 2교시 → 개인 과제·발표4교시 → DB/JPA2교시</strong><span>앞6시간 CRUD 적용 · 뒤2시간 DB 기초와 JPA 맛보기</span></div>',kind='cover')
+add('오늘의 진행','책 → 개인 적용·발표 → DB로 연결',table([['교시','수업 활동'],['1~2','CH 09·10·12 · 공통 product-api CRUD'],['3~6','personal-project 개인 구현·발표 · 4시간'],['7~8','CH 11 연결 · DB 기초와 JPA 보충 활동']])+call('교시마다45분 활동 +15분 휴식·정리 · 점심 별도 · 강사 코딩 시연 없음'))
+section('01','책의 상품 수정·삭제를 함께 봅니다','')
+add('책에서 찾을 곳','CH 09 수정·삭제 → CH 10·12 연결',steps('CH 09 · 상품 조회/수정/삭제의 입력과 순서','CH 10 · 검증·예외 처리와 실패 후 데이터','CH 12 · 리팩토링·테스트의 정상·실패 사례'),note='12일product-api/docs/crud-design.md를책과함께확인합니다. 정확한쪽수는판본에서찾아표시하며수업독립HTTP계약과책원문의차이를확인합니다. 공통product-api기존생성/조회/예외와Service테스트를유지합니다.')
+add('공통 프로젝트 · 1~2교시','설계한 CRUD를 직접 구현합니다',table([['요청','성공','실패'],['PUT /products/{id}','200 · 수정 상품','없는 id404 · 입력400'],['DELETE /products/{id}','204 · 본문 없음','없는 id404']])+call('기존 POST·GET과 검증 유지 · 실패 요청 뒤 상품 값 보존'),note='추가ProductCrudTest를작성하고기존ProductServiceTest/ProductWiringTest를남깁니다. Repository·Memory·Service·Controller의수정삭제흐름을책과비교합니다. 미완료학생은강사가현재한기능을확인해최소목표로조정하고참고자료로보완합니다. 개인프로젝트로공통product-api를대체하거나덮어쓰지않습니다.')
+section('02','개인 프로젝트 · 배운 CRUD를 적용합니다','')
+add('개인 과제','7일의 소장품 프로젝트를 이어갑니다',steps('personal-project/ · CollectionItem(id, name, price)','책·게임·운동용품 등 내가 고른 테마 유지','메모리 Repository·Service 위에 REST CRUD 추가'),note='각자 sesac-spring-boot-study 개인저장소에서작업합니다. 7일개인코어가미완료라면책의공통예제를참고해등록·조회한기능부터완료하고막힌점을발표해도됩니다. 다른사람프로젝트를공동으로완성하는팀과제가아닙니다.')
+add('개인 완료 기준','소장품 API를 실제 요청으로 확인합니다',table([['요청','기대 결과'],['POST /items','201 · 생성한 소장품'],['GET /items · /items/{id}','200 · 목록 또는 실제 생성 id 조회'],['PUT /items/{id}','200 · 수정된 같은 id'],['DELETE /items/{id}','204 · 본문 없음']])+call('빈 이름·음수 가격400 / 없는 id404 / 실패하면 기존 값 보존'))
+add('과제 범위','오늘 배운 내용으로 완성합니다',steps('기존 코어 테스트를 유지하고 CRUD 사례 추가','HTTP 상태·응답·실패 후 데이터를 비교','DB·JPA·프론트 구현은 오늘 개인 필수 범위 아님'),note='공통책프로젝트와개인프로젝트를같은폴더에섞지않습니다. 서버를같이띄울경우포트를달리하거나하나를중지합니다. actual생성id를사용하고id연속성이나JSON속성순서를완료기준으로삼지않습니다. 개인프로젝트세부규칙은연결된공통과제문서에서확인합니다.')
+add('개인 과제 · 3~6교시','구현·준비105분 + 발표75분',table([['교시','45분 활동'],['3','개인 구현45분'],['4','개인 구현45분'],['5','발표 준비15분 + 앞5명 발표·질문30분'],['6','뒤6명 발표·질문36분 + 공통 피드백9분']])+call('활동180분 + 휴식·정리60분 =4시간 · 11명 전원 개인 발표'))
+add('발표 방법','PPT 대신 코드와 실행 결과를 보여줍니다',steps('4분: 어떤 소장품을 다루고 무엇을 완성했는지','정상 요청 하나 + 실패 요청 하나 실행','코드에서 책임 분리와 테스트 근거 설명','2분: 질문과 답변 · 미완료는 막힌 지점 설명'),note='1인4분발표+2분질문=6분,11명66분에공통피드백9분을더해75분입니다. 별도발표슬라이드는만들지않습니다. 진행중시간을표시해모든개인에게동일시간을배정합니다. 질문이길면기록해수업후피드백합니다.')
+add('작업지와 제출','개인 결과를 README와 PR에 남깁니다','<p>sesac-spring-boot-study · <a href="https://github.com/graygreat/mentoring-archive/blob/main/assignments/personal-project/README.md">개인 프로젝트 요구사항·발표 기준 ↗</a></p>'+table([['폴더 · 브랜치','Issue · PR 제목'],['product-api/ · practice/product-crud','[실습] 상품 관리 CRUD와 테스트'],['personal-project/ · assignment/personal-rest','[개인 과제] 소장품 관리 REST CRUD']]),note='저장소sesac-spring-boot-study,각작업Issue와PR1개. main pull→Issue→branch→구현검증→commit/push→PR base main→Closes #실제번호→자체확인병합. 개인은assignment라벨,공통은practice라벨. 루트README에두프로젝트링크,각README에는실제테스트와API결과기록. src·Gradle설정·Wrapper와gradle-wrapper.jar포함,build/.gradle/IDE/.env제외,기존greeting-api보존.')
+section('03','CH 11 · 데이터베이스 연동을 읽습니다','')
+add('교재와 수업 확장','JDBC를 읽고, JPA로 이어갈 준비',steps('책에서 상품 데이터가 DB에 저장되는 흐름 찾기','7~8교시는 표·SQL·객체 매핑을 작업지로 확인','JPA는 책의 DB 접근을 바탕으로 한 수업 보충'),note='책CH11의JDBC방식과JPA구현을같은코드로설명하지않습니다. 지금은JPAEntity완성이나API저장소전환이필수가아닙니다.16일Entity·Repository연습,19일공통상품API의저장소전환으로이어집니다.')
+add('DB 기초 · 7교시','상품 표를 채우고 SQL 결과를 예상합니다',steps('상품 한 개의 id·name·price를 행과 열로 표시','PK·NULL과 이름 공백·가격0의 차이를 읽기','SELECT와 WHERE의 결과를 실행 전에 예상'),note='DB=데이터모음,DBMS=관리프로그램,H2=수업에서쓰는DBMS입니다. ORDER BY없이순서를가정하지않습니다. PK는행식별자이며중복NULL불가. NOT NULL만으로공백·음수가격을모두막는것이아닙니다. 보충작업지에서UPDATE/DELETE의WHERE조건과COMMIT/ROLLBACK의뜻을쉽게확인합니다.')
+add('매핑 활동 · 8교시','Java 값과 표의 열을 연결합니다',table([['Java 쪽','표에서 찾을 것'],['id · @Id','어느 행인지 구분할 기본 키'],['name · price','문자열과 정수 열'],['Entity · @Entity','표와 연결할 객체의 설계']])+call('객체와 표 매핑 초안만 · 실행 가능한 JPA 코드는16일'),note='Product도메인과JPAEntity를분리하는공통예제구조를유지합니다. JPA는DB대체물이아니며Hibernate등이매핑에따라SQL을실행합니다. 이미COMMIT한변경을나중ROLLBACK으로되돌릴수없고HTTP400만으로DB복구가보장되지않는다는점은작업지사례를읽고설명합니다.')
+add('쉬운 보충 자료','모르는 DB 용어는 작업지에서 확인합니다','<p><a href="../shared/db-basics/">DB 기초 안내 ↗</a></p><p><a href="../shared/db-basics/STUDENT-WORKSHEET.md">상품 표·SQL 예상 결과 작업지 ↗</a></p>'+call('product-api/docs/jpa-mapping.md에 표·예상 결과·틀린 이유 기록'))
+add('오늘 마무리','실행 결과와 다음에 고칠 점을 남깁니다',steps('공통 product-api CRUD와 기존 테스트 확인','개인 프로젝트의 완료 기능·실패 사례·PR 링크 기록','상품 표·SQL 예상·객체 매핑 초안 제출'),note='공통·개인필수의미를구분합니다. 미완료는완료했다고쓰지말고재현조건과다음행동을남깁니다. 단축URL은별도선택과제이며소장품과동시에필수로강제하지않습니다.')
+add('다음 책 읽기','16일에는 SQL과 JPA를 직접 비교',cards(('16일','Entity·Repository 테스트','공통 API는 Memory 유지'),('19일','상품 저장소 JPA 전환','같은 CRUD·예외 결과 유지'),('23일','관계와 SQL 관찰','지연 로딩·N+1 보충 작업지')))
+add('참고','교재와 필요할 때 보는 문서','<div class="references"><a href="https://www.yes24.com/product/goods/124434554"><b>교재 목차 ↗</b><span>CH 09·10·11·12</span></a><a href="../shared/db-basics/"><b>DB 기초 보충 ↗</b><span>표·PK·NULL·SQL·트랜잭션</span></a><a href="../assignments/short-url/"><b>단축 URL 별도 과제 ↗</b><span>선택 · AI 프론트 연결</span></a></div>')
 
-SELECT id, name, price
-FROM lab_products
-WHERE price >= 1000
-ORDER BY price ASC;""")+call('WHERE는 대상 조건 · ORDER BY는 결과 순서 · ASC는 작은 값부터'),note='이름이 lab_products인 별도 학습용 표를 사용합니다. 실제 상품 앱 테이블에 연습 SQL을 넣지 않습니다. 공유 작업지의 초기 상품 표를 보고 어떤 행이 선택되는지 먼저 예상합니다. SQL 전체 실행은16일 환경을 준비한 뒤 선택 재연습할 수 있습니다.')
-add('SQL 읽기 2','바꿀 행과 지울 행을 먼저 골라요',code("""SELECT id, name, price
-FROM lab_products WHERE id = 101;
-
-UPDATE lab_products
-SET price = 3500 WHERE id = 101;
-
-DELETE FROM lab_products WHERE id = 102;""")+call('UPDATE·DELETE에서 WHERE를 빼면 전체 행에 적용될 수 있어요.'),note='실습용 별도 표에서만 연습합니다. 수정·삭제 전 같은 WHERE 조건의 SELECT로 대상 확인 → 결과 예측 → 실행 → 다시 SELECT를 지킵니다. WHERE가 있는지 기계적으로 보는 대신 실제로 원하는 행을 고르는 조건인지 확인합니다.')
-add('트랜잭션','여러 변경을 한 묶음으로 처리해요',table([['상황','처리'],['한 작업의 모든 변경 성공','COMMIT · 묶음의 변경을 확정'],['중간 실패로 전부 취소해야 함','ROLLBACK · 그 트랜잭션의 미확정 변경 취소'],['HTTP 400 응답만 반환','그 사실만으로 DB가 자동 복구되지는 않음']])+call('이미 COMMIT한 변경을 나중에 ROLLBACK으로 되돌릴 수는 없어요.'),note='16일에 Spring 트랜잭션 경계·예외를 실제 확인합니다. 에러 응답·DB 트랜잭션의 성공실패는 서로 다른 개념입니다. 파일·이메일 같은 외부 작업도 DB 롤백으로 자동 취소되지 않습니다. 오늘은 구체 설정을 외우지 않고 한 묶음의 뜻만 설명합니다.')
-add('JPA는 어디에 있을까요?','Java 객체와 DB 표 사이의 일을 도와줘요',linear('Java에서 JPA와 구현체를 거쳐 SQL로 H2에 상품을 저장합니다',[('Java 코드','상품 저장·조회 요청'),('JPA·Hibernate','매핑에 따라 SQL 실행'),('H2 데이터베이스','상품 행 저장·조회')])+call('JPA는 DB를 대신하지 않아요. SQL과 테이블을 이해하면 오류를 찾기 쉬워요.'),note='JPA는 자바 객체 저장·조회 규칙(API), Hibernate는 수업에서 그 규칙을 실제 수행하는 구현체입니다. Spring Data JPA의 Repository 도움은16일에 연결합니다. 용어4개 암기시험 대신 지금 데이터가 어디에 남는지 질문합니다.')
-add('매핑 활동','객체의 값을 어느 열에 넣을까요?',table([['Java 쪽','DB 쪽 · 직접 설명'],['상품을 담는 Entity 클래스','products 테이블과 연결 · @Entity'],['id 필드','기본 키 열 · @Id'],['name="노트"','name 열의 문자열'],['price=3000','price 열의 정수']])+call('지금은 @Entity·@Id의 역할만 · 실행 가능한 Entity 작성은16일'),note='도메인 Product와 JPA Entity는 수업에서 분리합니다. 기존 Product에 주석만 추가하고 끝나는 것이 아닙니다. 기본 생성자·생성전략·변환 코드는16일 단계별로 확인합니다. 외래 키(FK)는 다른 표의 id를 참조하는 연결 규칙으로16일 선택·23일 관계 예제에서 배웁니다.')
-add('DB 기초 완료 점검','예상과 실제 또는 설명을 기록해요',steps('상품 한 개를 표에 추가하고 PK·열·행을 표시','NULL·빈 이름·가격0이 다른 이유 설명','SELECT 결과와 UPDATE 뒤 행의 값을 먼저 예상','Java 객체 → DB 행 매핑 초안을 동료에게 설명')+'<p><a href="../shared/db-basics/">DB 기초 안내 ↗</a> · <a href="../shared/db-basics/STUDENT-WORKSHEET.md">표·SQL 예상 결과 작업지 ↗</a></p>',note='docs/jpa-mapping.md에 예상·실제 또는 동료 확인·틀린 이유를 남깁니다.14일은 종이 기반 SQL 읽기와 표 매핑이 필수이며 DB 실행·Entity 완성은 필수가 아닙니다. 답을 외우지 말고 누가 어느 값을 저장하는지 스스로 설명하도록 합니다.')
-section('04','GitHub 제출과 다음 시간','')
-add('오늘 제출','필수 Issue 1개 · 병합 PR 1개',table([['설정','지정 값'],['저장소','sesac-spring-boot-study'],['브랜치','practice/product-crud'],['Issue · PR','[실습] 상품 관리 CRUD와 테스트'],['산출물','코드·테스트·HTTP 검증·JPA 매핑 초안']])+call('최신 main → Issue → branch → 구현·검증 → PR → 자체 확인·병합'))
-add('문서 누적','README와 Wiki에 실제 결과를 남기기',steps('product-api/README.md에 PUT·DELETE 계약 추가','Wiki Home·01-Setup·02-Architecture 누적','03-API·04-Verification·05-Retrospective 갱신','PR에 Closes #실제번호와 기대·실제 결과 첨부'),note='Public/main, 본인 Assignee, practice 라벨, milestone product-api-2026-11-14. Wiki는 별도 저장소이므로 편집 뒤 PR에 링크를 남깁니다. 원하지 않는 추가 문서 PR을 필수로 만들지 않습니다.')
-add('제출 확인','다른 사람이 실행할 수 있게',steps('src·build.gradle·settings.gradle·Wrapper 전부 포함','gradle-wrapper.jar 예외를 루트 .gitignore에 유지','build/·.gradle/·IDE·.env·비밀값 제외','코드·테스트·문서·실제 병합 PR URL 확인'))
-add('16일로 연결','상품 Entity와 JPA 저장소를 따로 연습',cards(('16일','SQL → Entity → Repository','실제 API는 Memory 유지'),('19일','실습 작업지로 저장소 전환','같은 상품 API를 DB와 연결'),('23일','SQL 관찰과 성능 문제','영속성·지연 로딩·N+1')))
-add('공식 참고','책과 공식 문서로 비교','<div class="references"><a href="https://www.h2database.com/html/commands.html"><b>H2 SQL ↗</b><span>SQL 명령과 트랜잭션</span></a><a href="https://jakarta.ee/specifications/persistence/3.2/jakarta-persistence-spec-3.2"><b>Jakarta Persistence ↗</b><span>Entity와 기본 키</span></a><a href="https://docs.spring.io/spring-data/jpa/reference/"><b>Spring Data JPA ↗</b><span>Repository와 쿼리</span></a><a href="https://www.rfc-editor.org/rfc/rfc9110.html"><b>HTTP 의미 ↗</b><span>PUT · DELETE · 멱등성</span></a></div>')
-
+# Keep complete supplementary files reachable without restoring code lecture pages.
+S[-1]['body'] += '<div class="inline-list">'+''.join('<button type="button" data-source-key="'+esc(key)+'">'+esc(key)+'</button>' for key in SOURCES)+'</div>'
+S[-1]['note'] += ' 파일 이름 버튼은 전체 참고 코드를 여는 보충 자료입니다. 책과 직접 작성한 결과를 먼저 확인하고, 막힌 부분을 비교할 때 사용합니다.'
 css=(R/'theme.css').read_text();slides=[]
 for i,d in enumerate(S):
  src='' if not d['source'] else '<button class="source-button" data-source-key="'+esc(d['source'])+'">파일 전체 코드 ↗</button>'

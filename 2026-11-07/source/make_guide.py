@@ -2,83 +2,62 @@ from pathlib import Path
 import json
 R=Path(__file__).resolve().parent
 OUT=R.parent
-s=json.loads((R/'metadata-private.json').read_text())
-text="""# 2026-11-07 토요일 · 객체 연결과 MVC 진행 참고
+slides=json.loads((R/'metadata-private.json').read_text())
+header='''# 2026-11-07 · 책 중심 수업과 개인 프로젝트
 
-## 운영 기준
+## 수업의 기준
 
-공식 배정은 핵심 개념 6시간과 MVC 2시간, 총 8시간입니다. 1교시는 수업 45분과 휴식 15분이며 점심은 별도입니다. 교재 1~8장 복습은 5일 앞부분에 먼저 끝내고, 오늘은 필요한 Java와 요청 흐름만 짧게 다시 연결합니다.
+총8교시이며 매 교시는 활동45분+휴식·정리15분, 점심은 별도입니다. 핵심 개념6시간은 1~2교시 책·공통 코어와 5~8교시 개인 적용에, MVC2시간은 3~4교시 책의 요청 흐름 읽기·활동에 배정합니다. 오늘 운영은 앞4교시의 책 함께 읽기·공통 프로젝트와 뒤4교시의 개인 프로젝트·발표로 나눕니다. 긴 개념 강의나 강사의 코딩 시연 대신 책의 코드를 읽고 학생이 작성·실행합니다. PPT는 전환·질문·완료 기준만 제시합니다.
 
-책 함께 읽기 → 핵심 질문 → 멘티 구현 → 테스트 → 책과 비교를 반복합니다. 강사 코딩 시연은 하지 않습니다. 파일 전체 코드는 실습 해설·비교용이며 추가 과제의 정답은 제공하지 않습니다. 교재 본문과 수업 보충 코드(예: Map 저장소)의 차이를 확인합니다.
+## 앞 4교시: 책과 공통 product-api
 
-## 교시별 운영
-
-| 시간 | 활동과 실습 | 확인 |
+| 교시 | 함께 읽고 작성할 것 | 완료 확인 |
 | --- | --- | --- |
-| 1 | 책 상품 객체·DI 부분 읽기, 짧은 질문·객체 연결 활동 | 필요한 객체와 역할 설명 |
-| 2 | 프로젝트 생성, Product 규칙 직접 구현 | 정상·잘못된 값 비교 |
-| 3 | Repository·메모리 저장소 작성 | 저장·조회 결과 |
-| 4 | Service·단위 테스트 작성 | 정상·실패 테스트 |
-| 5 | 스타터·자동 설정·AOP 짧은 읽기 후 구현 | 프록시·시간 로그 |
-| 6 | MVC 책 읽기·요청 흐름 그리기, 계층 책임 점검 | MVC 구조 활동 |
-| 7 | 미완성 코드·테스트·구조 활동 보완 | 필수 완료 지점 확인 |
-| 8 | 결과 확인·피드백·학습 기록 | 테스트·로그·책과 차이 설명 |
+| 1 | CH09의 상품 객체·List·구조·저장·조회 | 이름·가격 규칙과 등록·조회 흐름 찾기 |
+| 2 | CH12 추상화·테스트 일부와 AOP 짧은 보충 | 생성자 DI·정상/실패 테스트·Service 로그 |
+| 3 | CH09 Controller 코드와 CH05 요청 흐름 다시 읽기 | 요청 주소를 처리할 메서드와 역할 찾기 |
+| 4 | MVC 요청·응답 역할 표시·책과 공통 코드 비교 | 요청 처리 순서 설명·9일 준비 |
 
-설명·책 읽기·활동 약2시간 / 자율 구현·테스트 약5시간 / 피드백 약1시간의 운영 블록입니다. 각 블록은 활동45분+휴식15분, 점심 별도입니다. 핵심6시간/MVC2시간은 다루는 내용의 배정이며, 설명만 4시간 이어가지 않습니다. MVC는 짧은 읽기뿐 아니라 요청 흐름·계층 분류·완성 코드 책임 점검 활동을 합해 다룹니다. 앞 실습이 막히면 필수 완료 지점을 먼저 완성하고 선택 확장은 뒤로 미룹니다.
+CH09를 전부 오늘 마치는 것은 아닙니다. DTO와 HTTP API 작성은9일에 이어서 읽습니다. CH12 일부를 먼저 연결하며, 모킹 도구 도입과 모든 기법의 구현을 강제하지 않습니다. 책의 실제 쪽수는 소지한 판본에서 찾습니다. 확인되지 않은 페이지 번호나 수업 독립 규칙을 책의 원문이라고 안내하지 않습니다.
 
-## 교재 연결과 진도 경계
+공통 프로젝트는 `sesac-spring-boot-study/product-api/`에 유지합니다. 현재 검증된 Product·Repository·Memory 구현·Service·테스트 계약을 보존하여9일 REST API로 이어 갑니다. 교재의 List와 참고 코드의 Map은 구현 선택의 차이입니다. 메모리 Repository는 mock이 아닙니다. MVC·AOP는 책의 역할과 연결하는 보충 활동이며 새 Controller나 HTTP 오류 응답을 오늘 구현시키지 않습니다. 주입 테스트에서 AOP 로그가0ms여도 정상입니다.
 
-- 5일: 교재 1~8장 복습을 먼저 끝내고 Initializr와 간단한 GET을 경험합니다.
-- 오늘 9장 일부: 상품 객체·컬렉션·저장과 조회입니다. 교재의 List와 수업 예제의 Map을 비교합니다. 수업 예제는 교재 본문을 재현한 코드가 아닙니다.
-- 오늘 12장 일부 선행: 인터페이스·생성자 DI·단위 테스트를 연결합니다. 실제 Memory 구현은 mock이 아닙니다.
-- 9일 4시간: 같은 product-api에 Web 의존성·DTO·Controller·JSON/Jackson·정상 요청과 REST 설계를 추가합니다.
-- 12일 앞 2시간: 10장과 Validation·오류 응답·실패 사례·면접 포인트를 연결합니다.
-- 12일 뒤 2시간: 상품 관리의 남은 CRUD 요구사항·계층·API·테스트를 설계합니다. 단축 URL은 별도 과제로 설계→백엔드→AI 프론트 연결을 진행합니다.
-- 14일: 설계한 CRUD 구현·테스트 6시간, JPA 소개 2시간입니다. 교재 11장 DB는 이후 DB/JPA 진도와 연결합니다.
+## 뒤 4교시: 개인 프로젝트·11명 전원 발표
 
-오늘의 MVC는 구조 이해 범위입니다. Controller 작성, Postman, 요청·응답 DTO, 요청 검증 어노테이션과 HTTP 상태 검증은 후속 수업에서 진행합니다. HTML 뷰와 응답 본문은 개념 차이를 구분합니다.
+개인 작업 폴더는 `personal-project/`입니다. 공통 `product-api/`와5일의 `greeting-api/`를 지우지 않습니다. 각자 책·게임·운동용품 등 소장품 테마를 정해 CollectionItem(id,name,price), Repository 인터페이스·메모리 구현, 생성자 주입 Service를 작성합니다. HTTP·DB·프론트는 필수가 아닙니다. 개인 과제의 규칙은 교재 원문이 아니라 수업용 적용 요구입니다.
 
-## 작성 파일과 의존성
+상세 계약은 [개인 프로젝트 안내](../assignments/personal-project/README.md)를 기준으로 확인합니다. 이름은 빈 값·공백을 거부하고 가격은0 이상, 등록·목록·단건 조회 및 없는id 처리를 테스트합니다. 최소3개 테스트에 정상·실패 상황을 포함합니다. 정답 코드와 발표 전용 PPT는 제공하거나 요구하지 않습니다.
 
-공통 환경은 Java 17, Spring Boot 4.1.2, Gradle-Groovy, Group com.example, Artifact product, Package com.example.product입니다. Initializr의 선택 의존성은 비워 두고, 기본 starter와 생성된 테스트 의존성·런처·useJUnitPlatform을 유지합니다. AOP 단계에서 spring-boot-starter-aspectj를 추가합니다. Web과 Validation은 각각 9일과 12일에 추가합니다.
+| 교시 | 활동45분 | 휴식·정리 |
+| --- | --- | --- |
+| 5 | 개인 객체·저장소·Service 구현45분 | 15분 |
+| 6 | 단위 테스트·오류 수정45분 | 15분 |
+| 7 | 마무리·발표 준비15분 + 앞5명×6분 | 15분 |
+| 8 | 뒤6명×6분 + 공통 피드백9분 | 15분 |
 
-메인 소스는 ProductApplication, Product, ProductRepository, MemoryProductRepository, ProductNotFoundException, ProductService, TimingAspect의 7개입니다. 테스트는 ProductServiceTest와 ProductWiringTest입니다. 생성된 ProductApplicationTests도 보존합니다. 전체 소스는 14줄 이하 청크로 나누며 원본 공백을 유지합니다.
+구현·준비105분 + 발표·질문75분 + 휴식·정리60분 =240분입니다. 발표는11명×(발표4분+질문2분)=66분이며 공통피드백9분을 더합니다. 발표자 순서를 미리 정하고, 미완료자도 코드·현재 실행 결과·막힌 상황을 설명하게 합니다. 한 학생의 장시간 디버깅으로 다음 학생이나 휴식 시간을 줄이지 않습니다.
 
-ProductServiceTest는 new로 직접 조립하는 단위 테스트 3개입니다. ProductWiringTest는 제공 틀입니다. @Autowired로 Service를 받고 AopUtils.isAopProxy를 확인한 뒤 상품 생성·단건·목록 조회를 검증합니다. @SpringBootTest(webEnvironment=NONE)을 사용하므로 웹 서버 없이 빈 연결과 AOP를 확인하며 이후 Web 의존성이 추가돼도 재사용할 수 있습니다. 실행용 CommandLineRunner나 seed는 추가하지 않습니다.
+발표4분은 테마·구조1분, 성공 실행1분, 실패 테스트1분, 직접 내린 결정 또는 해결한 오류1분입니다. 질문2분에는 역할 분리와 테스트의 근거를 묻습니다. 기능 수 경쟁 대신 필수 동작·설계 설명·실제 테스트 근거를 봅니다.
 
-제공 테스트 4개와 생성된 contextLoads를 보존했다면 총 5개입니다. 기본 starter만 있는 main은 웹 서버를 열지 않고 정상 종료할 수 있습니다. 포트 접속 대신 테스트로 성공을 확인합니다. 0ms 로그도 정상이며, 출력이 숨겨지면 IDE 테스트 콘솔이나 Gradle --info에서 확인합니다.
+## 제출
 
-## 실습과 추가 과제
+개인 Public 저장소 `sesac-spring-boot-study`의 main을 계속 사용합니다.
 
-실습 완료 기준은 생성·목록·단건 조회, 잘못된 이름·가격의 Java 예외, 없는 id의 ProductNotFoundException, 단위 테스트 3개와 주입·AOP 테스트 1개입니다. 없는 상품을 HTTP 404로 응답하는 것은 12일 범위입니다.
+- 공통 실습: `practice/product-core` / `[실습] 상품 객체·저장소·Service와 테스트`
+- 공통 기록: `docs/product-core` / `[문서] 상품 객체 구조와 테스트 기록`
+- 개인 과제: `assignment/personal-core` / `[개인 과제] 소장품 관리 코어와 테스트`
 
-과제 1은 가격 0, 이름 공백 정리, null·공백 이름, 실패 후 상태 보존을 테스트하는 기초 과제입니다. 과제 2는 Service.findByMaxPrice(int)의 조건 조회와 경계값 테스트입니다. 상한 0·같은 가격·결과 없음·음수·저장 원본 보존을 확인합니다. 정답 코드를 제공하지 않으며 HTTP 구현은 요구하지 않습니다. 실패 후 id 번호 연속성을 완료 조건으로 두지 않습니다.
+공통필수 Issue·병합 PR2개를 유지하고 개인과제 Issue·PR1개를 추가합니다. 본인 담당, 공통실습practice·문서docs·개인과제assignment 라벨을 사용합니다. 기존 공통 마일스톤을 이용하는 경우 `product-core-2026-11-07`을 유지하며 새 마감일은 만들지 않습니다. 최신main → Issue → 브랜치 → 구현·검증 → commit/push → PR(base main) → 자체확인·병합 → main pull입니다. Closes에는 실제 Issue 번호를 씁니다.
 
-추가 과제는 수업 후 별도 수행할 수 있으며 마감은 별도 안내합니다. HTTP 이름 검색·가격 필터·수정·삭제는 후속 REST/CRUD 진도에 연결합니다.
+각 프로젝트 README에는 소개·실제 환경·실행/테스트 명령·완료 기능·실제 검증 결과와 PR 링크를 적습니다. 루트README에 프로젝트 링크를 누적합니다. Wrapper와 `gradle-wrapper.jar`를 포함하고 루트.gitignore의 각 프로젝트 Wrapper 예외를 보존합니다. build/.gradle/IDE 설정/.env/비밀값은 제외합니다.
 
-## GitHub 제출
+## 생성과 검증
 
-Public 저장소 sesac-spring-boot-study의 main에 greeting-api와 product-api를 누적합니다. 상세 clone·Initializr 복사 절차는 자료에 추가하지 않았습니다. 날짜마다 새 저장소를 만들지 않습니다. Wrapper를 포함하고 build/.gradle/.idea와 비밀값을 제외합니다. 루트 .gitignore의 !product-api/gradle/wrapper/gradle-wrapper.jar와 기존 greeting-api 예외를 보존합니다.
+`source/build.py`는 짧은 진행용 슬라이드와 메타데이터를 생성하고, 이 스크립트는 현재 운영표와 슬라이드별 진행 메모를 재생성합니다. 참고 Java9개와 source-data는 기존 검증 계약 그대로 보존합니다. 마지막 자료 화면에 있는 파일명 버튼9개로 각 참고 예제의 전체 코드를 열 수 있습니다. 코드 연속 슬라이드는 사용하지 않습니다. `source/verify.py`는 목차·ID·인덱스·진도 경계·개인 활동 시간·참고 소스 일치·Java 핵심 동작과 JavaScript 문법을 확인합니다. 학생의 개인 프로젝트 답안은 별도로 실행·확인해야 합니다.
 
-필수 Issue·병합 PR은 2개입니다.
+## 슬라이드별 진행 메모
 
-- practice/product-core: [실습] 상품 객체·저장소·Service와 테스트
-- docs/product-core: [문서] 상품 객체 구조와 테스트 기록
-
-추가 과제는 test/product-boundaries, feature/core-price-filter에서 각각 작업합니다. 수행 과제마다 Issue·병합 PR을 1개씩 추가합니다. 완료 실습을 나중에 기록하면 Issue에 결과 정리임을 명시합니다. 최신 main → Issue·브랜치 → 구현·검증 → PR → 자체 확인·병합 → main pull 순서입니다. 타인 승인은 강제하지 않습니다. Closes에는 실제 Issue 번호를 씁니다. Milestone은 product-core-2026-11-07이며 마감일은 별도 안내 전 미지정입니다.
-
-루트 README는 목차와 기존 프로젝트 링크를 보존합니다. product-api/README는 소개·환경·실행/테스트·구현 현황·객체 기능(API는 9일 예정)·Wiki 링크의 여섯 항목입니다. Wiki는 Home, 01-Setup, 02-Architecture, 03-API, 04-Verification, 05-Retrospective를 재사용하고 프로젝트별 내용을 누적합니다. 03-API에는 오늘 미구현·9일 예정, 04-Verification에는 단위·연결 테스트·AOP 로그·과제 근거를 기록합니다. Wiki는 코드 PR과 별도이므로 문서 PR에 실제 링크와 작성 확인을 남깁니다.
-
-## 검증 범위와 리허설
-
-source/verify.py는 오늘의 소스 9개만 게시되는지, 미래 REST 답안 제외, 목차 순서, 고유 ID, 14줄 소스 청크 공백 완전 일치, Java 코어 실행과 JS 구문을 확인합니다. 별도 리허설에서는 Java 17·Spring Boot 4.1.2에서 기본 starter와 AspectJ만 사용하고 Web·Validation 없이 clean build를 실행해 통과했습니다. 제공 테스트 4개와 Initializr의 contextLoads를 포함한 총 5개 테스트가 통과했습니다. 주입된 Service의 AOP 프록시와 실제 시간 로그도 확인했습니다. 이전 판의 브라우저 점검과 이번 순서 변경은 구분합니다. 최종판의 브라우저 검증은 별도 검수 기록을 따릅니다.
-
-위 결과는 개정된 7일 단계만 따로 실행한 근거입니다. 이전의 전체 상품 API 12파일 리허설에서 확인한 HTTP 성공과 구분합니다. Windows·멘티별 환경과 추가 과제 학생 답안은 별도 확인이 필요합니다.
-
-## 슬라이드별 진행 참고
-
-"""
-for i,d in enumerate(s):
- if d['note']:text+=f"### {i+1:02}. {d['title']}\n\n{d['note']}\n\n"
-(OUT/'INSTRUCTOR.md').write_text(text)
+'''
+notes='\n\n'.join(f"### {i+1:02}. {d['title'].replace('<br>',' ')}\n\n{d['note'] or '책의 해당 부분을 함께 읽고, 질문과 완료 기준을 확인합니다.'}" for i,d in enumerate(slides))
+(OUT/'INSTRUCTOR.md').write_text(header+notes+'\n')
 print('Instructor guide generated')

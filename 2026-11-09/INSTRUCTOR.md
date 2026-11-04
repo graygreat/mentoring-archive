@@ -1,281 +1,80 @@
-# 2026-11-09 강사용 가이드 · REST API 4시간
+# 2026-11-09 · 교재와 함께 상품 REST API 만들기
 
-## 진행 원칙
+## 진행 기준
 
-7일 `product-api`를 그대로 확장합니다. Java 17, Spring Boot 4.1.2, Gradle 설정과 코어·AOP·기존 테스트를 유지합니다. Initializr 재생성이나 별도 Git 저장소 생성은 하지 않습니다. 책 CH09 관련 절 함께 읽기→핵심 질문→직접 작성→Postman/테스트→책과 비교를 반복합니다. 강사 코딩 시연은 하지 않습니다. 정확한 쪽수와 절은 실제 판본에서 확인합니다. 전체 코드는 실습 참고이며 선택 과제의 정답은 제공하지 않습니다.
+4교시 × 60분이며 각 교시는 활동45분과 휴식·정리15분입니다. 책 CH 09의 상품 구조·추가·DTO·조회 부분을 함께 읽고, 부록 A에서 Postman 사용 부분을 확인합니다. 정확한 쪽수는 소지한 판본에서 표시합니다. PPT는 책을 대신하지 않고 챕터 전환과 멘티 작업 범위만 안내합니다. 강사 코딩 시연은 하지 않습니다.
 
-## 시간 배분
+1. 책에서 요청 DTO·도메인·응답 DTO와 생성/조회 흐름 찾기.
+2. 기존 `product-api/`에 세 파일을 직접 작성.
+3. 서버를 실행한 뒤 Postman으로 실제 상태·헤더·본문 비교.
+4. 오류 보완과 README·Issue·PR 제출.
 
-- 1블록 45분 + 휴식 15분: MVC 복습, 자원·URI·메서드·상태와 입력 위치.
-- 2블록 45분 + 휴식 15분: DTO, Jackson 메시지 변환, ResponseEntity, Postman 읽기.
-- 3블록 45분 + 휴식 15분: 멘티가 DTO 두 개와 Controller 구현.
-- 4블록 45분 + 정리 15분: 정상 요청, 기존 테스트·AOP 확인, 설명·GitHub 제출 안내.
+## 유지할 코드 계약
 
-배정 240분 안에서 휴식을 조정하며 선택 과제로 수업 시간을 늘리지 않습니다.
+7일 `Product`, `ProductRepository`, `MemoryProductRepository`, `ProductService`, 기존 단위·주입/AOP 테스트를 보존합니다. 오늘 참고 소스는 `CreateProductRequest`, `ProductResponse`, `ProductController`입니다. 교재 원문 복제 코드가 아닌 독립 수업 예제입니다. price는 Integer이며 아직 `@Valid`나 예외 처리기를 넣지 않습니다. 없는 상품·잘못된 입력의 400/404 통일은12일에 합니다.
 
-## 교재 연결
+- 생성201 + Location + 상품JSON, 목록200 + 빈목록[] + id오름차순, 실제 생성id 단건200을 확인합니다.
+- 재시작하면 메모리 저장소가 초기화됩니다. id연속성과JSON속성순서를가정하지않습니다.
+- Test 후 bootRun을실행하고서버터미널을유지합니다. Windows는gradlew.bat입니다.
 
-CH 09 상품 관리, 부록 A API 요청 도구를 함께 봅니다. CH 07~08의 JSON·HTTP는 재연결하며 1~8장 전체 복습은 5일에서 마칩니다. CH 12의 추상화·단위 테스트는 7일 선행입니다. CH 10 입력 검증·예외 응답은 12일로 이연합니다. CH 11 DB/JDBC 예제와 이후 JPA 방식은 구분합니다. 본문 복제 대신 책의 관련 예제를 읽고 자체 예제와 비교합니다.
+## 제출
 
-## 단계별 코드 계약
+`sesac-spring-boot-study / product-api/`, `practice/product-rest`, `[실습] 상품 생성·조회 REST API`로 필수Issue1개·병합PR1개를제출합니다. 본인Assignee,practice/docs라벨,milestone `product-api-2026-11-09`. README에 실제 API 결과를 기록하고 `Closes #실제번호`를 사용합니다. 기존 greeting-api와루트README링크,GradleWrapper/JAR예외를보존합니다. build/.gradle/IDE/.env/비밀값은제외합니다. 선택검색과제는완료한경우만각각Issue·PR을추가합니다.
 
-7일의 코어 8파일과 `ProductWiringTest.java`를 유지합니다. Wiring 테스트의 `@SpringBootTest(webEnvironment=NONE)`도 유지합니다. 기존 `ProductServiceTest`는 일반 Java 객체 테스트이므로 AOP가 적용되지 않는 것이 정상입니다.
+## 슬라이드별 진행 메모
 
-오늘 `source-data`는 당일 추가 3파일만 포함합니다.
+### 1. 책의 상품 기능을 HTTP로 연결합니다
 
-1. `CreateProductRequest.java`: name/Integer price, getter/setter, 검증 어노테이션 없음.
-2. `ProductResponse.java`: id/name/price를 공개하는 응답 DTO.
-3. `ProductController.java`: 생성·목록·단건, 아직 @Valid 없음.
+해당 장을 책에서 함께 읽고, 안내된 작업과 실제 완료 결과를 확인합니다.
 
-build.gradle의 기존 dependencies에 `implementation 'org.springframework.boot:spring-boot-starter-webmvc'`만 추가합니다. 기존 AspectJ와 테스트를 제거하지 않습니다. 전체 코드 버튼의 파일을 `src/main/java/com/example/product/`에 각각 작성합니다. 매 코드 페이지는 원본을 14줄씩 분할하며 첫 줄 공백도 보존합니다.
+### 2. 책을 읽고, 작성하고, 요청합니다
 
-## 필수 실행 확인
+해당 장을 책에서 함께 읽고, 안내된 작업과 실제 완료 결과를 확인합니다.
 
-`product-api/`에서 `./gradlew test`, `./gradlew bootRun`. Windows PowerShell은 `.\gradlew.bat test` / `.\gradlew.bat bootRun`. 서버 포트 변경 시 모든 URL에 같은 포트 사용. 재시작하면 메모리 데이터가 사라집니다.
+### 3. 교재 CH 09를 펼칩니다
 
-새 서버에서 GET 목록 200 + [], POST 노트 3000으로 201·Location·응답 JSON, 응답의 실제 id 단건 조회 200, 펜 생성 후 id 오름차순 목록, JSON Content-Type, Service AOP 로그를 확인합니다. JSON 속성 순서와 연속 id는 강제하지 않습니다. 0ms 시간 로그도 정상입니다.
+해당 장을 책에서 함께 읽고, 안내된 작업과 실제 완료 결과를 확인합니다.
 
-9일의 없는 상품은 ProductNotFoundException이 아직 HTTP에 매핑되지 않아 500일 수 있습니다. 404·검증 400·공통 오류 JSON은 12일 완료 기준입니다. 오늘 완성된 오류 계약으로 기록하지 않습니다.
+### 4. 상품 추가와 조회를 찾아봅시다
 
-Postman에서 Body/raw/JSON과 Content-Type을 확인합니다. Desktop 앱·Agent 또는 curl로 로컬 서버에 연결합니다. macOS/Linux curl 예제와 Windows JSON 파일 + curl.exe 대안을 구분합니다.
+교재 CH 09의 실제 소제목을 기준으로 찾습니다. 사용 판본의 쪽수를 각자 표시합니다. 수정·삭제 구현은14일 범위입니다. 공통 수업 프로젝트product-api는7일코어와테스트를그대로유지합니다.
 
-## 별도 과제
+### 5. 요청값과 상품 객체는 무엇이 다른가요?
 
-이름 부분검색 → 가격 상한·복합조건 순으로 선택 확장합니다. 검색어 strip, 영문 대소문자 구분, 미지정/공백은 전체, id 오름차순, 빈 결과 200+[], 원본 저장 데이터 불변. 가격은 0과 상한값 포함 경계를 검사합니다. 음수/문자 가격 400은 12일 이후 범위입니다. 정답 코드는 제공하지 않습니다. 수정·삭제는 14일 CRUD 구현과 연결합니다. 현재 비교 슬라이드에 Map.of 표현을 직접 제공하며 DTO와 비교합니다. 두 프로젝트 수정은 강제하지 않습니다.
+DTO·도메인 차이는 책의 해당 코드를 함께 보며 설명합니다. PPT에서 같은 코드를 다시 강의하지 않습니다. CreateProductRequest·ProductResponse·ProductController 세 파일을 작성하며 기존Service/Repository계약은보존합니다.
 
-## GitHub 제출
+### 6. 기존 product-api에 세 파일 추가
 
-`sesac-spring-boot-study`의 Public/main, Issues/Wiki 설정을 유지합니다. 필수 Issue 1개와 병합 PR 1개:
+책을 보면서 직접 작성합니다. 제공 source-data는 독립 참고 코드이며 교재 원문이 아닙니다. price는 Integer로 유지해12일누락/null검증으로이어갑니다. 오늘@RequestBody정상요청만, @Valid와예외처리기는12일입니다.
 
-- branch: `practice/product-rest`
-- title: `[실습] 상품 생성·조회 REST API`
-- labels: `practice`, `docs`; assignee 본인
-- milestone: `product-api-2026-11-09`, 마감 미지정
+### 7. 정상 요청 세 가지를 확인합니다
 
-최신 main → Issue → branch → 코드/테스트/문서 → commit/push → PR(base main) → 자체 확인/병합 → 다음 main pull. 관련 Issue는 실제 번호로 Closes 연결. 선택 과제는 feature/name-search 및 feature/price-filter에 각각 Issue/PR을 추가합니다.
+해당 장을 책에서 함께 읽고, 안내된 작업과 실제 완료 결과를 확인합니다.
 
-product-api/README.md 여섯 항목은 소개, 실제 개발 환경, 실행·테스트, 구현 현황, API, Wiki 링크입니다. 루트 README 목차·greeting-api를 보존합니다. Wiki Home/01-Setup/02-Architecture/03-API/04-Verification/05-Retrospective에 프로젝트별로 누적합니다. 코드 PR에 Wiki가 자동 포함되지 않으므로 별도 편집하고 링크/완료 확인을 PR에 남깁니다. 별도 docs PR은 요구하지 않습니다.
+### 8. 부록 A · Postman으로 확인합니다
 
-Wrapper jar 포함: 루트 .gitignore의 `!product-api/gradle/wrapper/gradle-wrapper.jar` 및 기존 greeting-api 예외 보존. build/.gradle/IDE파일/.env·비밀값 제외. 저장소 URL, Wiki Home URL, 필수 PR1개와 선택 수행 여부 제출.
+해당 장을 책에서 함께 읽고, 안내된 작업과 실제 완료 결과를 확인합니다.
 
-## 다음 시간
+### 9. 서버를 만든 뒤 실제 요청을 보냅니다
 
-12일 앞2시간 CH10 검증/예외 및 HTTP·REST 면접 연결. 뒤2시간 CH13 단축 URL 공통 설계, CH14 주문관리 선택. 14일 직접 구현6시간과 JPA2시간으로 이어집니다.
+명령은 ./gradlew test 뒤 ./gradlew bootRun입니다. Windows는 .\gradlew.bat test / bootRun을사용합니다. 실행중인터미널을유지하고다른작업시새터미널을사용합니다. id=1을가정하지않고POST반환값을사용합니다. JSON속성순서는검증하지않습니다. AOP0ms도정상입니다.
 
-## 실행 리허설 근거 · 2026-10-26
+### 10. 책의 요청 하나를 내 코드로 설명합니다
 
-Java 17 / Spring Boot 4.1.2에서 실제 단계별 증분 구성을 실행 검증했습니다. 7일(core+AspectJ) → 9일(+Web MVC) → 12일(+Validation) 순서로 clean build 및 JUnit 테스트 5개가 각 단계에서 통과했습니다. 오늘 단계는 정상 HTTP 7개 확인과 AOP 로그를 확인했습니다. 검증 환경의 결과이며 멘티는 자기 환경에서도 다시 실행하고 실제 결과를 기록합니다. 루트 통합 리허설 기록을 참조합니다.
+동작근거는실제실행화면으로확인합니다. 아직없는상품/잘못된값에대한오류응답은중간구현입니다. 오늘400·404를완료했다고요구하지않고12일CH10에서통일합니다.
 
-## 슬라이드별 강사 메모
+### 11. 목록 조회에 조건을 추가합니다
 
-### 1. 상품 기능을 REST API로 연결하기
+쿼리 매개변수는 name과 maxPrice입니다. GET /products?name=노트&maxPrice=3000으로 두 조건을 함께 적용합니다. 선택브랜치 feature/name-search / feature/price-filter,제목[과제 1] 상품 이름 검색 / [과제 2] 가격 조건 검색. 단계마다Issue와PR추가,assignment라벨. 미완료선택과제를필수로강제하지않습니다.
 
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
+### 12. 오늘 필수 Issue 1개 · 병합 PR 1개
 
-### 2. 객체에서 HTTP로 한 단계 확장
+본인Assignee,practice·docs라벨,milestone product-api-2026-11-09. main pull→Issue→branch→구현검증→commit/push→PR자체확인병합. 기존greeting-api와루트README링크를유지합니다. src·Gradle설정·Wrapper와gradle-wrapper.jar포함,build/.gradle/IDE/.env비밀값제외. 루트.gitignore의 !product-api/gradle/wrapper/gradle-wrapper.jar 보존. 별도문서PR강제없음.
 
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
+### 13. 12일에는 실패 응답과 CRUD 설계
 
-### 3. 오늘은 정상 요청 세 가지를 완성
+해당 장을 책에서 함께 읽고, 안내된 작업과 실제 완료 결과를 확인합니다.
 
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
+### 14. 교재와 보충 자료
 
-### 4. 같은 개념을 책과 프로젝트에서 찾기
-
-교재 본문을 복제하지 않습니다. 지정한 장에서 관련 예제를 함께 읽고 자체 상품 예제와 비교합니다. CH 12 추상화·테스트는 7일에 선행했고 CH 11 DB 연결은 이후 다룹니다. JDBC 교재 예제와 이후 JPA를 같은 구현이라고 설명하지 않습니다.
-
-### 5. 개념 먼저 · 구현은 멘티가 직접
-
-4시간 배정: 1블록 REST/MVC·HTTP 복습, 2블록 DTO/JSON/응답 설명, 3블록 자율 구현, 4블록 요청 검증·질문·기록. 각 블록 45분+휴식15분을 기본으로 총 240분 안에 운영합니다. 강사 구현 시연 없이 요구사항 안내→자율 구현→결과 피드백. 참고 완성 코드는 실습용이며 별도 과제의 정답은 제공하지 않습니다.
-
-### 6. 읽고 작성하고 결과를 비교
-
-정확한 쪽수는 사용 중인 판본에서 확인합니다. 슬라이드는 길 안내와 추가 실습이며 책 본문·예제의 대체물이 아닙니다. 수업 보충 코드는 책과 같은 원본이라고 설명하지 않습니다.
-
-### 7. HTTP 계약을 먼저 정합니다
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 8. DispatcherServlet이 요청을 조율
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 9. HTTP 처리를 Service에 넣지 않습니다
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 10. 동작보다 자원을 URI로 표현
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 11. 요청의 의도를 메서드로 구분
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 12. 정상과 실패를 구분하는 약속
-
-9일에는 예외 처리기를 아직 작성하지 않으므로 없는 상품 조회를 404로 보장하지 않습니다. ProductNotFoundException은 상태 매핑 전에는 500이 될 수 있습니다. 실패 응답의 통일은 12일 실습 완료 기준입니다.
-
-### 13. 경로 · 쿼리 · 본문을 구분
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 14. Java 객체와 JSON의 경계
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 15. 화면 이름과 응답 본문을 구분
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 16. 입력 형식을 별도의 객체로 정의
-
-오늘의 DTO는 아직 검증 어노테이션이 없습니다. price는 Integer로 유지하여 12일에 누락/null을 명시적으로 검증합니다. 9일 필수 검증은 정상 요청만 다룹니다.
-
-### 17. 입력 · 업무 · 출력의 책임을 구분
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 18. 문자열과 객체 사이를 메시지 변환기가 연결
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 19. 요청 setter · 응답 getter를 읽기
-
-이 설명은 오늘 제공하는 JavaBean 형태의 DTO에 대한 것입니다. Jackson이 모든 경우에 setter를 강제한다거나 record를 사용할 수 없다고 일반화하지 않습니다.
-
-### 20. ResponseEntity는 상태 · 헤더 · 본문
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 21. 조회 결과가 없어도 요청은 성공
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 22. Postman에서 요청과 응답을 나누어 읽기
-
-Postman UI는 버전에 따라 위치가 다를 수 있습니다. 동일한 메서드/URL/헤더/본문을 보내는 것이 핵심입니다. 웹 버전에서 로컬 서버 연결이 막히면 Desktop 앱/Agent 또는 curl 대안을 사용합니다.
-
-### 23. 자율 실습 · 상품 REST API
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 24. 기존 프로젝트가 먼저 통과해야 합니다
-
-기존 테스트 명령은 ./gradlew test이며 Windows PowerShell은 .\gradlew.bat test입니다. 실패가 남아 있으면 HTTP 코드를 붙이기 전에 원인을 먼저 해결합니다. 이전 파일 참고: ../2026-11-07/. 새 Initializr 프로젝트를 받거나 중첩 git init을 하지 않습니다.
-
-### 25. Web MVC 스타터만 추가
-
-7일의 Java 17 · Spring Boot 4.1.2 · Gradle 구성을 유지합니다. 오늘 validation 스타터는 추가하지 않습니다. 기존 dependencies 블록을 통째로 바꾸지 않습니다.
-
-### 26. 새로 작성할 파일은 세 개
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 27. CreateProductRequest.java · 1/1
-
-전체 코드 버튼으로 package와 import를 포함한 파일 전체를 확인할 수 있습니다. 새 클래스 틀과 중복되지 않게 작성합니다. 파일 경로는 코드 보기 창 상단에 표시됩니다.
-
-### 28. ProductResponse.java · 1/2
-
-전체 코드 버튼으로 package와 import를 포함한 파일 전체를 확인할 수 있습니다. 새 클래스 틀과 중복되지 않게 작성합니다. 파일 경로는 코드 보기 창 상단에 표시됩니다.
-
-### 29. ProductResponse.java · 2/2
-
-전체 코드 버튼으로 package와 import를 포함한 파일 전체를 확인할 수 있습니다. 새 클래스 틀과 중복되지 않게 작성합니다. 파일 경로는 코드 보기 창 상단에 표시됩니다.
-
-### 30. ProductController.java · 1/3
-
-전체 코드 버튼으로 package와 import를 포함한 파일 전체를 확인할 수 있습니다. 새 클래스 틀과 중복되지 않게 작성합니다. 파일 경로는 코드 보기 창 상단에 표시됩니다.
-
-### 31. ProductController.java · 2/3
-
-전체 코드 버튼으로 package와 import를 포함한 파일 전체를 확인할 수 있습니다. 새 클래스 틀과 중복되지 않게 작성합니다. 파일 경로는 코드 보기 창 상단에 표시됩니다.
-
-### 32. ProductController.java · 3/3
-
-전체 코드 버튼으로 package와 import를 포함한 파일 전체를 확인할 수 있습니다. 새 클래스 틀과 중복되지 않게 작성합니다. 파일 경로는 코드 보기 창 상단에 표시됩니다.
-
-### 33. 테스트를 확인한 뒤 서버 실행
-
-Windows PowerShell: .\gradlew.bat test / .\gradlew.bat bootRun. IDE에서 main을 실행해도 됩니다. 포트 충돌이면 기존 서버를 종료하거나 application.properties의 server.port를 변경하고 모든 요청 URL에 같은 포트를 사용합니다. 재시작하면 메모리 상품이 초기화됩니다.
-
-### 34. 빈 목록을 먼저 조회
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 35. 상품을 생성하고 실제 id 기록
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 36. 생성한 id로 단건 조회
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 37. 상품 두 개와 목록 순서 확인
-
-Spring MVC Controller에 주입된 Service도 7일에 확인한 프록시를 사용합니다. 0ms 로그도 정상일 수 있으며 메서드 실행 시간을 정밀 성능 지표로 사용하지 않습니다.
-
-### 38. Postman과 같은 요청을 curl로 확인
-
-Windows PowerShell은 curl 별칭 차이가 있으므로 Postman을 우선 사용하거나 curl.exe와 JSON 파일을 사용합니다. JSON을 UTF-8 product.json으로 저장한 뒤 curl.exe -i -X POST http://localhost:8080/products -H "Content-Type: application/json" --data-binary "@product.json"으로 보낼 수 있습니다. 파일 경로와 포트를 실제 환경에 맞춥니다.
-
-### 39. 실패 응답 완성은 12일에 이어갑니다
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 40. 요청 한 개의 왕복을 설명하기
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 41. 별도 과제 · 조회 조건 확장
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 42. 기존 목록 API에 조건 하나 추가
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 43. 이름과 가격 조건을 누적 적용
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 44. Map 응답과 DTO 응답을 비교
-
-5일에서 옮긴 JSON 추가 과제의 연결 읽기입니다. 기존 greeting-api는 보존합니다. PUT·DELETE는 14일 CRUD 구현과 통합하며 오늘 별도 필수 과제로 부과하지 않습니다.
-
-### 45. GitHub 제출
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 46. 오늘 필수 Issue 1개 · 병합 PR 1개
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 47. 이전 수업 결과 위에서 시작
-
-코드 PR에 Wiki 변경이 자동 포함되지는 않습니다. Wiki는 별도 편집하고 PR에 URL과 완료 체크를 남깁니다. 문서만의 추가 PR은 강제하지 않습니다. 타인 승인 대신 자체 검증 후 병합할 수 있습니다. 선택 과제는 feature/name-search / [과제 1] 상품 이름 검색, feature/price-filter / [과제 2] 가격 조건 검색으로 각각 Issue·PR을 추가하며 assignment 라벨을 사용합니다. 마감일은 별도 안내 전 지정하지 않습니다.
-
-### 48. 실행에 필요한 파일과 기존 기록 보존
-
-기존 greeting-api와 그 Wrapper 예외도 보존합니다. 저장소는 Public / main · Issues와 Wiki 활성화. 이미 만들어 둔 저장소를 재사용합니다. Initializr로 새로 받지 않고 product-api에 누적합니다.
-
-### 49. 프로젝트 문서에 여섯 항목 갱신
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 50. 기존 여섯 페이지에 product-api 기록 누적
-
-각 페이지 기존 greeting-api 및 7일 product-api 내용을 보존합니다. 결과는 기대와 실제를 나눠 기록하고 Issue·PR 링크를 포함합니다. 미구현 400/404를 완료했다고 쓰지 않습니다.
-
-### 51. 저장소 · Wiki · 병합 PR 링크 제출
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 52. 정상 동작에서 실패 계약으로 확장
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
-
-### 53. 교재와 공식 문서
-
-슬라이드의 질문과 완료 기준을 확인하고 멘티가 자신의 코드·결과로 설명하게 합니다.
+ 파일 이름 버튼은 전체 참고 코드를 여는 보충 자료입니다. 책과 직접 작성한 결과를 먼저 확인하고, 막힌 부분을 비교할 때 사용합니다.

@@ -8,53 +8,37 @@ text=(OUT/'index.html').read_text();d=html.fromstring(text)
 slides=d.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," slide ")]')
 meta=json.loads(d.xpath('//script[@id="deck-data"]/text()')[0]);sources=json.loads(d.xpath('//script[@id="source-data"]/text()')[0])
 expected_keys={'ProductApplication.java','Product.java','ProductRepository.java','MemoryProductRepository.java','ProductNotFoundException.java','ProductService.java','ProductServiceTest.java','TimingAspect.java','ProductWiringTest.java'}
-assert len(slides)==len(meta) and len(slides)>75
+assert 16 <= len(slides) <= 24 and len(slides)==len(meta)
 assert sources=={k:SOURCES[k] for k in expected_keys}
 assert not any(k in sources for k in ['ProductController.java','CreateProductRequest.java','ProductResponse.java','ApiExceptionHandler.java'])
-titles=[x['title'] for x in meta]
-practice_start=titles.index('집중 실습 · 상품 객체와 저장소')
-share_start=titles.index('검증하고 설명하기')
-assignment_start=titles.index('별도 과제 · 객체와 테스트 확장')
-assert titles.index('객체를 연결하는 Spring') < practice_start
-assert practice_start < titles.index('실행 준비와 공통 처리') < titles.index('서버·클라이언트와 MVC') < share_start
-assert practice_start < share_start < assignment_start
-assert not any(s.xpath('./button[@data-source-key]') for s in slides[:practice_start])
-assert not any(s.xpath('./button[@data-source-key]') for s in slides[share_start:])
 assert [x.get('data-index') for x in slides]==[str(i) for i in range(len(slides))]
 assert [x.get('data-slide-id') for x in slides]==[f'lesson3-{i}' for i in range(len(slides))]
-assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v6-staged-core']
+assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v7-book-led']
+titles=[x['title'] for x in meta]
+assert titles.index('CH 09 · 상품 객체와 저장·조회') < titles.index('CH 12 · 추상화와 테스트 일부') < titles.index('개인 프로젝트 · 나만의 소장품 관리')
+assert not any(s.xpath('.//pre') for s in slides)
+source_buttons=d.xpath('//button[@data-source-key]')
+assert len(source_buttons)==len(expected_keys)
+assert {b.get('data-source-key') for b in source_buttons}==expected_keys
+assert slides[-1].xpath('.//div[@class="inline-list"]/button[@type="button"]')==source_buttons
 visible='\n'.join(s.text_content() for s in slides)
-for excluded in ['@RequestBody','ResponseEntity','@RestController','@Valid','HTTP/1.1 201','PUT /products','DELETE /products','GET /products?','server.port=8081','spring-boot-starter-webmvc','spring-boot-starter-validation']:
+for excluded in ['@RequestBody','ResponseEntity','@RestController','@Valid','HTTP/1.1 201','PUT /products','DELETE /products','spring-boot-starter-webmvc','spring-boot-starter-validation']:
  assert excluded not in visible,excluded
-for required in ['1~8장','DispatcherServlet','HandlerMapping','HandlerAdapter','@Controller','@Service','@Repository','Model','View','List','Map','SpringBootTest','AopUtils','0ms','sesac-spring-boot-study','product-api/README.md','practice/product-core','docs/product-core','test/product-boundaries','feature/core-price-filter','Issue 2개 · 병합 PR 2개','Home','01-Setup','02-Architecture','03-API','04-Verification','05-Retrospective','!product-api/gradle/wrapper/gradle-wrapper.jar','Closes #12','Public / main','main pull']:
+for required in ['CH 09','CH 12','product-api/','personal-project/','CollectionItem','id, name, price','Repository','Service','최소 3개','105분','75분','휴식·정리 15분','앞 5명','뒤 6명','36분','9분','11명','발표 4분 + 질문 2분','DispatcherServlet','AOP','assignment/personal-core','practice/product-core','docs/product-core','sesac-spring-boot-study']:
  assert required in visible,required
+assert 'Wiki' not in visible and '위키' not in visible
+assert 45*2+15==105
+assert 11*(4+2)+9==75
+assert 105+75+4*15==4*60
 assert 'CommandLineRunner' not in text
 assert not d.xpath('//*[@contenteditable]') and 'localStorage' not in text
 assert not any('note' in x for x in meta)
 assert not d.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," subtitle ")]')
-assert '교재 CH 09 · 12 일부 선행 · 1~8장 복습은 5일에' not in text
 ids=d.xpath('//@id');assert len(ids)==len(set(ids))
-file_page_count=0
-for key,src in sources.items():
- lines=src.splitlines()
- expected=['\n'.join(lines[i:i+14]) for i in range(0,len(lines),14)]
- pages=[s for s in slides if s.xpath('./button[@data-source-key=$k]',k=key)]
- actual=[s.xpath('.//pre/code')[0].text_content() for s in pages]
- assert actual==expected,f'{key}: exact-whitespace source mismatch'
- assert '\n'.join(actual)=='\n'.join(lines),f'{key}: reconstruction'
- file_page_count+=len(pages)
- for n,line in enumerate(lines,1):
+for key,source in sources.items():
+ for n,line in enumerate(source.splitlines(),1):
   assert '\t' not in line and line==line.rstrip(),f'{key}:{n}: whitespace'
   assert (len(line)-len(line.lstrip(' ')))%4==0,f'{key}:{n}: indentation'
-for n,block in enumerate(d.xpath('//pre/code'),1):
- snippet=block.text_content()
- for line_no,line in enumerate(snippet.splitlines(),1):
-  assert '\t' not in line and line==line.rstrip(),f'block{n}:{line_no}: whitespace'
-  if re.search(r'public |private |return |new |@(?:Configuration|SpringBootTest)|long started|try \{',snippet):
-   assert (len(line)-len(line.lstrip(' ')))%4==0,f'block{n}:{line_no}: indentation'
-product_pages=[s for s in slides if s.xpath('./button[@data-source-key="Product.java"]')]
-assert product_pages[1].xpath('.//pre/code')[0].text_content().startswith('        this.id = id;')
-assert 'spring-boot-starter-aspectj' in visible
 assert 'webEnvironment = SpringBootTest.WebEnvironment.NONE' in sources['ProductWiringTest.java']
 assert 'AopUtils.isAopProxy(service)' in sources['ProductWiringTest.java']
 # Execute the actual domain/repository/service logic independently of Spring.
@@ -106,5 +90,5 @@ public class Check {
  subprocess.run(['java','-m','jdk.compiler/com.sun.tools.javac.Main','-encoding','UTF-8','-d',str(classes),*[str(p) for p in root.glob('*.java')]],check=True)
  subprocess.run(['java','-cp',str(classes),'com.example.product.Check'],check=True)
 subprocess.run(['node','--check',str(R/'engine.js')],check=True)
-print(f'PASS: {len(slides)} slides, {len(sources)} stage-specific Java files, {file_page_count} exact-whitespace code pages; book reading and implementation alternate; no future REST answer code; unique IDs; GitHub scope; JavaScript syntax')
-print('Scope: independent Java core execution verified. Spring integration/AOP and visual layout require the separate rehearsal/browser checks.')
+print(f'PASS: {len(slides)} book-led slides; {len(sources)} unchanged stage-specific Java files; core behavior, time allocation, project boundary, IDs and JavaScript syntax')
+print('Scope: independent Java core execution verified. Student personal projects and final browser layout are checked separately.')

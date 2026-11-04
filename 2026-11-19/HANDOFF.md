@@ -6,7 +6,7 @@
 
 학생은 상품 CRUD·DTO·검증·예외 처리가 완성된 메모리 API와 ProductEntity·SpringDataProductRepository·JPA 저장소 테스트를 가지고 온다. 출발 코드 ZIP은 동일한 16일 상태다. 오늘 결과는 기존 ProductRepository를 구현한 Jpa adapter를 연결하는 것이다.
 
-준비물: [멘티 작업지](STUDENT-WORKSHEET.md), [출발 ZIP](assets/product-api-start.zip), [참고 슬라이드](index.html), [강사 참고](INSTRUCTOR.md). 시작 전 ZIP을 별도 폴더에 풀고 `./gradlew test`가 통과하는지 확인한다. 네트워크가 불안하면 의존성 다운로드를 사전에 완료한다.
+준비물: [멘티 작업지](STUDENT-WORKSHEET.md), [출발 ZIP](assets/product-api-start.zip), [간단 진행 슬라이드](index.html), [강사 참고](INSTRUCTOR.md). 시작 전 ZIP을 별도 폴더에 풀고 `./gradlew test`가 통과하는지 확인한다. 네트워크가 불안하면 의존성 다운로드를 사전에 완료한다.
 
 ## 시작 5분 진단
 
@@ -28,7 +28,7 @@
 | 1: 작업 45분 + 휴식 15분 | 책 데이터 접근 부분 재확인, 출발 빌드, API 계약 기록, 변경 계획 | 기존 실패와 새 변경 문제 분리, Memory가 현재 API 구현체임을 설명 |
 | 2: 작업 45분 + 휴식 15분 | Jpa adapter, 빈 선택, Service 트랜잭션 연결 | 구현체 빈 1개, 실제 id, 정렬, update/delete 계약, OSIV false |
 | 3: 작업 45분 + 휴식 15분 | 정상·실패 API 회귀, JPA 전환 테스트 | HTTP 상태만 아니라 실패 전후 데이터 비교, 실제 id 사용 |
-| 4: 작업/점검 45분 + 제출 정리 15분 | 파일 DB 재시작, README/Wiki, PR | 같은 id·수정 값 유지, 테스트, PR·Wiki 증거 |
+| 4: 작업/점검 45분 + 제출 정리 15분 | 파일 DB 재시작, README, PR | 같은 id·수정 값 유지, 테스트, PR 증거 |
 
 매 블록 5분 전 완료 기준을 읽고 학생에게 결과를 보여달라고 요청한다. 4교시의 마지막 15분은 새 구현보다 제출 상태와 남은 작업 기록에 사용한다. 진도가 밀리면 선택 과제는 생략한다.
 
@@ -62,6 +62,6 @@
 - 정상 CRUD: 생성 201, 조회 200, 수정 200, 삭제 204, 실제 id 사용.
 - 400/404와 실패 전후 데이터 보존 확인.
 - 파일 DB에서 재시작 후 같은 id와 수정한 값 조회.
-- `practice/product-jpa-migration`의 `[실습] 상품 API 데이터 접근 JPA 전환` PR에 기대/실제·테스트·재시작·Wiki 근거가 있고 main에 병합됨.
+- `practice/product-jpa-migration`의 `[실습] 상품 API 데이터 접근 JPA 전환` PR에 기대/실제·테스트·재시작 근거가 있고 main에 병합됨.
 
 미완료자는 완료/미완료·오류·다음 작업을 Issue와 PR에 솔직히 남긴다. 실패한 코드를 완료로 표시하거나 강제로 병합시키지 않는다. 23일에 필요한 질문을 정리해 인계한다.

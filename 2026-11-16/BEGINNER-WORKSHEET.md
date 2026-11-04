@@ -161,7 +161,6 @@ Issue와 PR 제목은 `[실습] 상품 Entity와 JPA 저장소`, 브랜치는 `p
 - 전체 테스트 결과, 첫 저장의 실제 id와 SQL 관찰 기록
 - SQL / 쿼리 메서드 / JPQL의 같은 조건 비교
 - README의 실행 폴더·main/test 설정·명령
-- Wiki의 구조·검증·회고 누적 기록
 - API는 아직 Memory이고 19일 Adapter로 전환한다는 설명
 
 `data/`, `*.mv.db`, `*.trace.db`, build·캐시·IDE·비밀값을 제외하고 Wrapper jar 추적 예외는 유지합니다. 기본 동작이 끝나면 선택으로 결과 없음·삭제 테스트를 추가하세요. 실제로 실행한 테스트만 제출 결과에 적습니다.

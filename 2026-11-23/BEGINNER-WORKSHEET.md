@@ -209,9 +209,8 @@ PowerShell:
 
 - [ ] 전체 `./gradlew test` 통과.
 - [ ] README에 예측·실제 SQL·같은 결과·조건·틀린 예측 수정 기록.
-- [ ] 공통 Wiki Home·01-Setup·02-Architecture·03-API·04-Verification·05-Retrospective 누적. 03-API에는 이 랩에 HTTP API 미구현을 표시.
 - [ ] `sesac-spring-boot-study` / `practice/jpa-query-lab` / Issue·PR `[실습] 지연 로딩과 N+1 관찰·개선`.
-- [ ] PR에 `Closes #실제번호`, Wiki 링크, 테스트·SQL 증거. 자체 확인·병합 후 main pull.
+- [ ] PR에 `Closes #실제번호`, 테스트·SQL 증거. 자체 확인·병합 후 main pull.
 - [ ] Wrapper jar 포함, `!order-query-lab/gradle/wrapper/gradle-wrapper.jar` 유지. build·.gradle·IDE·DB·.env 제외, 중첩 .git 없음.
 
 [단축 URL 별도 과제](../assignments/short-url/)의 생성·복사·이동·오류 화면과 AI 활용·본인 수정을 공유한다. 미완료는 구분해 적는다. 마감은 별도 안내다.
