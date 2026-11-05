@@ -8,28 +8,28 @@ text=(OUT/'index.html').read_text();d=html.fromstring(text)
 slides=d.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," slide ")]')
 meta=json.loads(d.xpath('//script[@id="deck-data"]/text()')[0]);sources=json.loads(d.xpath('//script[@id="source-data"]/text()')[0])
 expected_keys={'ProductApplication.java','Product.java','ProductRepository.java','MemoryProductRepository.java','ProductNotFoundException.java','ProductService.java','ProductServiceTest.java','TimingAspect.java','ProductWiringTest.java'}
-assert 16 <= len(slides) <= 24 and len(slides)==len(meta)
+assert 18 <= len(slides) <= 20 and len(slides)==len(meta)
 assert sources=={k:SOURCES[k] for k in expected_keys}
 assert not any(k in sources for k in ['ProductController.java','CreateProductRequest.java','ProductResponse.java','ApiExceptionHandler.java'])
 assert [x.get('data-index') for x in slides]==[str(i) for i in range(len(slides))]
 assert [x.get('data-slide-id') for x in slides]==[f'lesson3-{i}' for i in range(len(slides))]
-assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v7-book-led']
+assert d.xpath('//body/@data-deck-revision')==['2026-11-07-v8-plain-assignment']
 titles=[x['title'] for x in meta]
-assert titles.index('CH 09 · 상품 객체와 저장·조회') < titles.index('CH 12 · 추상화와 테스트 일부') < titles.index('개인 프로젝트 · 나만의 소장품 관리')
+assert titles.index('CH 09 · 상품 관리 애플리케이션') < titles.index('CH 12 · 객체지향과 테스트') < titles.index('개인 과제 · 취미 위시리스트')
 assert not any(s.xpath('.//pre') for s in slides)
-source_buttons=d.xpath('//button[@data-source-key]')
-assert len(source_buttons)==len(expected_keys)
-assert {b.get('data-source-key') for b in source_buttons}==expected_keys
-assert slides[-1].xpath('.//div[@class="inline-list"]/button[@type="button"]')==source_buttons
+assert not d.xpath('//button[@data-source-key]')
+assert not any(s.xpath('.//a') for s in slides), 'Requirements must be visible in the deck, not delegated to an external link'
 visible='\n'.join(s.text_content() for s in slides)
-for excluded in ['@RequestBody','ResponseEntity','@RestController','@Valid','HTTP/1.1 201','PUT /products','DELETE /products','spring-boot-starter-webmvc','spring-boot-starter-validation']:
+for excluded in ['@RequestBody','ResponseEntity','@RestController','@Valid','HTTP/1.1 201','PUT /products','DELETE /products','spring-boot-starter-webmvc','spring-boot-starter-validation','친구','교시','45분','105분','75분','휴식','발표 4분','질문 2분','assignment/personal-core','practice/product-core','docs/product-core','요구사항 전체']:
  assert excluded not in visible,excluded
-for required in ['CH 09','CH 12','product-api/','personal-project/','CollectionItem','id, name, price','Repository','Service','최소 3개','105분','75분','휴식·정리 15분','앞 5명','뒤 6명','36분','9분','11명','발표 4분 + 질문 2분','DispatcherServlet','AOP','assignment/personal-core','practice/product-core','docs/product-core','sesac-spring-boot-study']:
- assert required in visible,required
+for required in ['CH 09','CH 12','product-api','personal-project/','CollectionItem','id, name, price','Repository','Service','최소 4개','150분','예산','최대 3개','등록 순서','다른 교육생','체크리스트','Spring','추가 과제','AI','HTML','JavaScript','샘플','fetch','브랜치 이름은 자율','AOP']:
+ assert required in visible or required in text,required
 assert 'Wiki' not in visible and '위키' not in visible
-assert 45*2+15==105
-assert 11*(4+2)+9==75
-assert 105+75+4*15==4*60
+for phrase in ['이름 · 가격 · id 처리','예산별 아이템 추천','예산 추천 결과','정상 · 실패 · 추천 테스트']:
+ assert phrase in titles,phrase
+for expected in ['노트','무료 샘플','펜','스티커','게임','12,000원','5,000원','8,000원']:
+ assert expected in visible,expected
+assert '□ Domain' in visible and '□ Repository' in visible and '□ Service' in visible and '□ DI' in visible and '□ 테스트' in visible
 assert 'CommandLineRunner' not in text
 assert not d.xpath('//*[@contenteditable]') and 'localStorage' not in text
 assert not any('note' in x for x in meta)
@@ -90,5 +90,5 @@ public class Check {
  subprocess.run(['java','-m','jdk.compiler/com.sun.tools.javac.Main','-encoding','UTF-8','-d',str(classes),*[str(p) for p in root.glob('*.java')]],check=True)
  subprocess.run(['java','-cp',str(classes),'com.example.product.Check'],check=True)
 subprocess.run(['node','--check',str(R/'engine.js')],check=True)
-print(f'PASS: {len(slides)} book-led slides; {len(sources)} unchanged stage-specific Java files; core behavior, time allocation, project boundary, IDs and JavaScript syntax')
+print(f'PASS: {len(slides)} book-led slides; {len(sources)} unchanged stage-specific Java files; core behavior, wishlist requirements, theory checklist, IDs and JavaScript syntax')
 print('Scope: independent Java core execution verified. Student personal projects and final browser layout are checked separately.')

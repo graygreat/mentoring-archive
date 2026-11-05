@@ -41,15 +41,16 @@ for i,(slide,item) in enumerate(zip(slides,meta)):
  assert f'{i+1:02} / {len(slides):02}' in slide.text_content()
 assert not any('note' in item for item in meta)
 
-for token in ['CH 09','CH 10','CH 12','CH 11','personal-project/','CollectionItem','/items','400','404','105','75','180','60','4시간','11명','4분','2분','practice/product-crud','assignment/personal-rest','JPA','Memory','README','Closes #실제번호']:
+for token in ['CH 09','CH 10','CH 12','CH 11','personal-project/','CollectionItem','/items','400','404','150분','위시리스트','예산','최대 3개','개별 가격 기준','원본','체크리스트','브랜치 이름은 자율','JPA','Memory','README','Closes #실제번호','HTML','CSS','JavaScript','CDN']:
  assert token in visible+'\n'+'\n'.join(x.get('note','') for x in private),token
-assert 105+75==4*45 and 4*45+4*15==240
-assert 11*(4+2)+9==75
-assert 45+45+15==105 and 5*6==30 and 6*6+9==45
+combined=visible+'\n'+'\n'.join(x.get('note','') for x in private)+(OUT/'INSTRUCTOR.md').read_text()
+for removed in ['교시','45분','15분','105분','75분','4분','2분','assignment/personal-rest','practice/product-crud','assignments/personal-project/README.md']:
+ assert removed not in combined,removed
+assert '소장품' not in visible
+assert not any('개인 프로젝트 요구사항' in x.text_content() for x in slides)
 titles=[x['title'] for x in meta]
-assert titles.index('책의 상품 수정·삭제를 함께 봅니다')<titles.index('개인 프로젝트 · 배운 CRUD를 적용합니다')<titles.index('CH 11 · 데이터베이스 연동을 읽습니다')
+assert titles.index('CH 09·10·12 · 상품 CRUD와 테스트')<titles.index('개인 프로젝트 · 위시리스트 REST API')<titles.index('CH 11 · 데이터베이스 연동')
 assert '../shared/db-basics/' in raw and '../shared/db-basics/STUDENT-WORKSHEET.md' in raw
-assert 'assignments/personal-project/README.md' in raw
 assert '새프로젝트' not in visible
 assert {'ProductRepository.java','MemoryProductRepository.java','ProductService.java','ProductController.java','ProductCrudTest.java'}==set(SOURCES)
 
