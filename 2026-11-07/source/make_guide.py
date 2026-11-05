@@ -50,9 +50,18 @@ header="""# 2026-11-07 · 상품 관리·객체지향·테스트
 
 ## 제출
 
-개인 저장소 `sesac-spring-boot-study`에서 작업하며 브랜치 이름은 자율입니다. 코드·테스트·README와 실제 검증 결과를 반영하고 PR 링크를 준비합니다. Issue와 PR 제목은 작업 내용을 알아볼 수 있게 정합니다. 브랜치 이름과 작업 단위는 교육생이 정합니다.
+수업 전에 강사가 [공용 실습 저장소](https://github.com/sesac-ddm-4-web/sesac-spring-boot-study)의 `main`에 README를 추가해 첫 커밋을 만듭니다. 빈 저장소 상태에서는 교육생이 Fork를 시작할 수 없습니다.
 
-README에는 주제, 실제 개발 환경, 실행·테스트 명령, 완료 기능과 실제 결과를 적습니다. 기존 프로젝트와 루트 README 링크는 보존합니다. Wrapper와 실행에 필요한 파일을 포함하고 build/.gradle/IDE 설정/비밀값은 제외합니다.
+1. 처음 참여한 교육생은 조직 원본에서 Fork를 눌러 개인 계정으로 `sesac-spring-boot-study`를 가져오고, 개인 Fork의 Code → HTTPS 주소로 Clone합니다. 5일에 완료했다면 같은 Fork와 로컬 저장소를 계속 사용합니다.
+2. 같은 이름의 독립 개인 저장소가 이미 있으면 백업 이름으로 변경한 뒤 원본을 Fork합니다. 필요한 프로젝트 파일만 복사하고 내부 `.git`은 복사하지 않습니다. 이력을 강제로 덮어쓰지 않습니다.
+3. 조직 원본에 `[11/07][이름] 취미 위시리스트와 예산 추천` Issue를 만들고 목표·할 일·완료 기준을 적습니다. 라벨·담당자·마일스톤 등 관리 권한이 필요한 설정은 강사가 관리합니다.
+4. 독립 작업은 개인 Fork의 `main`에서, 이전 작업을 이어가면 구현이 있는 브랜치에서 새 작업 브랜치를 만듭니다. 브랜치 이름은 자율입니다. 원본 `main`에는 교육생 구현을 병합하지 않으므로 `main`을 pull해서 이전 개인 코드가 생긴다고 설명하지 않습니다.
+5. Initializr 프로젝트를 `personal-project/`에 배치하고 `greeting-api/`·`product-api/`를 보존합니다. 코드·테스트·README와 Wrapper를 포함하고 build/.gradle/IDE 설정/비밀값은 제외합니다. README에는 주제·개발 환경·실행/테스트 명령·완료 기능·실제 결과를 적고 루트 README 링크도 보존합니다.
+6. 개인 Fork의 작업 브랜치에 Push하고 조직 원본의 Pull requests → New pull request → compare across forks에서 PR을 만듭니다. base repository는 `sesac-ddm-4-web/sesac-spring-boot-study`, base는 `main`, head repository는 본인 Fork, compare는 작업 브랜치입니다.
+7. 제목은 Issue와 같은 `[11/07][이름] 취미 위시리스트와 예산 추천`으로 하고 본문에 구현 범위·실행/테스트 결과·관련 Issue `#번호`·질문을 적습니다. 코드·테스트·README를 함께 제출하므로 기본 제출은 Issue 1개·PR 1개입니다. 이전 코드가 함께 포함되면 이전 PR 링크와 이번 변경 범위를 적습니다.
+8. 리뷰 수정은 같은 브랜치에 Push합니다. 강사는 리뷰를 마친 PR을 병합 없이 닫고 관련 Issue도 수동으로 닫습니다. 교육생은 리뷰 전에 PR을 닫거나 Merge하지 않고 제출 브랜치와 코드를 보존합니다. 개인 Fork 주소와 조직 원본의 Issue·PR 링크를 제출합니다.
+
+실행·테스트는 구현이 들어 있는 제출 브랜치에서 수행합니다. 테스트 완료 기준과 발표 범위는 기존 과제 요구사항을 그대로 적용합니다.
 
 ## 슬라이드별 진행 메모
 
