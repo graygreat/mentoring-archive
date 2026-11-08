@@ -11,7 +11,7 @@ meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 sources=json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
 assert len(slides)==len(meta)==len(private)
-assert 20<=len(slides)<=30
+assert 20<=len(slides)<=34
 assert sources==SOURCES
 assert len(set(doc.xpath('//section/@data-slide-id')))==len(slides)
 assert [s.get('data-index') for s in slides]==list(map(str,range(len(slides))))
@@ -48,6 +48,7 @@ assert 'Integer price' in SOURCES['CreateProductRequest.java']
 for token in ['CH 09','CH 10','CH 11','발표','MVC','DispatcherServlet','HandlerMapping','HandlerAdapter','메시지 변환기','JSON','201','Location','400','404','500','QA','체크리스트','README','Fork','compare across forks','@NotBlank','@NotNull','@Min','@Valid']:
  assert token in visible,token
 titles=[x['title'] for x in meta]
+assert '상품 API의 응답 코드 읽기' not in titles
 for token in ['교시','45분','practice/product-rest','Closes #','병합 PR','@RequestParam','@PathVariable']:
  assert token not in visible,token
 assert titles.index('개인 과제 발표')<titles.index('DispatcherServlet과 Controller')<titles.index('QA 체크리스트 작성과 실행')

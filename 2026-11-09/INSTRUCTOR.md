@@ -11,13 +11,22 @@ PPT는 핵심 개념과 흐름 그림, 책에서 볼 부분, 발표·QA·제출 
 ## 발표와 책 연결
 
 - 11명 모두 자신이 구현한 기능, Domain·Service·Repository 역할, 직접 정한 규칙이나 해결한 문제를 공유합니다. 별도 발표용 PPT를 요구하지 않습니다.
-- 9장에서는 상품 추가·조회 Controller, 요청 DTO·도메인·응답 DTO와 상태·헤더·본문을 정하는 부분을 찾습니다. 이미 배운 입력 수신 어노테이션은 따로 재강의하지 않습니다.
+- 9장의 상품 조회를 MVC 흐름의 예로 사용합니다. 이미 배운 입력 수신 어노테이션은 따로 재강의하지 않습니다.
 - 상품 API가 아직 없다면 생성·조회 연결을 먼저 마칩니다. 미완료 교육생에게 검증까지 전부 완료했다고 기록하게 하지 않습니다.
 - 10장은 도메인/Controller 검증, 전역 예외 핸들러, HTTP 응답 상태와 바디 순서로 읽습니다.
 
 ## MVC와 검증에서 짚을 점
 
-DispatcherServlet은 요청을 받아 HandlerMapping으로 담당 처리기를 찾고 HandlerAdapter에 실행을 위임하는 조율자입니다. JSON 읽기와 요청 DTO 검증은 Controller 메서드를 실행하기 전에 일어날 수 있습니다. Service·Repository를 거쳐 얻은 결과는 응답 DTO와 메시지 변환기를 통해 JSON 본문으로 나갑니다. MVC의 Model을 Service 하나와 같은 뜻으로 단정하지 않습니다. @Controller도 @ResponseBody를 붙이면 본문을 반환할 수 있고, JSON API도 Spring MVC를 사용합니다.
+MVC는 일반적인 어노테이션 Controller의 정상 요청을 기준으로 네 단계로 설명합니다.
+
+1. DispatcherServlet은 요청 처리 전체를 조율하고, Controller는 선택된 상품 메서드에서 업무 처리를 시작합니다. 핸들러는 요청 처리 대상이며 이 예에서는 Controller 메서드입니다.
+2. 애플리케이션 시작 시 RequestMappingHandlerMapping이 Controller 빈과 매핑 메서드 정보를 등록합니다. 표의 GET /products, GET /products/{id}, POST /products는 이해를 위한 요약이며 내부 구현이 단순한 문자열 표라는 뜻은 아닙니다.
+3. GET /products/42가 오면 DispatcherServlet이 HandlerMapping에 문의합니다. HandlerMapping은 등록된 조건에서 GET /products/{id}를 찾아 ProductController 빈과 findById 메서드를 가리키는 정보를 돌려줍니다. 메서드 실행이나 상품 존재 여부 조회는 하지 않습니다. 실제 반환 정보에는 인터셉터를 포함한 실행 체인이 있을 수 있으나 그림에서는 생략합니다.
+4. DispatcherServlet이 이 핸들러를 지원하는 HandlerAdapter에 실행을 위임합니다. 어댑터의 인자 해석기가 경로의 42를 long 인자로 준비하고 Controller 메서드를 호출하며, 반환값 처리와 JSON 변환도 연결합니다. 42는 설명용 예시이며 실제 실행에서는 생성된 id를 사용합니다.
+
+요청마다 전체 Controller 클래스를 다시 검색하거나 새 Controller를 만든다고 설명하지 않습니다. HTTP 메서드와 경로 외에 헤더·미디어 타입 등도 매핑 조건이 될 수 있지만 세부 조건 강의는 생략합니다. 서블릿 컨테이너와 Spring의 빈 관리 역할도 구분합니다.
+
+JSON 읽기와 요청 DTO 검증은 Controller 메서드를 실행하기 전에 일어날 수 있습니다. Service·Repository를 거쳐 얻은 결과는 응답 DTO와 메시지 변환기를 통해 JSON 본문으로 나갑니다. MVC의 Model을 Service 하나와 같은 뜻으로 단정하지 않습니다. @Controller도 @ResponseBody를 붙이면 본문을 반환할 수 있고, JSON API도 Spring MVC를 사용합니다. 유효성 검사 PPT는 책 10장 전환·검사 위치와 핵심 규칙·실패 응답 세 장으로 간단히 짚고, 세부 구현은 책을 보며 진행합니다.
 
 입력 형식 검사, 도메인의 유효한 상태, 업무 처리 조건을 구분합니다. 요청 DTO 검사를 통과했다고 도메인의 규칙을 제거하지 않습니다. 이름의 필수 검사와 앞뒤 공백 정리는 별개입니다. 가격 누락과 0원을 구분하려면 요청 DTO는 Integer와 @NotNull·@Min(0)을 사용합니다. @Min만으로 null을 거부한다고 설명하지 않습니다. @NotBlank는 입력값을 trim해서 바꾸는 기능이 아닙니다.
 
@@ -77,106 +86,94 @@ PR의 base repository는 조직 원본, base는 main, head는 본인 Fork의 작
 
 11명이 각자 특징적인 구현과 고민을 짧게 공유합니다. 추천 정렬·원본 목록 보존·생성자 주입 등 교육생이 선택한 근거를 묻습니다. 이 발표는 지난 시간 과제의 확인이며 새 기능 구현을 요구하지 않습니다.
 
-### 04. 상품 API의 응답 코드 읽기
-
-지난 시간까지 작성한 상품 API가 있으면 그대로 사용합니다. 상품 API가 아직 없다면 교재 9장의 생성·조회 부분을 먼저 읽어 연결하며, 생성·조회 HTTP 연결을 마치지 못한 교육생에게 검증 구현까지 완료하도록 강제하지 않습니다. 교재 쪽수는 실제 판본에서 확인합니다.
-
-### 05. Model · View · Controller
+### 04. Model · View · Controller
 
 Model을 Service 클래스 하나와 일대일 대응시키지 않습니다. 화면을 렌더링하는 전통 MVC와 응답 본문을 쓰는 REST API의 처리 차이는 뒤의 Controller 비교에서 구분합니다. Repository는 저장·조회 책임을 갖습니다.
 
-### 06. DispatcherServlet과 Controller
+### 05. DispatcherServlet과 Controller
 
-그림은 정상 요청의 핵심 부분만 보여줍니다. HandlerMapping으로 핸들러를 조회하고, 이를 처리할 HandlerAdapter에 실행을 위임합니다. 서블릿 컨테이너는 예를 들어 내장 Tomcat이며, Spring 컨테이너의 빈 관리와 역할을 구분합니다. 필터·인터셉터·보안의 세부 체인은 오늘 필수 범위가 아닙니다.
+이후 그림은 일반적인 어노테이션 Controller의 정상 요청을 다룹니다. 서블릿 컨테이너는 예를 들어 내장 Tomcat이며 Spring 컨테이너의 빈 관리와 역할을 구분합니다. 핸들러는 요청 처리 대상의 일반 이름이고, 이 예에서는 Controller 빈과 메서드를 나타내는 HandlerMethod입니다. 모든 HandlerMapping이 Java 메서드만 반환하는 것은 아닙니다. GET /products/42의 42는 설명용 예시이며 실제 실행에서는 생성 결과의 id를 사용합니다. 필터·인터셉터·보안의 세부 체인은 오늘 필수 범위가 아닙니다.
 
-### 07. 담당 메서드를 찾고 실행하기
+### 06. Controller 메서드의 매핑 등록
 
-매핑과 실행을 구분해 설명합니다. 일반적인 어노테이션 Controller에서는 RequestMappingHandlerMapping과 RequestMappingHandlerAdapter가 사용되지만 구현 클래스명 암기는 요구하지 않습니다. HandlerAdapter가 메서드를 호출하기 전에 인자를 준비한다는 점을 다음 변환·검증으로 연결합니다.
+RequestMappingHandlerMapping은 초기화 과정에서 어노테이션 Controller의 매핑을 찾아 Controller 빈과 메서드 정보를 등록합니다. 표는 이해를 위한 요약이며 내부 구현이 단순한 문자열 표라는 뜻은 아닙니다. 매핑 조건에는 경로·HTTP 메서드 외에도 params, headers, consumes, produces 등이 있을 수 있으나 오늘은 경로와 메서드에 집중합니다. 같은 경로라도 GET과 POST가 다르면 처리 메서드가 달라질 수 있습니다. 입력 수신 어노테이션 문법은 다시 강의하지 않습니다.
 
-### 08. JSON 변환과 입력 검증
+### 07. HandlerMapping으로 담당 메서드 찾기
+
+① 서블릿 컨테이너를 거친 HTTP 요청이 DispatcherServlet에 도착합니다. ② DispatcherServlet이 HandlerMapping에 요청에 맞는 핸들러를 문의합니다. ③ 이 예의 HandlerMapping은 ProductController 빈과 findById 메서드를 가리키는 HandlerMethod를 포함한 실행 체인 정보를 돌려줍니다. 그림에서는 인터셉터 정보를 생략합니다. 경로의 42가 id 위치에 해당한다는 매칭 정보와, 이후 42를 long 인자로 변환해 넣는 과정은 구분합니다. 실제 상품 42의 존재 여부는 Service와 Repository가 확인합니다.
+
+### 08. HandlerAdapter로 Controller 호출
+
+④ DispatcherServlet이 핸들러를 지원하는 HandlerAdapter를 선택하고 실행을 요청합니다. 어노테이션 Controller에서는 보통 RequestMappingHandlerAdapter를 사용합니다. ⑤ 이 어댑터의 인자 해석기가 경로의 42를 long 값으로 준비한 뒤 findById(42)를 호출합니다. JSON 본문이 있는 요청은 메시지 변환·검증이 메서드 호출 전에 연결됩니다. ⑥ 메서드는 Service와 Repository를 사용한 결과를 반환하고, 반환값 처리기가 응답 DTO를 메시지 변환기에 전달해 JSON 본문으로 쓸 수 있습니다. Controller가 HTTP 응답을 항상 직접 작성하거나 DispatcherServlet이 JSON을 직접 직렬화한다고 설명하지 않습니다. 그림의 42는 설명용이며 실제 요청에서는 생성된 id를 사용합니다.
+
+### 09. JSON 변환과 입력 검증
 
 JSON 변환은 HttpMessageConverter가 맡으며 JSON 변환 라이브러리를 이용합니다. Spring Boot와 Jackson 버전에 따라 구현 클래스가 달라질 수 있으므로 오늘은 역할을 설명합니다. @Valid가 적용된 요청 DTO의 검증은 일반적으로 Controller 메서드 실행 전에 수행됩니다. 로컬 Errors/BindingResult로 처리하는 변형은 오늘 범위 밖입니다.
 
-### 09. 상품 업무 처리
+### 10. 상품 업무 처리
 
 7일 개인 과제의 역할 분리를 공통 상품 API와 연결합니다. 도메인 객체와 Service의 검증은 HTTP 이외의 경로로 생성·호출해도 의미가 있어야 합니다. 생성자 주입과 기존 인터페이스·단위 테스트·AOP 코드는 보존합니다.
 
-### 10. Java 객체가 JSON 응답이 되는 과정
+### 11. Java 객체가 JSON 응답이 되는 과정
 
 JSON 응답 본문은 직접 문자열을 이어붙여 만드는 방식으로 설명하지 않습니다. @ResponseBody 또는 @RestController의 반환값 처리를 통해 메시지 변환기가 응답 본문을 씁니다. 메시지 변환기의 인코딩·미디어 타입 협상 세부 사항은 추가 질문이 있을 때만 다룹니다.
 
-### 11. 화면 반환과 응답 본문 반환
+### 12. 화면 반환과 응답 본문 반환
 
 @Controller가 항상 HTML만 반환한다고 단정하지 않습니다. 문자열 반환도 @ResponseBody 유무에 따라 의미가 달라집니다. JSON API에서는 보통 ViewResolver를 거쳐 HTML 템플릿을 찾는 흐름이 사용되지 않는다는 점을 설명합니다.
 
-### 12. 요청 DTO · 도메인 · 응답 DTO
+### 13. 요청 DTO · 도메인 · 응답 DTO
 
 새 DTO 작성 실습을 길게 반복하지 않고 교재 9장의 코드와 현재 구현을 대조합니다. DTO가 도메인의 모든 필드를 그대로 받을 필요는 없습니다. 예를 들어 상품 id는 서버가 부여하며 생성 요청의 임의 id를 그대로 신뢰하는 구조로 설명하지 않습니다.
 
-### 13. ResponseEntity의 상태·헤더·본문
+### 14. ResponseEntity의 상태·헤더·본문
 
 교재 상품 추가 Controller와 수업 참고 ProductController를 함께 봅니다. id가 1부터 시작하거나 연속된다고 가정하지 않습니다. ResponseEntity를 사용해야만 모든 JSON 응답이 가능하다고 설명하지 않습니다. 일반 응답 DTO 반환도 가능합니다.
 
-### 14. 정상 응답과 실패 응답 구분
+### 15. 정상 응답과 실패 응답 구분
 
 이 표는 오늘 상품 API의 응답 설계 기준입니다. 없는 상품의 404는 해당 예외에 대한 매핑을 구현해야 합니다. 프레임워크가 모든 업무 예외를 알아서 400/404로 분류한다고 설명하지 않습니다. HTTP 메서드 전체와 REST 성숙도는 별도 긴 강의로 확장하지 않고 필요한 질문만 연결합니다.
 
-### 15. 유효성 검사와 예외 처리
+### 16. 유효성 검사와 예외 처리
 
-도메인 객체 및 컨트롤러 유효성 검사 추가하기, 전역 예외 핸들러 추가하기, HTTP 응답 상태 코드와 바디 순서로 실제 책을 읽습니다. 오늘은 중요 개념과 책의 코드 확인을 중심으로 진행하고 전체 코드를 다시 시연하지 않습니다.
+교재 10장의 도메인 객체 및 컨트롤러 유효성 검사 추가하기, 전역 예외 핸들러 추가하기, HTTP 응답 상태 코드와 바디를 읽습니다. PPT는 핵심 구분만 짚고 세부 코드와 어노테이션 설정은 책으로 설명합니다. JSON 읽기나 요청 DTO 검증은 Controller 메서드 실행 전에 실패할 수 있습니다. 일반적인 예외는 MethodArgumentNotValidException·HttpMessageNotReadableException이며 모든 검증 경로가 같은 예외를 낸다고 설명하지 않습니다.
 
-### 16. 검사 위치와 책임
+### 17. 입력 검증과 업무 규칙
 
-외부 입력 검증과 도메인 불변 조건은 목적이 다릅니다. 단순한 중복 제거를 이유로 도메인 검증을 모두 없애지 않습니다. 존재하지 않는 상품 조회는 요청 DTO의 @NotNull 검사로 해결되지 않고 업무 처리 결과에 따라 예외와 응답을 정해야 합니다.
+입력 형식 검사와 도메인의 유효한 상태·업무 처리 조건을 구분합니다. @NotBlank는 null·빈 문자열·공백뿐인 문자열을 거부하지만 값을 trim해서 바꾸지는 않습니다. 요청 가격은 Integer로 누락과 명시적인 0을 구분하고 @NotNull·@Min(0)을 함께 사용합니다. @Min만으로 null을 거부한다고 설명하지 않습니다. @Valid가 요청 DTO의 제약을 실행하며 도메인 객체는 HTTP 이외의 경로에서도 자신의 규칙을 지킵니다. 검증 적용 전 dependencies의 implementation "org.springframework.boot:spring-boot-starter-validation"과 Gradle 동기화, jakarta.validation import를 확인합니다. 서비스 메서드 @Validated 등은 필수가 아닙니다.
 
-### 17. 누락과 0원 구분
+### 18. 실패 이유에 맞는 응답
 
-primitive int는 기본값 0이므로 누락과 명시적인 0을 구분하기 어렵습니다. Integer로 null을 표현하고 @NotNull로 필수 조건을 둡니다. 도메인에는 유효한 값만 전달합니다. @NotBlank는 문자열을 trim해서 바꿔주는 기능이 아닙니다. 교재와 기존 Product의 앞뒤 공백 정리 규칙을 보존합니다.
+교재의 전역 예외 핸들러 부분을 보며 수업 참고 구현의 message 본문을 확인합니다. 요청 DTO 검증·JSON 읽기·수업 도메인의 입력 예외는 400, ProductNotFoundException은 404로 연결합니다. 업무 예외를 HTTP로 매핑하는 것은 애플리케이션 설계이며 프레임워크가 모든 업무 오류를 자동 분류하지 않습니다. 이 참고 핸들러가 모든 경로404·매개변수타입오류·예상하지못한500까지 같은message JSON을 보장하지 않습니다. 모든 IllegalArgumentException이 항상 클라이언트 오류라는 일반 규칙으로 설명하지 않습니다. 500을 catch(Exception)으로 잡아 모두400으로 바꾸지 않습니다. 내부 상세는 서버에서 진단하고 사용자용 오류에는 필요한 정보만 담습니다.
 
-### 18. 제약 조건과 @Valid
-
-책 10장의 코드와 실제 build.gradle을 비교합니다. Spring Boot 프로젝트에는 spring-boot-starter-validation 의존성이 필요합니다. 수업 참고 소스의 jakarta.validation import와 사용 중인 Spring Boot 버전을 맞춥니다. @Min만으로 null을 거부한다고 설명하지 않습니다. 클래스 밖 서비스 메서드 검증의 @Validated 등은 오늘 필수가 아닙니다.
-
-### 19. 검증 라이브러리 설정
-
-Gradle dependencies에 implementation 'org.springframework.boot:spring-boot-starter-validation'을 추가하거나 이미 있는지 확인합니다. IDE의 Gradle 프로젝트 새로고침을 실행합니다. 기존 프로젝트의 Spring Boot 버전을 유지하며 Spring Boot 3·4의 jakarta.validation을 기준으로 설명합니다. 기존 7일 테스트와 주입/AOP 코드는 변경하지 않습니다. javax.validation 예제를 혼용하지 않습니다.
-
-### 20. 실패가 발생하는 위치
-
-프레임워크의 일반적인 요청 DTO 검증 실패는 MethodArgumentNotValidException, JSON 읽기 실패는 HttpMessageNotReadableException으로 연결됩니다. 직접 메서드 매개변수에 제약을 두는 방법 등은 다른 검증 예외가 생길 수 있으므로 오늘 참고 코드의 범위를 명확히 합니다. 실제 예외명 암기보다 발생 위치와 처리 목적을 이해하게 합니다.
-
-### 21. 전역 예외 핸들러
-
-교재의 전역 예외 핸들러 부분을 읽고 상품 없음은 404, 입력 관련 실패는 400으로 분류한 코드를 확인합니다. 이 매핑은 수업 예제의 설계이며 모든 IllegalArgumentException이 언제나 클라이언트 오류라는 일반 규칙은 아닙니다. 예상하지 못한 예외를 catch(Exception)으로 잡아 모두 400으로 응답하지 않습니다. 예외 상세는 서버에서 진단하고 응답에는 필요한 정보만 담습니다.
-
-### 22. QA 체크리스트 작성과 실행
+### 19. QA 체크리스트 작성과 실행
 
 새 프로젝트를 만들지 않고 기존 product-api에서 짧게 수행합니다. 책의 검증과 예외 처리를 적용한 범위만 확인하며 정답 체크리스트를 배포하지 않습니다. Postman 또는 현재 사용 가능한 클라이언트를 이용합니다. 7일 단위·통합 테스트는 유지하되 새로운 테스트 코드 작성을 오늘 QA 활동의 필수 조건으로 만들지 않습니다. 상품 HTTP API 연결이 미완료라면 해당 범위를 먼저 마치고 실제 완료 수준을 기록합니다.
 
-### 23. 위시리스트 유효성 검사
+### 20. 위시리스트 유효성 검사
 
 7일에 만든 위시리스트에 오늘 배운 검증 책임 분리를 적용하는 과제입니다. 이미 구현한 규칙을 지우거나 똑같이 다시 만들지 않습니다. Domain이 이름·가격을 지키고 Service가 예산과 존재 여부를 확인하도록 현재 코드를 점검해 누락된 부분을 보완합니다. 가격 0·예산 0 허용, 추천의 가격 정렬·동일 가격 등록 순서·최대 3개·원본 보존과 기존 테스트를 유지합니다. 새 프로젝트와 DB는 만들지 않습니다.
 
-### 24. 검증 적용 범위와 제출
+### 21. 검증 적용 범위와 제출
 
 HTTP API가 이미 있는 경우에만 요청 DTO 이름에 @NotBlank, 가격은 Integer와 @NotNull·@Min(0), Controller 인자에 @Valid를 적용하고 적절한 400·404 응답을 연결합니다. HTTP가 없다면 Domain·Service에서 검증하며 어노테이션을 붙이는 것 자체를 완료 기준으로 삼지 않습니다. QA 항목은 정상·잘못된 입력·경계 조건·실패 시 데이터 보존을 고려해 교육생이 직접 설계합니다. README에는 검증을 맡긴 위치와 이유, 실행 결과·발견한 문제·수정 결과·남은 문제를 기록하고 기존 테스트를 유지합니다. 상품 API의 수업 중 QA 기록과 별개인 개인 과제 제출입니다. 기존 구현 브랜치에서 새 자율 이름의 브랜치를 만들고 개인 origin에 Push한 뒤 조직 원본 sesac-ddm-4-web/sesac-spring-boot-study의 main으로 PR을 올립니다. 이전 PR 링크와 이번 보완 범위를 적으며 리뷰 수정은 같은 브랜치에 Push합니다. 강사는 병합 없이 PR·Issue를 닫고 제출 브랜치를 보존합니다.
 
-### 25. 데이터베이스 연동 도입
+### 22. 데이터베이스 연동 도입
 
 발표와 MVC·검증 설명 후 시간이 남고 이해도가 충분할 때만 진행합니다. 프로세스 메모리는 재시작하면 초기화되고, DB 저장은 적절한 영구 저장 설정과 연결이 유지될 때 재시작 후 다시 읽을 수 있습니다. 모든 DB가 자동으로 영구 저장한다는 식으로 설명하지 않습니다. 교재 11장의 JDBC 접근과 이후 JPA 접근은 구분합니다. 오늘 JPA·Entity·N+1을 선행 강의하지 않습니다.
 
-### 26. 공용 저장소에 학습 결과 제출
+### 23. 공용 저장소에 학습 결과 제출
 
 조직 원본 https://github.com/sesac-ddm-4-web/sesac-spring-boot-study 에 Issue와 PR을 올립니다. base repository는 조직 원본, base는 main, head는 본인 Fork의 작업 브랜치입니다. 개인 origin에 Push하고 리뷰 수정도 같은 브랜치에 Push합니다. 원본 main에는 교육생 구현을 병합하지 않고 강사가 리뷰 후 PR·Issue를 닫습니다. 작업 브랜치는 보존하며 main을 pull해서 이전 개인 구현이 생긴다고 안내하지 않습니다. 라벨·담당자·마일스톤 관리 권한을 교육생에게 요구하지 않습니다. 실제 코드 변경이 없는 교육생에게 빈 PR을 강제하지 않습니다. greeting-api와 personal-project 및 기존 README 링크, Gradle Wrapper를 보존하고 빌드 결과물·IDE 파일·비밀값은 제외합니다.
 
-### 27. 원본 PR 대상과 리뷰
+### 24. 원본 PR 대상과 리뷰
 
 개인 origin에 Push한 코드가 원본 PR의 head에 표시되는지 확인합니다. 원본 main에 교육생별 구현을 합치지 않습니다. 리뷰 전에 교육생이 PR을 닫거나 직접 병합하도록 안내하지 않습니다. 이전 제출 코드가 함께 포함되면 이전 PR 링크와 이번 변경 범위를 본문에 적습니다.
 
-### 28. REST API 보완과 서비스 설계
+### 25. REST API 보완과 서비스 설계
 
 12일에는 오늘 다룬 CH10 핵심 내용을 실제 적용 상태에 맞춰 보완하고, 뒤2시간의 첫 웹 서비스 설계로 이어갑니다. 단축 URL·주문 관리 등 교재 과제 기반 설계는 별도 안내를 따릅니다. 오늘 시간이 남지 않았다면 CH11 도입을 다음 적절한 DB 진도에 연결합니다.
 
-### 29. 교재와 보충 자료
+### 26. 교재와 보충 자료
 
 교재가 주교재이며 아래 파일은 교재 원문을 복제한 것이 아닌 수업용 독립 참고 구현입니다. 실제 판본과 사용 중인 Spring Boot 버전의 차이를 확인하며 비교합니다. 파일 이름 버튼은 전체 참고 코드를 여는 보충 자료입니다. 책과 직접 작성한 결과를 먼저 확인하고, 막힌 부분을 비교할 때 사용합니다.
