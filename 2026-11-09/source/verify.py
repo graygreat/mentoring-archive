@@ -11,7 +11,7 @@ meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 sources=json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
 assert len(slides)==len(meta)==len(private)
-assert 10<=len(slides)<=22
+assert 20<=len(slides)<=28
 assert sources==SOURCES
 assert len(set(doc.xpath('//section/@data-slide-id')))==len(slides)
 assert [s.get('data-index') for s in slides]==list(map(str,range(len(slides))))
@@ -41,17 +41,23 @@ for i,(slide,item) in enumerate(zip(slides,meta)):
  assert f'{i+1:02} / {len(slides):02}' in slide.text_content()
 assert not any('note' in item for item in meta)
 
-assert set(SOURCES)=={'CreateProductRequest.java','ProductResponse.java','ProductController.java'}
-assert 'jakarta.validation' not in ''.join(SOURCES.values()) and '@Valid' not in SOURCES['ProductController.java']
+assert set(SOURCES)=={'CreateProductRequest.java','ProductResponse.java','ProductController.java','ApiExceptionHandler.java'}
+assert '@Valid @RequestBody' in SOURCES['ProductController.java']
 assert 'Integer price' in SOURCES['CreateProductRequest.java']
-for token in ['CH 09','부록 A','Postman','201','Location','빈 목록','id 오름차순','400','404','practice/product-rest','필수 Issue 1개','이름 검색','가격 필터']:
+for token in ['CH 09','CH 10','CH 11','발표','MVC','DispatcherServlet','HandlerMapping','HandlerAdapter','메시지 변환기','JSON','201','Location','400','404','500','QA','체크리스트','README','Fork','compare across forks','@NotBlank','@NotNull','@Min','@Valid']:
  assert token in visible,token
 titles=[x['title'] for x in meta]
-assert titles.index('교재 CH 09를 펼칩니다')<titles.index('기존 product-api에 세 파일 추가')<titles.index('서버를 만든 뒤 실제 요청을 보냅니다')
+for token in ['교시','45분','practice/product-rest','Closes #','병합 PR','@RequestParam','@PathVariable']:
+ assert token not in visible,token
+assert titles.index('개인 과제 발표')<titles.index('DispatcherServlet과 Controller')<titles.index('QA 체크리스트 작성과 실행')
+assert len(doc.xpath('//section//svg'))>=2
 module=ast.parse((OUT.parent/'2026-11-07/source/code_examples.py').read_text())
 canonical=next(ast.literal_eval(n.value) for n in module.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='SOURCES' for t in n.targets))
 assert SOURCES['ProductResponse.java']==canonical['ProductResponse.java']
-assert SOURCES['ProductController.java']==canonical['ProductController.java'].replace('import jakarta.validation.Valid;\n','').replace('@Valid @RequestBody','@RequestBody')
+validation_module=ast.parse((OUT.parent/'2026-11-12/source/code_examples.py').read_text())
+validation=next(ast.literal_eval(n.value) for n in validation_module.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='SOURCES' for t in n.targets))
+for key in validation:
+ assert SOURCES[key]==validation[key],key
 
 js='\n'.join(doc.xpath('//script[not(@type)]/text()'))
 with tempfile.NamedTemporaryFile(suffix='.js',mode='w') as f:
@@ -61,4 +67,4 @@ with tempfile.NamedTemporaryFile(suffix='.js',mode='w') as f:
   assert result.returncode==0,result.stderr
  except FileNotFoundError:
   print('node unavailable: root should check navigation JavaScript syntax')
-print(f'{DAY}: {len(slides)} book-led slides; canonical source-data and whitespace intact; chapter/work/completion flow; read-only navigation verified')
+print(f'{DAY}: {len(slides)} book-led slides; canonical validation source-data; MVC, response, QA and submission coverage; read-only navigation verified')
