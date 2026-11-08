@@ -19,6 +19,18 @@ PPT는 핵심 개념과 흐름 그림, 책에서 볼 부분, 발표·QA·제출 
 - 상품 API가 아직 없다면 생성·조회 연결을 먼저 마칩니다. 미완료 교육생에게 검증까지 전부 완료했다고 기록하게 하지 않습니다.
 - 10장은 도메인/Controller 검증, 전역 예외 핸들러, HTTP 응답 상태와 바디 순서로 읽습니다.
 
+## MVC·레이어드·REST 구분
+
+먼저 용어가 가리키는 관점을 구분합니다. MVC는 입력 처리·데이터와 업무·결과 표현의 역할 분리, Spring MVC는 HTTP 요청을 처리하는 웹 프레임워크, REST는 API 설계 방식입니다. REST와 Spring MVC를 서로 대신 선택하는 기술로 설명하지 않습니다. JSON을 응답한다고 REST의 모든 설계 조건을 충족하는 것도 아닙니다.
+
+현재 상품 API의 HTTP 진입점은 Spring MVC가 처리하고, 애플리케이션 내부에서는 Controller·Service·Repository가 표현·업무·데이터 접근 책임을 나눕니다. 같은 Controller가 두 설명에 등장해도 모순이 아닙니다. MVC의 Model을 Service 하나 또는 Repository 하나와 일대일 대응시키지 않습니다. 레이어드는 논리적인 책임 분리이며 계층마다 물리 서버를 따로 둔다는 뜻이 아닙니다.
+
+MVP·MVVM은 프레젠테이션 로직을 분리하는 다른 패턴의 이름과 핵심만 비교합니다. Presenter는 Model과 View 사이의 처리를 담당하고, ViewModel은 화면 데이터·상태를 제공해 바인딩으로 화면과 연결합니다. 바인딩에는 플랫폼 지원이나 구현이 필요합니다. 오늘 별도 패턴 구현 과제는 없습니다. 헥사고날·클린 아키텍처는 내부 의존 관계를 설계하는 다른 선택지로 질문이 있을 때만 소개하고, Spring WebFlux도 다른 웹 프레임워크라는 정도만 구분합니다. 현업 전체의 기술 사용 비율을 단정하지 않습니다.
+
+HTML 화면을 렌더링하는 경우와 JSON 본문을 반환하는 경우 모두 Spring MVC의 요청 처리 구조를 사용할 수 있습니다. 전자는 뷰 이름·Model을 통해 ViewResolver와 View로 화면을 만들고, 후자는 @ResponseBody 또는 @RestController의 반환값을 메시지 변환기로 본문에 씁니다. JSON을 MVC의 View 객체나 HTML 템플릿과 같은 것으로 설명하지 않습니다. REST는 JSON만 허용하는 방식이 아니며 @RestController도 JSON만 반환하도록 제한된 표시는 아닙니다.
+
+보충 근거: [Spring MVC](https://docs.spring.io/spring-framework/reference/web/webmvc.html), [응답 본문 처리](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/responsebody.html), [GUI 패턴 비교](https://martinfowler.com/eaaDev/uiArchs.html), [표현·도메인·데이터 계층](https://martinfowler.com/bliki/PresentationDomainDataLayering.html).
+
 ## MVC와 검증에서 짚을 점
 
 MVC는 일반적인 어노테이션 Controller의 정상 요청을 기준으로 네 단계로 설명합니다.

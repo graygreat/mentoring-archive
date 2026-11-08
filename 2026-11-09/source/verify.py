@@ -27,6 +27,7 @@ assert not re.search(r'wiki|위키',visible,re.I)
 assert '책' in visible and 'README' in visible and 'sesac-spring-boot-study' in visible
 assert 'product-api/' in visible
 assert 'personal-project/' in visible and '위시리스트 유효성 검사' in visible
+assert all(term in visible for term in ['레이어드', 'MVP', 'MVVM'])
 assert 'contenteditable=' not in raw and 'localStorage' not in raw
 for name,source in sources.items():
  assert 'package com.example.product;' in source
