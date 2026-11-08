@@ -11,7 +11,7 @@ meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 sources=json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
 assert len(slides)==len(meta)==len(private)
-assert 20<=len(slides)<=28
+assert 20<=len(slides)<=30
 assert sources==SOURCES
 assert len(set(doc.xpath('//section/@data-slide-id')))==len(slides)
 assert [s.get('data-index') for s in slides]==list(map(str,range(len(slides))))
@@ -26,6 +26,7 @@ visible='\n'.join(s.text_content() for s in slides)
 assert not re.search(r'wiki|위키',visible,re.I)
 assert '책' in visible and 'README' in visible and 'sesac-spring-boot-study' in visible
 assert 'product-api/' in visible
+assert 'personal-project/' in visible and '위시리스트 유효성 검사' in visible
 assert 'contenteditable=' not in raw and 'localStorage' not in raw
 for name,source in sources.items():
  assert 'package com.example.product;' in source
