@@ -62,8 +62,9 @@ assert 'QA 체크리스트 작성과 실행' not in titles
 assert '데이터베이스 연동 도입' not in titles
 assert '위시리스트 구매 계획' not in titles
 assert '설계 확인 체크리스트' in titles
-assert titles[45]=='데이터베이스 연동'
-assert 'CH 11' in slides[45].text_content()
+assert titles[26]=='과제'
+assert titles[46]=='데이터베이스 연동'
+assert 'CH 11' in slides[46].text_content()
 for token in ['교시','45분','practice/product-rest','Closes #','병합 PR','@RequestParam','@PathVariable']:
  assert token not in '\n'.join(s.text_content() for s in slides if s not in example_slides),token
 assert titles.index('개인 과제 발표')<titles.index('DispatcherServlet과 Controller')<titles.index('외부 상품 연동과 장바구니')

@@ -136,6 +136,7 @@ add('교재와 참고','교재와 보충 자료','<div class="references"><a hre
 ORDER = [1, 2, 3, 6, 7, 8, 10, 9, 4, 5, 11, 12, 13, 14, 15, 16, 21, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 28, 33, 34, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]
 assert sorted(ORDER) == list(range(1, len(S) + 1))
 S[:] = [S[n - 1] for n in ORDER]
+S.insert(26, dict(ch='과제', title='과제', body='', sub='', note='', kind='section', source=None))
 
 # Keep complete supplementary files reachable without restoring code lecture pages.
 S[-1]['body'] += '<div class="inline-list">'+''.join('<button type="button" data-source-key="'+esc(key)+'">'+esc(key)+'</button>' for key in SOURCES)+'</div>'
