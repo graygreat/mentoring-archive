@@ -47,13 +47,15 @@ assert not any('note' in item for item in meta)
 assert set(SOURCES)=={'CreateProductRequest.java','ProductResponse.java','ProductController.java','ApiExceptionHandler.java'}
 assert '@Valid @RequestBody' in SOURCES['ProductController.java']
 assert 'Integer price' in SOURCES['CreateProductRequest.java']
-for token in ['CH 09','CH 10','CH 11','발표','MVC','DispatcherServlet','HandlerMapping','HandlerAdapter','메시지 변환기','JSON','201','Location','400','404','500','QA','체크리스트','README','Fork','compare across forks','@NotBlank','@NotNull','@Min','@Valid']:
+for token in ['CH 09','CH 10','발표','MVC','DispatcherServlet','HandlerMapping','HandlerAdapter','메시지 변환기','JSON','201','Location','400','404','500','QA','체크리스트','README','Fork','compare across forks','@NotBlank','@NotNull','@Min','@Valid']:
  assert token in visible,token
 titles=[x['title'] for x in meta]
 assert '상품 API의 응답 코드 읽기' not in titles
+assert 'QA 체크리스트 작성과 실행' not in titles
+assert '데이터베이스 연동 도입' not in titles
 for token in ['교시','45분','practice/product-rest','Closes #','병합 PR','@RequestParam','@PathVariable']:
  assert token not in visible,token
-assert titles.index('개인 과제 발표')<titles.index('DispatcherServlet과 Controller')<titles.index('QA 체크리스트 작성과 실행')
+assert titles.index('개인 과제 발표')<titles.index('DispatcherServlet과 Controller')<titles.index('위시리스트 구매 계획')
 assert len(doc.xpath('//section//svg'))>=2
 module=ast.parse((OUT.parent/'2026-11-07/source/code_examples.py').read_text())
 canonical=next(ast.literal_eval(n.value) for n in module.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='SOURCES' for t in n.targets))
