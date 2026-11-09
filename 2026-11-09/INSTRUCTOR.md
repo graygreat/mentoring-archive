@@ -219,7 +219,7 @@ JSON 응답 본문은 직접 문자열을 이어붙여 만드는 방식으로 �
 
 ### 22. ResponseEntity의 상태·헤더·본문
 
-교재 상품 추가 Controller와 수업 참고 ProductController를 함께 봅니다. id가 1부터 시작하거나 연속된다고 가정하지 않습니다. ResponseEntity를 사용해야만 모든 JSON 응답이 가능하다고 설명하지 않습니다. 일반 응답 DTO 반환도 가능합니다.
+교재 상품 추가 Controller와 수업 참고 ProductController를 함께 봅니다. 코드는 생성 메서드 안의 발췌이며 product는 service.create로 저장한 결과입니다. java.net.URI를 import합니다. created(location)은 201 Created와 Location 헤더를 정하고 body는 응답 DTO를 정합니다. id가 1부터 시작하거나 연속된다고 가정하지 않습니다. ResponseEntity를 사용해야만 모든 JSON 응답이 가능하다고 설명하지 않습니다. 일반 응답 DTO 반환도 가능합니다.
 
 ### 23. 정상 응답과 실패 응답 구분
 

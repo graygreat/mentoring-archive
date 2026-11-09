@@ -18,7 +18,8 @@ assert len(set(doc.xpath('//section/@data-slide-id')))==len(slides)
 assert [s.get('data-index') for s in slides]==list(map(str,range(len(slides))))
 example_slides=[s for s in slides if 'external-example' in s.get('class','').split()]
 assert example_slides
-assert all(p.getparent().getparent() in example_slides for p in doc.xpath('//section//pre'))
+pre_allowed_slides=[s for s in slides if set(s.get('class','').split()) & {'external-example','response-example'}]
+assert all(p.getparent().getparent() in pre_allowed_slides for p in doc.xpath('//section//pre'))
 buttons=doc.xpath('//section//button[@data-source-key]')
 assert {b.get('data-source-key') for b in buttons}==set(sources)
 assert len(buttons)>=len(sources)
