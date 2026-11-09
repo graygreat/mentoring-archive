@@ -11,7 +11,7 @@ meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 sources=json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
 assert len(slides)==len(meta)==len(private)
-assert 10<=len(slides)<=22
+assert 22<=len(slides)<=25
 assert sources==SOURCES
 assert len(set(doc.xpath('//section/@data-slide-id')))==len(slides)
 assert [s.get('data-index') for s in slides]==list(map(str,range(len(slides))))
@@ -43,14 +43,19 @@ assert not any('note' in item for item in meta)
 
 assert set(SOURCES)=={'CreateProductRequest.java','ProductController.java','ApiExceptionHandler.java'}
 assert '@Valid @RequestBody' in SOURCES['ProductController.java'] and '@NotNull' in SOURCES['CreateProductRequest.java']
-for token in ['CH 10','CH 09','CH 12','부록 B','400','404','가격 0','불변','가정','product-api/docs/crud-design.md','14일','practice/product-validation','docs/product-crud-design','필수 Issue 2개']:
+for token in ['CH 11','JDBC','H2','NULL','가격 0','ORDER BY','CREATE TABLE IF NOT EXISTS','AtomicLong','MAX(id)+1','404','409','UNIQUE','트랜잭션','재시작','Repository','personal-project/','[11/12][이름] 기존 과제 DB 연동','Issue 1개·PR 1개']:
  assert token in visible,token
 titles=[x['title'] for x in meta]
-assert titles.index('교재 CH 10을 펼칩니다')<titles.index('검증과 실패 응답을 완성합니다')<titles.index('CH 09 · CH 12로 돌아갑니다')<titles.index('14일에 만들 수정·삭제를 먼저 정합니다')
+assert titles.index('책에서 함께 읽을 부분')<titles.index('상품 API를 DB에 연결')<titles.index('과제')<titles.index('기존 위시리스트를 DB에 저장')
+assert titles.count('과제')==1
+for token in ['교시','45분','practice/product-validation','docs/product-crud-design','Closes #','필수 Issue 2개','자가 병합']:
+ assert token not in visible,token
+assert 'HTTP 검증·예외 처리 보충 코드' in slides[-1].text_content()
 module=ast.parse((OUT.parent/'2026-11-07/source/code_examples.py').read_text())
 canonical=next(ast.literal_eval(n.value) for n in module.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='SOURCES' for t in n.targets))
 assert all(v==canonical[k] for k,v in SOURCES.items())
-assert '../assignments/short-url/' in raw
+assert 'jdbc:h2:file:./data/products' in visible and 'jdbc:h2:file:./data/wishlist' in visible
+assert 'jdbc:h2:mem:db_basics' in visible
 
 js='\n'.join(doc.xpath('//script[not(@type)]/text()'))
 with tempfile.NamedTemporaryFile(suffix='.js',mode='w') as f:

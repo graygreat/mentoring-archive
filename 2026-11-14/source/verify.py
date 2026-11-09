@@ -41,7 +41,7 @@ for i,(slide,item) in enumerate(zip(slides,meta)):
  assert f'{i+1:02} / {len(slides):02}' in slide.text_content()
 assert not any('note' in item for item in meta)
 
-for token in ['CH 09','CH 10','CH 12','CH 11','personal-project/','CollectionItem','/items','400','404','150분','위시리스트','예산','최대 3개','개별 가격 기준','원본','체크리스트','브랜치 이름은 자율','JPA','Memory','README','Closes #실제번호','HTML','CSS','JavaScript','CDN']:
+for token in ['CH 09','CH 10','CH 12','CH 11','personal-project/','CollectionItem','/items','400','404','150분','위시리스트','예산','최대 3개','개별 가격 기준','원본','체크리스트','브랜치 이름은 자율','JPA','Memory','README','관련 Issue #번호','개인 Fork','병합 없이','HTML','CSS','JavaScript','CDN']:
  assert token in visible+'\n'+'\n'.join(x.get('note','') for x in private),token
 combined=visible+'\n'+'\n'.join(x.get('note','') for x in private)+(OUT/'INSTRUCTOR.md').read_text()
 for removed in ['교시','45분','15분','105분','75분','4분','2분','assignment/personal-rest','practice/product-crud','assignments/personal-project/README.md']:

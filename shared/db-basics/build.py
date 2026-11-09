@@ -19,7 +19,8 @@ page = ('<!doctype html><html lang="ko"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         '<title>상품 한 개로 시작하는 DB 기초</title><style>' + style + '</style></head>'
         '<body><main><nav aria-label="자료 이동"><a href="../../">전체 수업 자료</a>'
-        '<a href="../../2026-11-14/">14일 수업</a><a href="../../2026-11-16/">16일 수업</a>'
+        '<a href="../../2026-11-12/">12일 수업</a><a href="../../2026-11-14/">14일 수업</a>'
+        '<a href="../../2026-11-16/">16일 수업</a>'
         '<a href="STUDENT-WORKSHEET.md">멘티 작업지</a></nav>' + body + '</main></body></html>')
 (R / 'index.html').write_text(page)
 print('Built DB basics handout:', len(page.encode()), 'bytes')
