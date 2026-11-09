@@ -145,33 +145,33 @@ PR의 base repository는 조직 원본, base는 main, head는 본인 Fork의 작
 
 11명이 각자 특징적인 구현과 고민을 짧게 공유합니다. 추천 정렬·원본 목록 보존·생성자 주입 등 교육생이 선택한 근거를 묻습니다. 이 발표는 지난 시간 과제의 확인이며 새 기능 구현을 요구하지 않습니다.
 
-### 04. Servlet이 하는 일
-
-Servlet은 Jakarta Servlet API의 구성 요소입니다. 서블릿 컨테이너는 초기화 init, 요청 처리 service, 종료 destroy의 수명주기를 관리합니다. HttpServlet의 service는 HTTP 메서드에 맞는 처리로 분기하며 여기서 doGet 등의 구현 실습은 하지 않습니다. DispatcherServlet은 FrameworkServlet과 HttpServletBean을 거쳐 HttpServlet을 상속하므로 Servlet입니다. 일반 어노테이션 Controller는 Servlet 인터페이스를 직접 구현한 객체가 아니라 Spring이 관리하는 빈이고 HandlerAdapter를 통해 메서드가 호출됩니다.
-
-### 05. Tomcat과 Spring 컨테이너
-
-Spring Boot 수업 예제는 내장 Tomcat을 사용합니다. Tomcat은 HTTP 연결과 요청·응답 객체 및 Servlet 실행을 관리하고, Spring 컨테이너는 Controller·Service·Repository 등의 객체를 빈으로 생성하고 의존성을 연결합니다. 역할을 구분한 그림이며 물리 서버 두 대를 뜻하지 않습니다. DispatcherServlet도 Spring Boot 설정에서 빈으로 등록될 수 있으므로 두 컨테이너의 관리 대상이 절대 배타적이라고 설명하지 않습니다. Servlet의 수명주기와 Spring 빈의 수명주기는 역할이 다릅니다.
-
-### 06. Model · View · Controller
+### 04. Model · View · Controller
 
 Model을 Service 클래스 하나와 일대일 대응시키지 않습니다. 화면을 렌더링하는 전통 MVC와 응답 본문을 쓰는 REST API의 처리 차이는 뒤의 Controller 비교에서 구분합니다. Repository는 저장·조회 책임을 갖습니다.
 
-### 07. MVC · Spring MVC · REST
+### 05. MVC · Spring MVC · REST
 
 MVC라는 설계 관점과 Spring MVC라는 웹 프레임워크 이름을 구분합니다. REST는 Spring MVC 대신 고르는 프레임워크 이름이 아닙니다. REST의 전체 제약이나 성숙도 단계는 이번 보충에서 길게 다루지 않고 요청·응답과 자원을 설계하는 관점임을 연결합니다. Spring MVC를 쓰면서 REST 방식의 API를 개발할 수 있습니다.
 
-### 08. MVC와 레이어드 아키텍처
+### 06. MVC와 레이어드 아키텍처
 
 수업 코드의 Controller·Service·Repository는 레이어드 구조의 한 예입니다. 실제 프로젝트의 계층 이름과 개수는 다를 수 있습니다. MVC의 Model은 Service나 Repository 클래스 하나와 같은 뜻이 아니며, 도메인 데이터와 업무 규칙을 포함하는 개념입니다. 계층 간 책임 분리와 의존 방향을 살펴보되 이 표가 모든 아키텍처의 유일한 구성을 뜻하지는 않습니다.
 
-### 09. Spring MVC와 계층 구조 함께 사용
+### 07. MVC · MVP · MVVM
+
+MVC·MVP·MVVM은 화면과 프레젠테이션 로직의 분리를 설명할 때 비교하는 패턴들입니다. 구체적인 변형과 플랫폼에 따라 상호작용 방식은 다르므로 MVP에서는 View와 Model이 언제나 절대 직접 연결되지 않는다는 식의 보편 규칙을 암기시키지 않습니다. MVVM의 바인딩도 해당 플랫폼의 지원이나 구현이 필요하며 특정 프론트엔드 라이브러리를 무조건 MVVM이라고 단정하지 않습니다. 레이어드·헥사고날·클린 아키텍처와 이 세 패턴을 하나의 대체 목록처럼 설명하지 않습니다. 별도 구현 과제는 없습니다.
+
+### 08. Spring MVC와 계층 구조 함께 사용
 
 그림의 Controller는 같은 객체이며 Spring MVC와 레이어드 아키텍처 중 하나에만 속하는 것이 아닙니다. DispatcherServlet은 HandlerMapping·HandlerAdapter에 위임해 Controller를 호출하고 응답 처리를 조율합니다. Controller가 업무 처리를 위해 Service를 호출하며, Service가 Repository 인터페이스를 사용합니다. Spring MVC가 Service와 Repository를 자동으로 직접 호출하는 흐름으로 설명하지 않습니다. 이 조합은 오늘 수업의 Spring REST 백엔드 예이며 모든 회사가 동일한 구조라는 통계적 주장을 하지 않습니다. 헥사고날·클린 아키텍처는 내부 의존 관계를 설계하는 다른 관점으로 추가 질문 때만 소개합니다. 그 구조에서도 HTTP 진입점에 Spring MVC를 사용할 수 있습니다.
 
-### 10. MVC · MVP · MVVM
+### 09. Servlet이 하는 일
 
-MVC·MVP·MVVM은 화면과 프레젠테이션 로직의 분리를 설명할 때 비교하는 패턴들입니다. 구체적인 변형과 플랫폼에 따라 상호작용 방식은 다르므로 MVP에서는 View와 Model이 언제나 절대 직접 연결되지 않는다는 식의 보편 규칙을 암기시키지 않습니다. MVVM의 바인딩도 해당 플랫폼의 지원이나 구현이 필요하며 특정 프론트엔드 라이브러리를 무조건 MVVM이라고 단정하지 않습니다. 레이어드·헥사고날·클린 아키텍처와 이 세 패턴을 하나의 대체 목록처럼 설명하지 않습니다. 별도 구현 과제는 없습니다.
+Servlet은 Jakarta Servlet API의 구성 요소입니다. 서블릿 컨테이너는 초기화 init, 요청 처리 service, 종료 destroy의 수명주기를 관리합니다. HttpServlet의 service는 HTTP 메서드에 맞는 처리로 분기하며 여기서 doGet 등의 구현 실습은 하지 않습니다. DispatcherServlet은 FrameworkServlet과 HttpServletBean을 거쳐 HttpServlet을 상속하므로 Servlet입니다. 일반 어노테이션 Controller는 Servlet 인터페이스를 직접 구현한 객체가 아니라 Spring이 관리하는 빈이고 HandlerAdapter를 통해 메서드가 호출됩니다.
+
+### 10. Tomcat과 Spring 컨테이너
+
+Spring Boot 수업 예제는 내장 Tomcat을 사용합니다. Tomcat은 HTTP 연결과 요청·응답 객체 및 Servlet 실행을 관리하고, Spring 컨테이너는 Controller·Service·Repository 등의 객체를 빈으로 생성하고 의존성을 연결합니다. 역할을 구분한 그림이며 물리 서버 두 대를 뜻하지 않습니다. DispatcherServlet도 Spring Boot 설정에서 빈으로 등록될 수 있으므로 두 컨테이너의 관리 대상이 절대 배타적이라고 설명하지 않습니다. Servlet의 수명주기와 Spring 빈의 수명주기는 역할이 다릅니다.
 
 ### 11. DispatcherServlet과 Controller
 
@@ -197,25 +197,25 @@ RequestMappingHandlerMapping은 초기화 과정에서 어노테이션 Controlle
 
 그림의 ④~⑥ 이후 반환값 처리를 문장으로 연결합니다. 일반 어노테이션 Controller의 HandlerAdapter는 RequestMappingHandlerAdapter이며 인자 해석기·반환값 처리기·HttpMessageConverter를 사용합니다. Controller 메서드 진입 전에도 변환·검증이 실패할 수 있습니다. DispatcherServlet은 HandlerExceptionResolver 등에 예외 처리를 위임하고 전역 예외 핸들러가 필요한 응답을 만들 수 있습니다. HTTP 응답을 View로 렌더링하는 경우는 뒤의 HTML·JSON 분기 그림에서 구분합니다.
 
-### 17. JSON 변환과 입력 검증
+### 17. 요청 DTO · 도메인 · 응답 DTO
+
+새 DTO 작성 실습을 길게 반복하지 않고 교재 9장의 코드와 현재 구현을 대조합니다. DTO가 도메인의 모든 필드를 그대로 받을 필요는 없습니다. 예를 들어 상품 id는 서버가 부여하며 생성 요청의 임의 id를 그대로 신뢰하는 구조로 설명하지 않습니다.
+
+### 18. JSON 변환과 입력 검증
 
 JSON 변환은 HttpMessageConverter가 맡으며 JSON 변환 라이브러리를 이용합니다. Spring Boot와 Jackson 버전에 따라 구현 클래스가 달라질 수 있으므로 오늘은 역할을 설명합니다. @Valid가 적용된 요청 DTO의 검증은 일반적으로 Controller 메서드 실행 전에 수행됩니다. 로컬 Errors/BindingResult로 처리하는 변형은 오늘 범위 밖입니다.
 
-### 18. 상품 업무 처리
+### 19. 상품 업무 처리
 
 7일 개인 과제의 역할 분리를 공통 상품 API와 연결합니다. 도메인 객체와 Service의 검증은 HTTP 이외의 경로로 생성·호출해도 의미가 있어야 합니다. 생성자 주입과 기존 인터페이스·단위 테스트·AOP 코드는 보존합니다.
 
-### 19. Java 객체가 JSON 응답이 되는 과정
+### 20. Java 객체가 JSON 응답이 되는 과정
 
 JSON 응답 본문은 직접 문자열을 이어붙여 만드는 방식으로 설명하지 않습니다. @ResponseBody 또는 @RestController의 반환값 처리를 통해 메시지 변환기가 응답 본문을 씁니다. 메시지 변환기의 인코딩·미디어 타입 협상 세부 사항은 추가 질문이 있을 때만 다룹니다.
 
-### 20. REST API도 Spring MVC로 처리
+### 21. REST API도 Spring MVC로 처리
 
 그림은 Controller 반환값이 응답이 되는 두 방식을 비교합니다. 두 경우 모두 DispatcherServlet·HandlerMapping·HandlerAdapter가 요청 처리에 참여합니다. 화면 처리에서는 뷰 이름과 Model로 ViewResolver를 통해 View를 찾고 HTML을 렌더링할 수 있습니다. @ResponseBody나 @RestController의 본문 처리에서는 반환값 처리기와 HttpMessageConverter가 응답 DTO를 JSON 본문으로 씁니다. 따라서 REST API를 만들면 Spring MVC를 사용하지 않는다는 설명은 잘못입니다. JSON을 MVC의 View 객체나 HTML 템플릿과 같은 것으로 맞추지 않습니다. @Controller도 @ResponseBody를 붙이면 본문을 반환하며, @RestController가 항상 JSON만 반환하는 것도 아닙니다. REST가 JSON만 허용하는 것은 아니고, ResponseEntity 없이 응답 DTO를 반환하는 것도 가능합니다. 프론트엔드의 HTML·JavaScript가 별도로 화면을 만들고 API의 JSON을 사용하는 구조와 서버의 View 렌더링을 구분합니다. Spring WebFlux는 다른 웹 처리 기술의 선택지이며, 모든 Spring Boot 프로젝트가 Spring MVC라는 뜻은 아닙니다.
-
-### 21. 요청 DTO · 도메인 · 응답 DTO
-
-새 DTO 작성 실습을 길게 반복하지 않고 교재 9장의 코드와 현재 구현을 대조합니다. DTO가 도메인의 모든 필드를 그대로 받을 필요는 없습니다. 예를 들어 상품 id는 서버가 부여하며 생성 요청의 임의 id를 그대로 신뢰하는 구조로 설명하지 않습니다.
 
 ### 22. ResponseEntity의 상태·헤더·본문
 
@@ -245,29 +245,29 @@ JSON 응답 본문은 직접 문자열을 이어붙여 만드는 방식으로 �
 
 공식 문서 https://dummyjson.com/docs/products 에서 목록·검색·상품 상세 응답을 확인합니다. Spring 서버도 외부 API에 HTTP 요청을 보낼 때는 클라이언트입니다. 브라우저가 DummyJSON을 직접 호출하는 대신 본인 Spring 서버의 검색·가져오기 API를 사용하도록 연결합니다. HTTP 클라이언트 종류와 내부 API 경로는 교육생이 정하되 연결·응답 시간 제한을 설정합니다. 외부 데이터와 id별 값은 바뀔 수 있으므로 특정 상품 id의 제목·가격·재고를 고정값으로 채점하지 않습니다. 이 과제는 실제 쇼핑몰이나 실시간 가격 변동 알림 기능이 아닙니다.
 
-### 29. 외부 호출 예제 준비
-
-각 파일 이름 버튼에서 package·import·오류 처리까지 포함한 전체 코드를 확인합니다. package com.example.product는 예시이므로 자신의 @SpringBootApplication 클래스가 있는 패키지와 같거나 그 하위로 세 파일 모두 수정합니다. Spring Boot 4와 Java 17, Spring Web를 기준으로 합니다. 프로젝트에 이미 존재하는 Application 클래스나 기존 API를 삭제하지 않습니다. 이 세 파일은 외부 상세 조회 연결 예시이며 검색·목록·위시리스트 저장·환산·장바구니의 완성 답안은 아닙니다.
-
-### 30. JSON 응답을 담는 DTO
-
-파일 전체 코드 버튼에 package와 import가 있습니다. record는 Java 17에서 사용할 수 있는 데이터 운반용 클래스 문법으로, 생성자와 id(), title(), price() 같은 접근자를 자동으로 제공합니다. DTO 필드 이름은 외부 JSON 키와 맞춥니다. DummyJSON 응답에는 discountPercentage 등 더 많은 필드가 있어도 ignoreUnknown=true로 무시합니다. 가격을 받은 직후 아직 수업용 원화 환산이 된 값은 아닙니다. 환산·검증·저장은 이후 과제로 구현합니다.
-
-### 31. RestClient로 GET 요청
-
-전체 DummyJsonClient에는 @Component, RestClient 생성, 기준 주소 https://dummyjson.com, 연결 제한 3초와 응답 제한 5초가 포함되어 있습니다. 생성자의 JDK HttpClient와 JdkClientHttpRequestFactory는 유한한 시간 제한을 설정하기 위한 구성입니다. findById는 양수가 아닌 id를 400으로 거부하고 외부 404를 404, 다른 외부 오류·네트워크 장애·시간 초과·빈 본문을 502로 바꿉니다. 여기서는 핵심 4줄을 먼저 읽고 나머지 설정·예외 처리는 전체 코드와 함께 봅니다. RestClient가 응답 JSON을 읽는 작업과 내 Controller가 DTO를 JSON 응답으로 쓰는 작업은 서로 다른 HTTP 통신입니다.
-
-### 32. 내 서버에서 외부 상품 조회
-
-전체 ExternalProductExampleController에는 @RestController와 @RequestMapping("/examples/external-products"), DummyJsonClient를 받는 생성자가 있습니다. Spring이 Client 빈을 Controller 생성자에 주입합니다. localhost 주소를 열면 내 서버가 외부 API를 호출하고, 외부 JSON을 DTO로 읽은 뒤 자신의 JSON 응답을 반환합니다. 브라우저에서 dummyjson.com/products/1을 직접 여는 것은 외부 서버에 바로 요청하는 것이므로 이 예제의 내 Controller와 Client를 거치지 않습니다. 외부 상품의 실제 제목·가격·재고는 바뀔 수 있으므로 특정 값이 고정되어 있다고 가정하지 않습니다. 현재 예제는 외부 상세 조회만 제공하며 내 위시리스트에 저장하지 않습니다.
-
-### 33. 외부 상품을 내 위시리스트에 저장
+### 29. 외부 상품을 내 위시리스트에 저장
 
 사용자가 보낸 임의의 상품 이름·가격·재고를 신뢰하지 않고 외부 상세 응답에서 읽습니다. 외부 데이터의 식별자는 sourceType과 externalId로 보존하고, 로컬 항목 id는 프로그램이 부여합니다. 외부 id와 로컬 id가 우연히 같아도 같은 의미로 취급하지 않습니다. 가져온 항목의 이름·가격은 읽기 전용이며 수동 등록 상품은 기존 기능대로 수정할 수 있습니다. 원본 외부 가격이나 재고가 이후 변해도 저장한 위시리스트 값을 자동으로 바꾸지 않습니다. 재고가 0인 상품은 관심 목록에 보관할 수 있지만 장바구니에는 담을 수 없습니다. 가져오기에 실패하면 항목을 일부만 저장하지 않습니다.
 
-### 34. 외부 가격을 수업용 원화로 환산
+### 30. 외부 가격을 수업용 원화로 환산
 
 double로 곱해 소수점 오차를 만든 뒤 형변환하지 않도록 주의합니다. JSON 숫자를 BigDecimal로 읽거나 원래 소수 표현을 보존하는 방식으로 변환합니다. 실제 외부 가격 단위의 통화를 단정하거나 환율 API를 새로 연결하지 않습니다. 외부 discountPercentage는 반영하지 않습니다. 생성·합산 과정에서 정수 오버플로가 발생하지 않도록 금액 연산 타입을 확인하고, 처리할 수 없는 외부 응답은 저장 전에 거부합니다. 특정 외부 상품이 항상 price 9.99라고 가정하지 않습니다.
+
+### 31. 외부 호출 예제 준비
+
+각 파일 이름 버튼에서 package·import·오류 처리까지 포함한 전체 코드를 확인합니다. package com.example.product는 예시이므로 자신의 @SpringBootApplication 클래스가 있는 패키지와 같거나 그 하위로 세 파일 모두 수정합니다. Spring Boot 4와 Java 17, Spring Web를 기준으로 합니다. 프로젝트에 이미 존재하는 Application 클래스나 기존 API를 삭제하지 않습니다. 이 세 파일은 외부 상세 조회 연결 예시이며 검색·목록·위시리스트 저장·환산·장바구니의 완성 답안은 아닙니다.
+
+### 32. JSON 응답을 담는 DTO
+
+파일 전체 코드 버튼에 package와 import가 있습니다. record는 Java 17에서 사용할 수 있는 데이터 운반용 클래스 문법으로, 생성자와 id(), title(), price() 같은 접근자를 자동으로 제공합니다. DTO 필드 이름은 외부 JSON 키와 맞춥니다. DummyJSON 응답에는 discountPercentage 등 더 많은 필드가 있어도 ignoreUnknown=true로 무시합니다. 가격을 받은 직후 아직 수업용 원화 환산이 된 값은 아닙니다. 환산·검증·저장은 이후 과제로 구현합니다.
+
+### 33. RestClient로 GET 요청
+
+전체 DummyJsonClient에는 @Component, RestClient 생성, 기준 주소 https://dummyjson.com, 연결 제한 3초와 응답 제한 5초가 포함되어 있습니다. 생성자의 JDK HttpClient와 JdkClientHttpRequestFactory는 유한한 시간 제한을 설정하기 위한 구성입니다. findById는 양수가 아닌 id를 400으로 거부하고 외부 404를 404, 다른 외부 오류·네트워크 장애·시간 초과·빈 본문을 502로 바꿉니다. 여기서는 핵심 4줄을 먼저 읽고 나머지 설정·예외 처리는 전체 코드와 함께 봅니다. RestClient가 응답 JSON을 읽는 작업과 내 Controller가 DTO를 JSON 응답으로 쓰는 작업은 서로 다른 HTTP 통신입니다.
+
+### 34. 내 서버에서 외부 상품 조회
+
+전체 ExternalProductExampleController에는 @RestController와 @RequestMapping("/examples/external-products"), DummyJsonClient를 받는 생성자가 있습니다. Spring이 Client 빈을 Controller 생성자에 주입합니다. localhost 주소를 열면 내 서버가 외부 API를 호출하고, 외부 JSON을 DTO로 읽은 뒤 자신의 JSON 응답을 반환합니다. 브라우저에서 dummyjson.com/products/1을 직접 여는 것은 외부 서버에 바로 요청하는 것이므로 이 예제의 내 Controller와 Client를 거치지 않습니다. 외부 상품의 실제 제목·가격·재고는 바뀔 수 있으므로 특정 값이 고정되어 있다고 가정하지 않습니다. 현재 예제는 외부 상세 조회만 제공하며 내 위시리스트에 저장하지 않습니다.
 
 ### 35. 장바구니에 상품 담기
 

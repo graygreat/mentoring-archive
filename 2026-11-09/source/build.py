@@ -132,6 +132,10 @@ add('GitHub 제출','원본 PR 대상과 리뷰',table([['선택할 항목','설
 add('다음 수업','데이터베이스 연동',cards(('교재 CH 11','DB와 SQL 기초','메모리 저장과 DB 저장 · 테이블·행·열·기본키 · SQL'),('상품 API','데이터베이스 연동','상품 추가·조회·수정·삭제를 DB에 연결'))+call('교재 11장을 보며 상품 관리 애플리케이션에 데이터베이스를 연동합니다.<br>기존 Controller·Service와 Repository의 역할을 연결해 봅니다.'),note='다음 수업인 11월 12일에는 교재 CHAPTER 11 상품 관리 애플리케이션에 데이터베이스 연동하기를 진행합니다. 데이터베이스를 사용하는 웹 애플리케이션, 데이터베이스 다뤄 보기, 상품 추가 기능 구현하기, 상품 조회/수정/삭제 구현하기 순서로 책과 기존 상품 API를 연결합니다. DB 기본 용어와 간단한 SQL부터 설명하고 메모리 저장소의 데이터 접근 코드를 DB에 연결합니다. 영구 저장은 실제 저장 설정을 전제로 설명하며 메모리 DB도 서버를 끄면 데이터가 사라질 수 있음을 구분합니다. 구체적인 DB 제품·라이브러리·설정은 교재와 기존 프로젝트 버전에 맞춥니다.')
 add('교재와 참고','교재와 보충 자료','<div class="references"><a href="https://www.hanbit.co.kr/books/이것이-취업을-위한-백엔드-개발이다-with-자바?code=E9912985019"><b>교재 목차 ↗</b><span>9장 · 10장</span></a><a href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-servlet.html"><b>Spring MVC ↗</b><span>DispatcherServlet</span></a><a href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/requestbody.html"><b>요청 DTO 검증 ↗</b><span>메시지 변환과 @Valid</span></a><a href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-advice.html"><b>전역 예외 처리 ↗</b><span>ControllerAdvice</span></a></div>',note='교재가 주교재이며 아래 파일은 교재 원문을 복제한 것이 아닌 수업용 독립 참고 구현입니다. 실제 판본과 사용 중인 Spring Boot 버전의 차이를 확인하며 비교합니다.')
 
+ORDER = [1, 2, 3, 6, 7, 8, 10, 9, 4, 5, 11, 12, 13, 14, 15, 16, 21, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 28, 33, 34, 29, 30, 31, 32, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]
+assert sorted(ORDER) == list(range(1, len(S) + 1))
+S[:] = [S[n - 1] for n in ORDER]
+
 # Keep complete supplementary files reachable without restoring code lecture pages.
 S[-1]['body'] += '<div class="inline-list">'+''.join('<button type="button" data-source-key="'+esc(key)+'">'+esc(key)+'</button>' for key in SOURCES)+'</div>'
 S[-1]['note'] += ' 파일 이름 버튼은 전체 참고 코드를 여는 보충 자료입니다. 책과 직접 작성한 결과를 먼저 확인하고, 막힌 부분을 비교할 때 사용합니다.'

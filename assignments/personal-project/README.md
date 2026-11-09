@@ -119,7 +119,7 @@ AI를 활용해 위시리스트 목록, 항목 등록 폼, 예산 입력, 추천
 
 ### 외부 API 호출 참고 예시
 
-수업의 **Spring Boot 4.x·Java 17·Spring Web** 프로젝트에서 `RestClient`를 사용합니다. 기존 프로젝트의 `build.gradle`은 유지합니다. [외부 호출 예시 슬라이드](../../2026-11-09/index.html#slide-29)의 파일 버튼에서 import·연결 설정·오류 처리를 포함한 전체 코드를 확인할 수 있습니다.
+수업의 **Spring Boot 4.x·Java 17·Spring Web** 프로젝트에서 `RestClient`를 사용합니다. 기존 프로젝트의 `build.gradle`은 유지합니다. [외부 호출 예시 슬라이드](../../2026-11-09/index.html#slide-31)의 파일 버튼에서 import·연결 설정·오류 처리를 포함한 전체 코드를 확인할 수 있습니다.
 
 | 파일 | 역할 |
 | --- | --- |
