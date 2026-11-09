@@ -11,7 +11,7 @@ meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 sources=json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
 assert len(slides)==len(meta)==len(private)
-assert 30<=len(slides)<=42
+assert 30<=len(slides)<=44
 assert sources==SOURCES
 assert len(set(doc.xpath('//section/@data-slide-id')))==len(slides)
 assert [s.get('data-index') for s in slides]==list(map(str,range(len(slides))))
@@ -26,8 +26,8 @@ visible='\n'.join(s.text_content() for s in slides)
 assert not re.search(r'wiki|위키',visible,re.I)
 assert '책' in visible and 'README' in visible and 'sesac-spring-boot-study' in visible
 assert 'product-api/' in visible
-assert 'personal-project/' in visible and '구매 계획' in visible
-assert all(term in visible for term in ['Servlet', 'Tomcat', 'DRAFT', 'CONFIRMED', 'CANCELLED'])
+assert 'personal-project/' in visible and '외부 상품 연동과 장바구니' in visible
+assert all(term in visible for term in ['Servlet', 'Tomcat', 'DummyJSON', 'PERCENT10', 'FIXED15000', 'HALF_UP', '502'])
 assert all(term in visible for term in ['레이어드', 'MVP', 'MVVM'])
 assert 'contenteditable=' not in raw and 'localStorage' not in raw
 for name,source in sources.items():
@@ -53,9 +53,11 @@ titles=[x['title'] for x in meta]
 assert '상품 API의 응답 코드 읽기' not in titles
 assert 'QA 체크리스트 작성과 실행' not in titles
 assert '데이터베이스 연동 도입' not in titles
+assert '위시리스트 구매 계획' not in titles
+assert '설계 확인 체크리스트' in titles
 for token in ['교시','45분','practice/product-rest','Closes #','병합 PR','@RequestParam','@PathVariable']:
  assert token not in visible,token
-assert titles.index('개인 과제 발표')<titles.index('DispatcherServlet과 Controller')<titles.index('위시리스트 구매 계획')
+assert titles.index('개인 과제 발표')<titles.index('DispatcherServlet과 Controller')<titles.index('외부 상품 연동과 장바구니')
 assert len(doc.xpath('//section//svg'))>=2
 module=ast.parse((OUT.parent/'2026-11-07/source/code_examples.py').read_text())
 canonical=next(ast.literal_eval(n.value) for n in module.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='SOURCES' for t in n.targets))
