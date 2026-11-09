@@ -2,6 +2,7 @@ from pathlib import Path
 import ast,json,re,subprocess,tempfile
 from lxml import html
 from code_examples import SOURCES
+from external_examples import EXTERNAL_SOURCES
 R=Path(__file__).resolve().parent
 OUT=R.parent
 DAY=OUT.name
@@ -11,16 +12,19 @@ meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 sources=json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
 assert len(slides)==len(meta)==len(private)
-assert 30<=len(slides)<=44
+assert 30<=len(slides)<=50
 assert sources==SOURCES
 assert len(set(doc.xpath('//section/@data-slide-id')))==len(slides)
 assert [s.get('data-index') for s in slides]==list(map(str,range(len(slides))))
-assert not doc.xpath('//section//pre')
+example_slides=[s for s in slides if 'external-example' in s.get('class','').split()]
+assert example_slides
+assert all(p.getparent().getparent() in example_slides for p in doc.xpath('//section//pre'))
 buttons=doc.xpath('//section//button[@data-source-key]')
 assert {b.get('data-source-key') for b in buttons}==set(sources)
-assert len(buttons)==len(sources)
+assert len(buttons)>=len(sources)
+assert {b.get('data-source-key') for b in slides[-1].xpath('.//button[@data-source-key]')}==set(sources)
 assert all(b.get('type')=='button' for b in buttons)
-assert all(b in slides[-1].xpath('.//button[@data-source-key]') for b in buttons)
+assert all(b in slides[-1].xpath('.//button[@data-source-key]') or b.get('data-source-key') in EXTERNAL_SOURCES for b in buttons)
 assert not doc.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," subtitle ")]')
 visible='\n'.join(s.text_content() for s in slides)
 assert not re.search(r'wiki|위키',visible,re.I)
@@ -44,7 +48,9 @@ for i,(slide,item) in enumerate(zip(slides,meta)):
  assert f'{i+1:02} / {len(slides):02}' in slide.text_content()
 assert not any('note' in item for item in meta)
 
-assert set(SOURCES)=={'CreateProductRequest.java','ProductResponse.java','ProductController.java','ApiExceptionHandler.java'}
+assert set(SOURCES)=={'CreateProductRequest.java','ProductResponse.java','ProductController.java','ApiExceptionHandler.java'} | set(EXTERNAL_SOURCES)
+for key,value in EXTERNAL_SOURCES.items():
+ assert SOURCES[key]==value
 assert '@Valid @RequestBody' in SOURCES['ProductController.java']
 assert 'Integer price' in SOURCES['CreateProductRequest.java']
 for token in ['CH 09','CH 10','발표','MVC','DispatcherServlet','HandlerMapping','HandlerAdapter','메시지 변환기','JSON','201','Location','400','404','500','QA','체크리스트','README','Fork','compare across forks','@NotBlank','@NotNull','@Min','@Valid']:
@@ -56,7 +62,7 @@ assert '데이터베이스 연동 도입' not in titles
 assert '위시리스트 구매 계획' not in titles
 assert '설계 확인 체크리스트' in titles
 for token in ['교시','45분','practice/product-rest','Closes #','병합 PR','@RequestParam','@PathVariable']:
- assert token not in visible,token
+ assert token not in '\n'.join(s.text_content() for s in slides if s not in example_slides),token
 assert titles.index('개인 과제 발표')<titles.index('DispatcherServlet과 Controller')<titles.index('외부 상품 연동과 장바구니')
 assert len(doc.xpath('//section//svg'))>=2
 module=ast.parse((OUT.parent/'2026-11-07/source/code_examples.py').read_text())

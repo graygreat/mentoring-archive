@@ -111,3 +111,8 @@ public class ApiExceptionHandler {
 }
 ''',
 }
+
+# External HTTP call examples supplement the unchanged book reference files.
+from external_examples import EXTERNAL_SOURCES
+
+SOURCES.update(EXTERNAL_SOURCES)

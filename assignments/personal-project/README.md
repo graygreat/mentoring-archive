@@ -117,6 +117,37 @@ AI를 활용해 위시리스트 목록, 항목 등록 폼, 예산 입력, 추천
 
 `discountPercentage`는 이번 계산에 사용하지 않습니다. 쿠폰은 아래 과제 규칙으로 직접 구현합니다. 외부의 `minimumOrderQuantity`도 사용하지 않고 수량은 과제의 1~5개 규칙을 따릅니다. `stock`은 가져온 시점의 참고 재고이며 예약하거나 외부 서버에서 차감하지 않습니다.
 
+### 외부 API 호출 참고 예시
+
+수업의 **Spring Boot 4.x·Java 17·Spring Web** 프로젝트에서 `RestClient`를 사용합니다. 기존 프로젝트의 `build.gradle`은 유지합니다. [외부 호출 예시 슬라이드](../../2026-11-09/index.html#slide-29)의 파일 버튼에서 import·연결 설정·오류 처리를 포함한 전체 코드를 확인할 수 있습니다.
+
+| 파일 | 역할 |
+| --- | --- |
+| `DummyJsonProduct.java` | 외부 JSON을 받을 DTO. `record`로 값을 묶고, 가격은 `BigDecimal`로 받기 |
+| `DummyJsonClient.java` | DummyJSON에 GET 요청. 연결 최대 3초·응답 대기 5초, 외부 오류를 404/502로 구분 |
+| `ExternalProductExampleController.java` | 내 서버에서 외부 상품을 조회할 임시 확인용 API |
+
+각 파일을 기존 프로젝트의 `src/main/java` 아래에 추가합니다. 예시의 `package com.example.product;`는 **본인 `@SpringBootApplication` 클래스와 같은 패키지 또는 하위 패키지**로 바꿉니다. 새 Spring Boot 프로젝트나 시작 클래스는 추가하지 않습니다.
+
+아래는 `DummyJsonClient.findById` 내부의 핵심 호출 부분입니다. `restClient`는 전체 코드의 생성자에서 기준 주소와 대기 시간을 설정한 객체입니다.
+
+```java
+DummyJsonProduct product = restClient.get()
+        .uri("/products/{id}", id)
+        .retrieve()
+        .body(DummyJsonProduct.class);
+```
+
+- `get()`은 GET 요청을 준비하고 `uri(...)`는 외부 상품 주소를 만듭니다.
+- `retrieve()`는 응답을 처리할 준비를 하며, `body(...)`에서 실제 요청을 수행하고 JSON을 DTO로 변환합니다. 4xx·5xx 응답은 기본적으로 예외가 됩니다.
+- DTO의 `@JsonIgnoreProperties(ignoreUnknown = true)`는 이번에 사용하지 않는 JSON 필드를 무시합니다. 가격은 `double` 대신 `BigDecimal`로 받아 소수 표현을 유지합니다.
+
+세 파일을 추가하고 기존 서버를 실행한 뒤 `GET http://localhost:8080/examples/external-products/1`을 요청합니다. 실행 포트를 바꿨다면 주소도 맞춥니다. 내 Controller → `DummyJsonClient` → `https://dummyjson.com/products/1` 순서로 요청하고, 외부 JSON이 DTO로 변환돼 내 서버의 JSON 응답으로 나옵니다. 상품 값은 바뀔 수 있으므로 특정 이름·가격을 고정하지 않습니다.
+
+전체 예시는 외부 404를 404로, 외부 서버 오류·통신 실패·읽기 시간 초과·잘못된 JSON·빈 응답 본문을 502로 처리합니다. 오류 본문 형식은 기존 예외 처리 설정에 따릅니다. 조회 예시를 출발점으로 목록·검색을 확장하고, 실제 가져오기에서는 **저장 전에 외부 id·이름·가격·재고 등 필수 값과 범위를 검증**합니다. 위시리스트 저장·가격 환산·중복 검사·장바구니는 직접 구현합니다.
+
+참고: [RestClient 공식 문서](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html), [연결·읽기 시간 설정 API](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/client/JdkClientHttpRequestFactory.html).
+
 ### 1단계 · 상품 검색과 위시리스트에 담기
 
 - **Spring 서버가 DummyJSON을 호출**하고, 자체 API로 상품 목록·검색·상세 결과를 제공합니다. 화면이 외부 API를 직접 호출하는 것만으로 완료하지 않습니다.

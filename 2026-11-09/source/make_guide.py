@@ -74,6 +74,18 @@ JSON 읽기와 요청 DTO 검증은 Controller 메서드를 실행하기 전에 
 
 1·2단계 필수, 3단계 선택입니다. 수업 중 공통 목표는 1단계이며 2단계는 과제로 이어서 완성합니다. 마감은 별도 공지합니다. 외부 HTTP 통신을 처음 접하므로 API 주소·JSON 응답을 먼저 확인하고 기존 계층에 어느 책임을 추가할지 교육생이 정리하게 합니다. 특정 HTTP 클라이언트나 완성 코드는 강제하지 않습니다.
 
+### 외부 API 호출 예시 진행
+
+Spring Boot 4.x·Java 17·Spring Web 기준으로 RestClient를 사용합니다. DummyJsonProduct는 외부 JSON을 받을 record DTO이며 가격은 BigDecimal로 받습니다. record는 값을 묶는 Java 문법이고, @JsonIgnoreProperties(ignoreUnknown = true)는 DTO에 선언하지 않은 외부 필드를 무시하는 설정입니다. Jackson 3에서도 이 어노테이션의 import는 com.fasterxml.jackson.annotation.JsonIgnoreProperties입니다.
+
+DummyJsonClient의 생성자에서 기준 주소 https://dummyjson.com, 연결 제한 3초와 읽기 제한 5초를 설정합니다. get → uri → retrieve → body 호출을 따라 읽으며 body에서 실제 요청과 JSON 변환이 수행됨을 설명합니다. retrieve만 호출하면 네트워크 요청을 마친 것으로 설명하지 않습니다. 기본 4xx·5xx 예외는 외부 404와 그 밖의 장애를 구분하는 데 사용합니다. 빈 응답 본문·변환 실패·통신 장애는502, 외부 상품 없음은404입니다. 오류 본문은 프로젝트의 기존 예외 처리 설정에 따릅니다.
+
+전체 파일 버튼의 세 클래스를 기존 개인 프로젝트에 추가합니다. package는 본인의 SpringBootApplication 클래스와 같은 패키지 또는 하위 패키지로 바꾸고 새 시작 클래스는 만들지 않습니다. 서버를 실행해 GET http://localhost:8080/examples/external-products/1을 요청하면 Controller 생성자에 주입된 DummyJsonClient가 외부 GET을 수행합니다. 포트를 변경했다면 URL도 맞춥니다. 기존 /products 요청과 외부 https://dummyjson.com/products 요청은 서로 다른 서버의 주소입니다.
+
+교육생이 예시를 읽고 자신의 서버로 호출하게 합니다. 강사 시연은 필수가 아닙니다. 이 조회 예시에서 출발해 검색과 목록으로 확장하고, 가져오기 Service에서 저장 전 외부 상품 필드·범위를 검사하며 가격 환산·중복 검사·장바구니는 스스로 구현하게 합니다. HTTP 클라이언트 자체가 과제의 모든 상품 검증까지 대신한다고 설명하지 않습니다. 자동 테스트는 실제 인터넷 대신 외부 Client 대역이나 로컬 서버를 사용합니다.
+
+공식 근거: https://docs.spring.io/spring-framework/reference/integration/rest-clients.html 및 https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/client/JdkClientHttpRequestFactory.html.
+
 ### 외부 데이터와 가격 기준
 
 [DummyJSON 공식 문서](https://dummyjson.com/docs/products)와 상품 목록·검색·단건 응답을 확인합니다. 필요한 필드는 id·title·price·category·thumbnail·stock입니다. 실제 데이터에는 최소 주문 수량 등 이번 소매 장바구니 규칙과 다른 값도 있으므로 discountPercentage·minimumOrderQuantity는 사용하지 않습니다. 상품 수·id·재고를 고정값으로 가정하지 않습니다. 요청 흐름은 브라우저 → 내 Spring 서버 → DummyJSON이며 내 서버도 외부 호출에서는 클라이언트 역할입니다. 쿠폰·배송비·수량·가격 환산은 API 제공자의 정책이 아닌 과제 규칙입니다. API의 추가·수정·삭제는 영구 저장이 아닌 모의 동작이므로 교육생 데이터는 자신의 메모리 저장소에 둡니다.
