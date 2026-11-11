@@ -1,7 +1,28 @@
 from pathlib import Path
 import json
-R=Path(__file__).resolve().parent
-meta=json.loads((R/'metadata-private.json').read_text())
-HEADER='# 2026-11-14 · 단축 URL · 주문 관리 API · JPA 입문\n\n## 진행 내용\n\n- 오전 3시간: CH 13 단축 URL 서비스의 요구사항을 확인한 뒤 개인 구현·자동화 테스트를 진행합니다.\n- 오후 3시간: CH 14 주문 관리 API 서버의 시작 코드와 요구사항을 확인한 뒤 개인 구현·테스트를 진행합니다.\n- 마지막 1~2시간: ORM, JPA와 Hibernate·Spring Data JPA의 역할, Entity 매핑, 영속성 컨텍스트, 변경 감지와 트랜잭션을 소개합니다.\n\n문제와 제공 테스트 조건은 함께 확인합니다. 풀이 코드·완성 예제는 닫고 직접 풀게 하며 강사는 요구사항·오류 원인에 대한 힌트를 줍니다. 백엔드 답안 생성·복사로 대체하지 않습니다. 미완료 교육생은 동작한 기능과 막힌 지점을 설명합니다. 발표용 PPT는 요구하지 않습니다.\n\n## CH 13 · 단축 URL\n\n8글자 키를 발급합니다. 같은 원본 URL도 매번 새로운 키를 발급하고, 이전 키도 계속 동작해야 합니다. 이동 횟수를 기록하며 원본 URL·단축 URL 정보·이동 횟수를 조회합니다. DB 없이 컬렉션을 사용하고 적절한 자동화 테스트를 작성합니다. API 경로와 HTTP 메서드는 자율 설계하고 README에 적습니다.\n\n수업 보충으로 http·https 절대 URL 입력 검증, 없는 키 처리, 충돌 방지와 안전한 브라우저 이동을 확인합니다. 서버가 원본 페이지를 가져오는 미리보기 기능은 만들지 않습니다. 프론트는 선택이며 AI를 활용하되 순수 HTML·CSS·JavaScript만 사용하고 외부 라이브러리·CDN은 제외합니다. 프롬프트는 자율이고 QA 체크리스트를 직접 작성합니다.\n\n## CH 14 · 주문 관리 API\n\n저자 공식 저장소의 14-1 시작 프로젝트를 활용합니다. 14-2 완성 코드를 수업 중 열지 않습니다. POST /orders, PATCH /orders/{orderId}, GET /orders/{orderId}, GET /orders?state={state}, PATCH /orders/{orderId}/cancel을 구현합니다. 상품명과 가격은 주문 시점 값을 보관하고 여러 상품의 가격×수량을 합산합니다. 신규 상태는 CREATED이며 재고를 차감합니다. POST 본문은 id·amount 항목의 배열입니다. 주문 응답은 id·orderedProducts·totalPrice·state이며, orderedProducts의 항목은 id·name·price·amount입니다. 상태 값은 CREATED·SHIPPING·COMPLETED·CANCELED이고 강제 변경 본문은 state입니다.\n\n어느 상품이라도 없거나 재고가 부족하면 주문을 생성하지 않고 모든 상품 재고를 보존합니다. 상품·주문 없음은 404, 재고 부족과 CREATED가 아닌 주문 취소는 책의 계약대로 500입니다. 이 500 계약을 일반적인 REST 설계 원칙으로 가르치지 않습니다. 강제 상태 변경에 임의의 상태 전이 제한을 더하지 않습니다. 취소 후 주문 기록을 조회할 수 있어야 하며 재고 복원은 책의 필수 기능으로 추가하지 않습니다.\n\n## 프로젝트와 제출\n\n기존 product-api/·personal-project/의 DB 연결 결과는 유지합니다. short-url/과 order-api/를 별도 프로젝트로 둡니다. 두 과제에 신규 DB·JPA 전환을 필수로 요구하지 않습니다. 개인 Fork의 sesac-spring-boot-study에서 각자 정한 브랜치를 origin에 Push합니다. 원본 main을 base, 개인 Fork 작업 브랜치를 head로 PR을 제출하고 관련 Issue #번호·변경 범위·실제 테스트 결과를 적습니다. 강사는 병합 없이 PR·Issue를 닫습니다. 두 과제의 변경을 구분해 제출하며 실제 완료 범위와 도움받은 내용을 README에 남깁니다.\n\n## JPA 입문 범위\n\n12일 JDBC의 SQL·결과 변환과 비교해 ORM을 설명합니다. JPA는 표준, Hibernate는 구현체, Spring Data JPA는 Repository 구현을 줄여 주는 기능입니다. SQL과 DB 연결 설정은 계속 필요합니다. Entity와 기본 키·생성자, EntityManager가 관리하는 영속성 컨텍스트, 같은 컨텍스트에서 식별자로 조회한 객체의 1차 캐시, 트랜잭션 안의 관리 Entity 변경 감지, flush와 commit의 차이를 다룹니다.\n\n관계 매핑·지연 로딩·N+1의 상세 구현은 다음 주로 넘깁니다. 16일 Entity·Repository 실행과 SQL 관찰, 19일 저장소 JPA 전환 실습, 23일 관계·지연 로딩·N+1을 이어갑니다. save가 즉시 커밋을 의미하거나 어떤 Java 객체의 변경도 자동 저장된다는 오해를 막습니다.\n\n## 장표별 진행 메모\n\n'
-notes='\n\n'.join(f"### {i+1}. {d['title'].replace('<br>', ' ')}\n\n{d['note'] or '장표에 적힌 요구사항과 실제 작성·실행 결과를 확인합니다.'}" for i,d in enumerate(meta))
-(R.parent/'INSTRUCTOR.md').write_text(HEADER+notes+'\n')
+R = Path(__file__).resolve().parent
+meta = json.loads((R / 'metadata-private.json').read_text())
+header = '''# 2026-11-14 · 단축 URL · 주문 관리 API · JPA
+
+## 진행
+
+- 오전 3시간: 교재 CH 13 단축 URL 과제 테스트. 문제를 함께 확인하고 풀이 코드를 최대한 보지 않고 개인별로 구현합니다.
+- 오후 3시간: 교재 CH 14 주문 관리 API 서버 과제 테스트. 책과 시작 코드를 사용합니다.
+- 마지막 1~2시간: 상품 예제로 DB 접근 방식, JPA 매핑과 동작을 설명합니다. 코드와 예상 SQL을 함께 읽고 면접 질문의 답을 설명해 봅니다.
+
+과제 장표는 각 장의 메인 페이지만 둡니다. 세부 문제 설명은 교재로 진행하며 기존 과제 안내와 학생 프로젝트는 유지합니다. 두 과제의 JPA 전환은 필수가 아닙니다.
+
+## JPA 설명 흐름
+
+JDBC → SQL Mapper와 ORM 비교 → JPA·Hibernate·Spring Data JPA 구분 → Entity·Repository·DB 설정 → 트랜잭션 안의 조회·변경 → 영속성 컨텍스트·1차 캐시·변경 감지 → flush·commit·rollback → save와 Entity 상태 → 면접 질문으로 확인 순서입니다.
+
+자료의 짧은 코드는 개념 설명을 위한 발췌입니다. SQL은 예상 형태이며 DB·Hibernate 설정에 따라 달라질 수 있습니다. 기존 JDBC 연결을 지우거나 과제 전체를 JPA로 바꾸게 하지 않습니다. 실제 프로젝트 적용과 테스트는 16일에 이어갑니다. 관계·지연 로딩·N+1은 후속 수업과 연결하는 예고 수준으로 다룹니다.
+
+## 장표별 메모
+
+'''
+notes = '\n\n'.join(
+    f"### {i + 1}. {d['title'].replace('<br>', ' ')}\n\n{d['note'] or '장표의 코드·표·그림과 결과를 함께 확인합니다.'}"
+    for i, d in enumerate(meta)
+)
+(R.parent / 'INSTRUCTOR.md').write_text(header + notes + '\n')
