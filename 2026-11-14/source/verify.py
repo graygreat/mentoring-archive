@@ -9,7 +9,7 @@ slides = doc.xpath('//section[contains(concat(" ",normalize-space(@class)," "),"
 meta = json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 private = json.loads((R / 'metadata-private.json').read_text())
 assert len(slides) == len(meta) == len(private)
-assert 20 <= len(slides) <= 40
+assert len(slides) == 35
 assert [s.get('data-index') for s in slides] == list(map(str, range(len(slides))))
 assert len(set(doc.xpath('//section/@data-slide-id'))) == len(slides)
 ids = doc.xpath('//@id')
@@ -41,6 +41,13 @@ for block in code_blocks:
     for line in text.splitlines():
         assert line == line.rstrip()
         assert (len(line) - len(line.lstrip(' '))) % 4 == 0, line
+# Supplementary visuals must expose concepts on slides, including accessible SVG names.
+for token in ['DTO', '스냅샷', '25000', '30000']:
+    assert token in visible, token
+for diagram in doc.xpath('//section//*[local-name()="svg"]'):
+    assert diagram.get('role') == 'img'
+    assert diagram.get('aria-label')
+    assert diagram.xpath('./*[local-name()="title"]')
 assert (OUT / 'INSTRUCTOR.md').exists()
 js = '\n'.join(doc.xpath('//script[not(@type)]/text()'))
 with tempfile.NamedTemporaryFile(suffix='.js', mode='w') as f:

@@ -18,6 +18,10 @@ JDBC → SQL Mapper와 ORM 비교 → JPA·Hibernate·Spring Data JPA 구분 →
 
 자료의 짧은 코드는 개념 설명을 위한 발췌입니다. SQL은 예상 형태이며 DB·Hibernate 설정에 따라 달라질 수 있습니다. 기존 JDBC 연결을 지우거나 과제 전체를 JPA로 바꾸게 하지 않습니다. 실제 프로젝트 적용과 테스트는 16일에 이어갑니다. 관계·지연 로딩·N+1은 후속 수업과 연결하는 예고 수준으로 다룹니다.
 
+## 보충 장표 사용
+
+MyBatis와 JPA의 같은 가격 변경 예제를 비교합니다. 기존 Repository와 Spring Data Repository 사이의 역할을 구분하고, 영속성 컨텍스트 안의 현재 객체·조회 당시 상태와 DB 행을 함께 확인합니다. 수정·flush·commit·rollback의 각 시점에서 Java 값과 DB 값을 예상합니다. 마지막 코드 결과 예측 문제는 먼저 이유를 설명하게 한 뒤 해설을 확인합니다. Entity와 요청·응답 DTO의 역할도 구분합니다.
+
 ## 장표별 메모
 
 '''
