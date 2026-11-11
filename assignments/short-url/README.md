@@ -1,61 +1,39 @@
-# 단축 URL 웹 서비스 별도 과제
+# 단축 URL API 개발 과제
 
-수업의 공통 프로젝트는 책의 상품 관리 앱입니다. 이 과제는 배운 계층·REST·검증·테스트를 새 문제에 스스로 적용하는 작업입니다. 백엔드 정답 코드는 제공하지 않습니다. 프론트는 AI를 활용합니다. 마감은 별도 공지입니다. 로컬 학습 환경에서 진행하며 공개 배포·악용 방지 정책은 별도 확장으로 다룹니다.
+14일 오전 3시간 동안 교재의 단축 URL 과제 테스트 문제를 개인별로 풉니다. 문제 요구사항을 먼저 확인하고, 구현 중에는 책의 풀이 코드와 완성된 예제를 최대한 보지 않습니다. 막히면 현재 입력·기대 결과·실제 결과를 정리한 뒤 질문합니다.
 
-[과제 안내](./index.html) · [설계 템플릿](./templates/design.md) · [검증 템플릿](./templates/verification.md) · [프론트 기본 설정](./templates/frontend-setup.md) · [프로젝트 README 틀](./templates/project-readme.md)
+[14일 수업 자료](../../2026-11-14/) · [설계 템플릿](./templates/design.md) · [프론트 기본 설정](./templates/frontend-setup.md) · [프로젝트 README 틀](./templates/project-readme.md)
 
-## 단계와 범위
+## 진행과 범위
 
-| 단계 | 권장 시점 | 필수 결과 |
-| --- | --- | --- |
-| 1. 설계 | 12일 이후 | 책 CH13 요구 확인, 필수·선택·가정, API·화면·테스트 설계 |
-| 2. 백엔드 | 14일 상품 CRUD 학습 후 | 메모리 저장, 생성·원본 이동, 정상·실패·경계 테스트 |
-| 3. AI 프론트 | 백엔드 완료 후, 16일 전후 권장 | HTML/CSS/JavaScript 화면 생성·실제 API 연결 |
-| 4. 통합·제출 | 23일 결과 공유 전 권장 | 실제 화면·HTTP·테스트 결과, AI 기록, Issue·PR·Wiki |
+- 문제에서 요구하는 기능·입출력·예외를 정리하고 API와 데이터 구조를 설계합니다.
+- 생성과 원본 이동을 먼저 연결한 뒤 문제의 나머지 요구를 구현합니다.
+- 직접 QA 체크리스트를 작성하고 테스트와 실제 요청으로 확인합니다.
+- 완료 범위·설계 이유·실패를 해결한 과정을 코드와 결과로 설명합니다.
 
-권장 시점은 마감이 아닙니다. 과제는 수업 시간 전체를 대체하지 않으며, 수업 중 상품 관리의 필수 완료 지점부터 마칩니다. DB/JPA 전환, 배포, 통계·만료·사용자 계정·주문 전체 API는 선택입니다.
+교재 CH 13의 요구는 다음과 같습니다. 단축 키는 8글자이며, 같은 원본 URL을 다시 등록해도 새 키를 만들고 이전 키도 계속 동작해야 합니다. 원본 이동 횟수를 기록하고 단축 URL 정보 조회 API를 제공합니다. DB 없이 컬렉션으로 저장하며 적절한 자동 테스트를 작성합니다. 프론트는 선택입니다. 수업 중 추가한 입력 정책과 교재 요구는 구분해서 기록합니다. [저자 공식 예제 저장소](https://github.com/lleellee0/java-for-backend)의 문제 설명이 근거이며, 수업 중에는 문제 설명만 확인합니다. 책의 해설·완성 코드를 옮기는 방식으로 진행하지 않습니다.
 
-## 책 요구와 수업 과제의 구분
+## 수업 구현 기준
 
-책 CH13의 실제 문제와 테스트 제시 부분을 읽고 장·절/본인 판본의 페이지를 기록합니다. 이 안내는 책 본문의 정책이나 정답을 전재하지 않습니다. 코드 길이, 중복 URL, 충돌 처리, 만료, 조회수 등의 세부 조건은 책을 확인합니다. 명시되지 않은 내용은 본인 가정으로 표시합니다.
+- 원본 URL을 등록하고 생성된 단축 URL로 실제 원본 주소에 이동할 수 있어야 합니다.
+- Controller는 HTTP 입력·응답, Service는 코드 생성과 업무 규칙, Repository는 저장·조회를 담당합니다.
+- 메모리 저장소로 시작해도 됩니다. 메모리는 재시작하면 초기화된다는 점을 README에 기록합니다. 이번 문제 풀이에서 DB/JPA 전환은 필수가 아닙니다.
+- 수업의 추가 입력 정책은 http/https 스킴의 절대 주소만 허용하는 것입니다. 백엔드에서 원본 페이지를 다운로드하거나 미리보기를 수집하지 않습니다.
+- 원본 이동에는 원본 주소를 Location으로 보내는 리다이렉트를 사용합니다. 생성 응답의 Location과 의미를 구분합니다.
+- 정상·실패·경계 사례를 직접 고릅니다. QA 체크리스트에 요청·기대·실제 결과를 적고, 중요한 규칙은 자동 테스트로도 확인합니다.
 
-수업 과제로 추가하는 필수는 **AI 프론트 연결·실제 검증·Git 기록**입니다. URL 입력→생성 결과와 복사→단축 링크 클릭→원본 이동의 사용자 흐름을 완성합니다. 생성 API의 경로·필드명·상태·본문은 본인이 설계하며 프론트와 정확히 일치시킵니다. 단축 URL에 불필요한 전체 CRUD를 강제하지 않습니다.
+## 먼저 끝난 교육생 · 선택
 
-## 구현 완료 기준
+본인 API에 연결하는 프론트를 AI로 만들어도 됩니다. **순수 HTML·CSS·JavaScript만** 사용하고 외부 라이브러리·프레임워크·CDN은 사용하지 않습니다. 프롬프트는 자율입니다. 입력·결과·복사·이동과 오류 처리를 직접 설계합니다.
 
-- 원본 URL을 입력해 단축 URL을 생성하고 브라우저에서 실제 원본으로 이동한다.
-- 메모리 저장소는 프로세스 재시작 시 초기화된다. 초기화를 결함으로 보고 DB를 필수 구현하지 않는다.
-- 입력 URL은 http/https 스킴의 절대 주소로 제한한다(수업 권장 정책). javascript/data/file 스킴은 거부하고 프론트 링크도 같은 정책으로 확인한다.
-- 백엔드는 원본 페이지 내용을 다운로드할 필요가 없다. 미리보기·메타데이터 수집은 과제 범위에 넣지 않는다.
-- 생성 응답의 Location이 가리키는 곳과 원본 이동 응답의 Location을 구분한다. 원본 이동은 설계한 3xx와 원본 주소 Location을 실제로 확인한다.
-- 빈 값·잘못된 주소·없는 코드·충돌/중복 정책을 테스트한다. 구현하지 않은 선택 기능은 검증 완료로 기록하지 않는다.
-- 프론트는 입력/버튼/생성 결과/복사/이동 링크/로딩/오류 메시지를 갖춘다. 성공·실패 뒤 버튼 상태가 복구된다.
-- 프론트는 **순수 HTML·CSS·JavaScript만** 사용한다. 외부 라이브러리·프레임워크·CDN은 사용하지 않는다.
-- `src/main/resources/static/`에 `index.html`, `styles.css`, `app.js`를 둔다. 프론트 빌드 도구나 패키지 설치 없이 Spring Boot가 제공하는 같은 origin에서 상대 경로로 API를 호출한다.
-- 서버를 실행한 `http://localhost:실제포트/`로 접근한다. HTML을 파일로 직접 열거나 별도 개발 서버를 띄우지 않는다.
-- 사용자 URL·오류 메시지는 textContent 등 텍스트로 표시한다. innerHTML로 주입하지 않는다. 복사는 HTTPS/localhost 환경에서 확인하고 실패 시 선택해서 복사할 안내를 제공한다.
+`src/main/resources/static/`에 `index.html`, `styles.css`, `app.js`를 두고 실행 중인 Spring Boot의 `http://localhost:실제포트/`에서 엽니다. 같은 origin의 상대 경로로 API를 호출합니다. API 경로·메서드·JSON 필드가 자신의 백엔드와 일치하도록 수정합니다. 사용자 URL·오류는 textContent로 표시하고, 링크에도 http/https 정책을 적용합니다.
 
-## AI 사용 범위
+추가 기능은 문제의 필수 기능을 완료한 뒤 선택합니다. 무엇을 확인할지 QA 체크리스트를 직접 작성합니다. 프론트와 추가 기능은 오전 필수 완료 조건이 아닙니다.
 
-프론트 생성과 프론트 오류 해결에 AI를 활용합니다. 백엔드 구현 답안 전체를 AI에 대신 작성시키는 과제가 아닙니다. 프롬프트는 본인이 자유롭게 작성하며 비밀값·개인정보를 넣지 않습니다.
+## GitHub 제출
 
-AI 초안에서 API 경로·메서드·JSON 필드·상태 처리·링크를 멘티가 확인하고 수정합니다. 요청/응답 흐름을 설명할 수 있어야 합니다. [프론트 기본 설정](./templates/frontend-setup.md)을 지키고 프롬프트·수정 이유·검증을 `short-url/docs/ai-log.md`에 남깁니다.
+공용 저장소를 Fork한 개인 `sesac-spring-boot-study`의 `short-url/`에 별도 프로젝트를 둡니다. 기존 프로젝트와 문서를 보존하고 중첩 `.git`은 넣지 않습니다. 브랜치 이름은 자율입니다. 기존 작업이 필요한 경우 해당 구현이 포함된 브랜치에서 시작합니다.
 
-## GitHub 제출 규칙
+공용 저장소에 Issue를 작성하고, 개인 Fork의 origin에 Push한 뒤 원본 저장소 main을 base, 개인 Fork 작업 브랜치를 head로 PR을 제출합니다. PR에 변경 내용·실제 테스트 결과·미완료 범위·관련 Issue #번호를 적습니다. 수정은 같은 브랜치에 Push합니다. 강사가 검토 후 병합 없이 PR·Issue를 닫습니다.
 
-저장소 `sesac-spring-boot-study` (Description `Spring Boot 학습 실습 및 과제 기록`, Public/main)를 재사용합니다. `short-url/`에 별도 프로젝트를 두고 IDE·Gradle은 그 폴더에서 실행합니다. 기존 greeting-api/product-api와 문서를 보존합니다. 프로젝트 안에 중첩 .git을 복사하지 않습니다.
-
-| 순서 | 브랜치 | Issue·PR 제목 | 라벨 |
-| --- | --- | --- | --- |
-| 1 | docs/short-url-design | [과제 1] 단축 URL 요구사항과 API·화면 설계 | assignment, docs |
-| 2 | feature/short-url-core | [과제 2] 단축 URL 백엔드와 테스트 | assignment |
-| 3 | feature/short-url-ai-ui | [과제 3] AI 프론트 연결과 통합 검증 | assignment, docs |
-| 선택 | feature/short-url-jpa | [선택] 단축 URL JPA 저장소 전환 | assignment |
-
-필수 Issue3개·병합 PR3개. Assignee 본인, milestone `short-url-assignment`(마감 미설정). bug 라벨은 실제 결함이 있을 때만 추가합니다. 최신main pull→Issue→브랜치→작업/검증/문서→commit/push→base main PR→자체검토/병합→main pull. PR 본문에는 변경 내용·기대/실제 검증·AI 활용 여부·`Closes #실제Issue번호`를 씁니다.
-
-프로젝트에는 src/build.gradle/settings.gradle/gradlew/gradlew.bat/gradle/wrapper(gradle-wrapper.jar 포함)를 커밋합니다. build/.gradle/.idea/*.iml/.env·비밀값·로컬DB파일은 제외합니다. 루트 Java .gitignore가 *.jar를 제외하면 `!short-url/gradle/wrapper/gradle-wrapper.jar` 예외를 추가하고 기존 두 프로젝트의 예외도 유지합니다. 기존 디렉터리 무시 규칙으로 상위 폴더 전체가 제외됐다면 해당 규칙도 함께 점검합니다.
-
-루트 README에 프로젝트 링크를 추가하고 `short-url/README.md`에는 소개·실제 환경·실행/테스트·구현 현황·API·Wiki를 기록합니다. 기존 공통 Wiki **Home / 01-Setup / 02-Architecture / 03-API / 04-Verification / 05-Retrospective**에 short-url 섹션을 누적합니다. Wiki 수정은 코드PR에 자동 포함되지 않으므로 실제 Wiki 링크·작성 확인을 PR에 남깁니다.
-
-최종 제출: 저장소URL·프로젝트README·WikiHome·필수PR3개·설계/검증/AI 기록·화면 증거. 코드 캡처만으로 완료 처리하지 않고 실행 가능한 코드와 테스트를 포함합니다.
+`short-url/README.md`에 실행 방법·API·구현 현황·테스트 결과를 적고 루트 README에 프로젝트 링크를 추가합니다. src·Gradle 설정·Wrapper를 포함하고 build/.gradle/IDE/.env·비밀값·로컬 DB 파일은 제외합니다. `.gitignore`가 Wrapper JAR를 제외한다면 예외를 추가합니다. AI 프론트를 선택했다면 사용 범위와 직접 수정한 내용을 간단히 남깁니다.

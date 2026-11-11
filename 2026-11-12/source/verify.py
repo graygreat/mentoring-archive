@@ -48,6 +48,9 @@ for token in ['CH 11','JDBC','H2','NULL','가격 0','ORDER BY','CREATE TABLE IF 
 titles=[x['title'] for x in meta]
 assert titles.index('책에서 함께 읽을 부분')<titles.index('상품 API를 DB에 연결')<titles.index('과제')<titles.index('기존 위시리스트를 DB에 저장')
 assert titles.count('과제')==1
+assert titles[-2]=='14일 · 단축 URL·주문 API·JPA'
+for token in ['오전 3시간','오후 3시간','1~2시간','ORM','Spring Data JPA','영속성 컨텍스트']:
+ assert token in slides[-2].text_content(),token
 for token in ['교시','45분','practice/product-validation','docs/product-crud-design','Closes #','필수 Issue 2개','자가 병합']:
  assert token not in visible,token
 assert 'HTTP 검증·예외 처리 보충 코드' in slides[-1].text_content()

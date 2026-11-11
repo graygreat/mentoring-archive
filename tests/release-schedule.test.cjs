@@ -74,13 +74,14 @@ test('Korean midnight releases each lesson cumulatively', () => {
   assert.equal(harness('2026-11-04T15:00:00Z').status.hidden, true);
 });
 
-test('assignment opens on November 12, DB basics on November 14, all by November 23', () => {
+test('assignment and DB basics open on November 12, all by November 23', () => {
   const before12 = harness('2026-11-11T14:59:59Z').visible();
   assert.ok(!before12.includes('./assignments/short-url/'));
+  assert.ok(!before12.includes('./shared/db-basics/'));
   const day12 = harness('2026-11-11T15:00:00Z').visible();
   assert.ok(day12.includes('./2026-11-12/'));
   assert.ok(day12.includes('./assignments/short-url/'));
-  assert.ok(!day12.includes('./shared/db-basics/'));
+  assert.ok(day12.includes('./shared/db-basics/'));
   assert.ok(harness('2026-11-13T15:00:00Z').visible().includes('./shared/db-basics/'));
   assert.equal(harness('2026-11-22T15:00:00Z').visible().length, 11);
 });
