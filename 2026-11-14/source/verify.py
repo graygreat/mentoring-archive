@@ -9,7 +9,7 @@ slides = doc.xpath('//section[contains(concat(" ",normalize-space(@class)," "),"
 meta = json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 private = json.loads((R / 'metadata-private.json').read_text())
 assert len(slides) == len(meta) == len(private)
-assert len(slides) == 35
+assert len(slides) == 34
 assert [s.get('data-index') for s in slides] == list(map(str, range(len(slides))))
 assert len(set(doc.xpath('//section/@data-slide-id'))) == len(slides)
 ids = doc.xpath('//@id')
@@ -25,10 +25,10 @@ for i, (slide, item) in enumerate(zip(slides, meta)):
     assert f'{i+1:02} / {len(slides):02}' in slide.text_content()
     assert 'note' not in item
 # One practical short-URL project replaces the two textbook tasks.
-assert meta[2]['title'] == '나만의 단축 URL 서비스 만들기'
-assert meta[3]['title'] == '내가 계속 쓸 만한 기능 고르기'
+assert meta[1]['title'] == '나만의 단축 URL 서비스 만들기'
+assert meta[2]['title'] == '내가 계속 쓸 만한 기능 고르기'
 assert 'CH 14' not in visible and '주문 관리 API' not in visible
-for token in ['교재 CH 13', '같은 프로젝트', '확장 기능 1~2개', 'AI 도움', '프론트는 AI', '실제 API', 'HTML', 'CSS', 'JavaScript', 'CDN', '프롬프트 자율', '통계', '관리자 화면', '태그']:
+for token in ['교재 CH 13', '확장 기능 1~2개', 'AI 도움', '프론트는 AI', '실제 API', 'HTML', 'CSS', 'JavaScript', 'CDN', '프롬프트 자율', '통계', '관리자 화면', '태그']:
     assert token in visible, token
 for removed in ['구현할 API 5개', '주문 데이터 형식', '구현 체크리스트', '8글자', '모든 상품 재고 유지']:
     assert removed not in visible, removed
