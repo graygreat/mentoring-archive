@@ -24,9 +24,12 @@ for i, (slide, item) in enumerate(zip(slides, meta)):
     assert slide.xpath('./h1')[0].text_content() == re.sub('<[^>]+>', '', item['title'])
     assert f'{i+1:02} / {len(slides):02}' in slide.text_content()
     assert 'note' not in item
-# Tasks use only chapter landing pages; requirements remain in the textbook.
-for chapter in ['CH 13', 'CH 14']:
-    assert sum(chapter in x['title'] for x in meta) == 1
+# One practical short-URL project replaces the two textbook tasks.
+assert meta[2]['title'] == '나만의 단축 URL 서비스 만들기'
+assert meta[3]['title'] == '내가 계속 쓸 만한 기능 고르기'
+assert 'CH 14' not in visible and '주문 관리 API' not in visible
+for token in ['교재 CH 13', '같은 프로젝트', '확장 기능 1~2개', 'AI 도움', '프론트는 AI', '실제 API', 'HTML', 'CSS', 'JavaScript', 'CDN', '프롬프트 자율', '통계', '관리자 화면', '태그']:
+    assert token in visible, token
 for removed in ['구현할 API 5개', '주문 데이터 형식', '구현 체크리스트', '8글자', '모든 상품 재고 유지']:
     assert removed not in visible, removed
 for token in ['JDBC', 'SQL Mapper', 'MyBatis', 'ORM', 'JPA', 'Hibernate', 'Spring Data JPA',
@@ -55,4 +58,4 @@ with tempfile.NamedTemporaryFile(suffix='.js', mode='w') as f:
     f.flush()
     result = subprocess.run(['node', '--check', f.name], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
-print(f'{OUT.name}: {len(slides)} slides; two task landing pages; concrete JPA code and interview content; navigation verified')
+print(f'{OUT.name}: {len(slides)} slides; one personal short-URL assignment; concrete JPA code and interview content; navigation verified')
