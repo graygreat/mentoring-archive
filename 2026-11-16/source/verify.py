@@ -9,7 +9,7 @@ slide_path = '//section[contains(concat(" ", normalize-space(@class), " "), " sl
 slides = doc.xpath(slide_path)
 meta = json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 private = json.loads((R / 'metadata-private.json').read_text())
-assert len(slides) == len(meta) == len(private) == 32
+assert len(slides) == len(meta) == len(private) == 36
 assert meta[0] == {'ch': '발표', 'title': '나만의 단축 URL 서비스 만들기'}
 assert len(slides[0].xpath('.//ol/li')) == 4
 assert meta[1]['title'] == 'Spring Data JPA와 DB 연동'
@@ -26,21 +26,32 @@ for i, (slide, item) in enumerate(zip(slides, meta)):
     assert f'{i+1:02} / {len(slides):02}' in slide.text_content()
     assert slide.xpath('./footer/span')[0].text_content() == '2026.11.16'
     assert 'note' not in item
-# Copying the previous JPA lesson must preserve its actual teaching content.
+# Preserve the carried-over lesson apart from the clarified roles summary.
 previous = html.fromstring((OUT.parent / '2026-11-14/index.html').read_text())
 previous_slides = previous.xpath(slide_path)
 previous_meta = json.loads(previous.xpath('//script[@id="deck-data"]/text()')[0])
 start = next(i for i, item in enumerate(previous_meta) if item['title'] == 'Spring Data JPA와 DB 연동')
-assert meta[1:] == previous_meta[start:]
-assert len(previous_slides[start:]) == 31
-for copied, original in zip(slides[1:], previous_slides[start:]):
+baseline = previous_meta[start:]
+originals = {item['title']: slide for item, slide in zip(baseline, previous_slides[start:])}
+carried = [item for item in meta[1:] if item['title'] in originals]
+assert [item['title'] for item in carried] == [item['title'] for item in baseline]
+assert len(meta) - 1 - len(carried) == 4
+
+def comparable(element):
+    text = html.tostring(element, encoding='unicode')
+    return re.sub(r'arrow-\d+', 'arrow-normalized', text)
+
+for copied, item in zip(slides[1:], meta[1:]):
+    if item['title'] not in originals or item['title'] == '세 가지 이름의 역할':
+        continue
+    original = originals[item['title']]
     assert copied.get('class') == original.get('class')
     for selector in ['./h1', './div[@class="content"]', './div[@class="topline"]']:
-        assert html.tostring(copied.xpath(selector)[0]) == html.tostring(original.xpath(selector)[0])
+        assert comparable(copied.xpath(selector)[0]) == comparable(original.xpath(selector)[0])
 visible = '\n'.join(s.text_content() for s in slides)
 assert not re.search(r'wiki|위키|교시|45분|Closes #|병합 PR', visible, re.I)
 for token in ['발표', 'AI 도움', 'ORM', 'SQL Mapper', 'JPA', 'Hibernate', 'Spring Data JPA',
-              '영속성 컨텍스트', '스냅샷', '변경 감지', 'flush', 'commit', 'rollback', '면접']:
+              'EclipseLink', 'OpenJPA', 'EntityManager', 'JpaRepository', '영속성 컨텍스트', '스냅샷', '변경 감지', 'flush', 'commit', 'rollback', '면접']:
     assert token in visible, token
 for block in doc.xpath('//section//pre/code'):
     text = block.text_content()
@@ -62,4 +73,4 @@ with tempfile.NamedTemporaryFile(suffix='.js', mode='w') as f:
     f.flush()
     result = subprocess.run(['node', '--check', f.name], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
-print(f'{OUT.name}: 32 slides; one presentation slide + 31 unchanged November 14 JPA slides; navigation verified')
+print(f'{OUT.name}: 36 slides; presentation, clarified JPA roles and provider examples; carried-over content and navigation verified')

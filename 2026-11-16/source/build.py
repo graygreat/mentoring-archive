@@ -65,6 +65,14 @@ def context_inside():
  inner+=box(905,85,235,120,'DB 행 · id=1','price = 30000')
  inner+=arrow(870,260,1020,260,'변경 시 UPDATE')
  return svg('first와 second는 같은 관리 Entity를 참조합니다. 현재 가격은 25000, 조회 당시 가격은 30000이며 flush 전 DB 값은 30000입니다',inner,330)
+def jpa_providers():
+ inner=box(369,10,410,105,'JPA · 공통 표준','Entity · EntityManager · 동작 규칙')
+ for x,title,sub in [(14,'Hibernate','이 수업에서 사용하는 구현체'),(409,'EclipseLink','JPA 구현체'),(804,'Apache OpenJPA','JPA 구현체')]:
+  inner+=box(x,185,330,110,title,sub)
+  center=x+165
+  inner+=f'<path d="M574,115 V148 H{center} V175" fill="none" stroke="#087f5b" stroke-width="3" marker-end="url(#jpa-provider-arrow)"/>'
+ title='JPA 표준을 구현한 Hibernate, EclipseLink, Apache OpenJPA 중 이 수업에서는 Hibernate를 사용합니다'
+ return '<svg class="diagram" style="max-height:260px" viewBox="0 0 1148 310" role="img" aria-label="'+esc(title)+'"><title>'+esc(title)+'</title><defs><marker id="jpa-provider-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9" fill="none" stroke="#087f5b" stroke-width="1.5"/></marker></defs>'+inner+'</svg>'
 DAY='2026-11-16'
 TITLE='단축 URL 서비스 발표 · JPA'
 add('발표','나만의 단축 URL 서비스 만들기',steps('누구를 위한 서비스인지와 해결하려던 불편 소개','직접 구현한 주요 기능과 실제 동작 보여주기','백엔드 구조·설계 결정과 AI 도움을 받은 부분 설명','개발 중 해결한 문제와 남은 작업 공유'),note='발표용 PPT를 별도로 요구하지 않습니다. 서비스 화면·코드·실행 결과로 설명하며, 미완료 기능은 실제 완료한 범위와 구분합니다. 발표 후 14일에 진행하지 못한 JPA 자료를 그대로 이어서 설명합니다.')
@@ -98,7 +106,22 @@ public void changePrice() {
     product.changePrice(25000);
 }
 """)+'</div></div>'+call('두 방식 모두 UPDATE SQL로 DB 값을 바꿉니다.<br>JPA의 SQL 예: UPDATE products SET ... price = ? ... WHERE id = ?'),kind='code-slide',note='메서드 발췌이며 Mapper 등록·주입·import는 생략했습니다. id=1 상품이 존재한다고 가정합니다. MyBatis에서는 반환된 일반 객체 필드를 바꾸는 것만으로 UPDATE가 실행되지 않습니다. JPA는 Spring 프록시로 진입한 쓰기 트랜잭션 안의 관리 Entity를 수정하는 조건입니다. 실제 Hibernate UPDATE 열 구성은 매핑·설정에 따라 달라집니다.')
-add('JPA · Hibernate · Spring Data JPA','세 가지 이름의 역할',table([['이름','하는 일'],['JPA · Jakarta Persistence','Entity·EntityManager 등 객체 영속성의 표준 API와 규칙'],['Hibernate','JPA를 구현하고 매핑·변경 상태를 바탕으로 SQL 실행'],['Spring Data JPA','JPA 위에서 Repository 구현과 반복 CRUD 코드를 줄임']])+call('ProductService → Spring Data Repository → EntityManager → Hibernate → JDBC → DB'))
+add('JPA · Hibernate · Spring Data JPA','세 가지 이름의 역할',table([['이름','상품을 조회할 때 맡는 역할'],['JPA · 공통 표준','EntityManager.find()처럼 객체를 조회·관리하는 API와 동작 규칙을 정함'],['Hibernate · JPA 구현체','그 API의 실제 동작을 구현 · 필요한 SQL 생성과 결과 객체 구성'],['Spring Data JPA · Repository 지원','findById() 등 반복되는 Repository 구현을 제공 · 내부에서 JPA 사용']])+call('우리는 Spring Data JPA와 Hibernate를 함께 사용합니다.<br>JPA는 공통 표준, Hibernate는 실제 구현, Spring Data JPA는 Repository 작성을 줄이는 기능입니다.'))
+add('JPA · 표준과 API','객체를 조회하는 공통 사용 방법',table([['JPA가 정한 것','코드에서 사용하는 의미'],['@Entity','저장·조회할 대상 클래스를 표시'],['@Id','Entity를 구분하는 식별자 필드를 표시'],['EntityManager','Entity 저장·조회·삭제·관리를 요청하는 표준 인터페이스']])+code("""// JPA API 사용 예 · import와 주입 설정은 생략
+ProductEntity product = entityManager.find(ProductEntity.class, 1L);
+""")+call('의미: ProductEntity 중 id가 1인 객체를 찾아주세요.<br>JPA는 명세와 공통 API를 제공하며, 실제 처리는 Hibernate 같은 구현체가 담당합니다.'),kind='code-slide',note='JPA를 인터페이스 하나나 문서만으로 설명하지 않습니다. EntityManager는 표준 인터페이스이고 @Entity와 @Id도 JPA API에 포함됩니다. 이 예제의 EntityManager 실제 동작은 Hibernate가 제공합니다.')
+add('Hibernate · JPA 구현체','조회 요청을 SQL과 객체로 연결',steps('EntityManager.find() 요청을 Hibernate의 구현이 처리','ProductEntity와 products 테이블의 매핑 정보를 확인','DB 조회가 필요하면 SQL을 만들고 JDBC를 통해 요청','DB 조회 결과를 ProductEntity 객체로 구성하고 관리')+code("""-- DB 조회가 필요한 경우 실행할 SELECT의 예
+SELECT id, name, price FROM products WHERE id = ?;
+""")+call('EntityManager는 JPA의 인터페이스이며, 그 실제 동작을 Hibernate가 제공합니다.<br>이미 관리 중인 객체를 찾으면 DB 조회를 생략할 수도 있습니다.'),kind='code-slide',note='DB가 SQL을 실행합니다. Hibernate는 SQL 생성·JDBC 호출·행과 객체의 변환·Entity 관리를 담당합니다. EntityManager와 Hibernate를 서로 독립된 서버처럼 그리지 않습니다. 1차 캐시와 SQL 생략 조건은 뒤에서 설명합니다.')
+add('Spring Data JPA · Repository 지원','기본 조회 코드를 직접 반복하지 않기',code("""// Spring Data JPA 인터페이스 · import와 주입은 생략
+public interface ProductJpaRepository
+        extends JpaRepository<ProductEntity, Long> {
+}
+
+// 사용하는 쪽: 기본 findById 구현을 직접 작성하지 않음
+Optional<ProductEntity> product = repository.findById(1L);
+""")+call('내 Service → Spring Data Repository 구현 → EntityManager.find() → Hibernate<br>Spring Data JPA가 JPA를 호출하고, Hibernate가 실제 조회를 처리합니다.'),kind='code-slide',note='기본 findById 경로를 단순화한 설명입니다. Spring Data가 Repository 프록시와 기본 구현을 연결합니다. ProductEntity는 관리할 타입, Long은 식별자 타입입니다. Spring Data JPA 자체가 JPA 구현체인 것은 아니며 Service의 업무 규칙은 직접 작성합니다.')
+add('다른 JPA 구현체','Hibernate 외에도 구현체가 있습니다',jpa_providers()+call('같은 JPA API를 사용해도 설정·생성 SQL·구현체 전용 기능은 다를 수 있습니다.<br>구현체를 교체할 때는 지원 버전과 실제 동작을 확인하고 테스트합니다.')+'<p><a href="https://eclipse.dev/eclipselink/">EclipseLink 공식 자료 ↗</a> · <a href="https://openjpa.apache.org/">Apache OpenJPA 공식 자료 ↗</a></p>',note='그림은 공통 표준과 구현체의 관계이며 실행 순서가 아닙니다. 세 구현체가 동시에 한 요청을 처리한다는 뜻도 아닙니다. 표준 API 중심으로 작성하면 교체 영향을 줄일 수 있지만 설정이나 구현체 전용 기능까지 무수정 교체가 보장되는 것은 아닙니다.')
 add('DB 연동 준비','의존성과 접속 설정은 계속 필요',table([['준비할 것','예시와 목적'],['Spring Data JPA 의존성','spring-boot-starter-data-jpa · Repository와 JPA 사용'],['DB 드라이버','H2는 com.h2database:h2 · DB와 통신'],['접속 정보','spring.datasource.url · username · password'],['테이블 준비','기존 스키마 또는 학습용 DDL 생성 설정']])+call('기존 JDBC DB 연동을 지우지 않습니다. JPA 확인은 별도 학습 프로젝트와 별도 DB에서 진행합니다.'),note='프로젝트의 기존 Spring Boot 버전과 의존성 관리를 따릅니다. 실제 계정 비밀번호나 로컬 DB 파일을 저장소에 올리지 않습니다. 개인 단축 URL 프로젝트를 JPA로 전환하라는 요구가 아닙니다.')
 add('학습용 설정 · application.properties','별도 메모리 DB에서 SQL 관찰',code("""spring.datasource.url=jdbc:h2:mem:jpa-preview
 spring.datasource.username=sa
