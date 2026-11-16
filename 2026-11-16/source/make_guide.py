@@ -1,7 +1,26 @@
 from pathlib import Path
 import json
-R=Path(__file__).resolve().parent
-meta=json.loads((R/'metadata-private.json').read_text())
-header='# 2026-11-16 · 책과 작업지로 진행하는 JPA 첫 실습\n\n4시간, 공통 `product-api`를 이어 사용합니다. PPT는 읽을 곳·활동·완료 기준을 안내합니다. 강사 코딩 시연 없이 책과 [초보 작업지](BEGINNER-WORKSHEET.md)를 보며 멘티가 작성·실행합니다.\n\n## 책과 보충 실습의 구분\n\n교재 CH 11 「상품 관리 애플리케이션에 데이터베이스 연동하기」에서 DB 접근과 저장·조회 흐름을 읽습니다. 교재의 JDBC 접근과 수업의 JPA 구현은 다릅니다. CH 12의 추상화·테스트와 연결하되, 교재에 없는 JPA 절이나 쪽수를 만들지 않습니다. 실제 판본에서 읽을 절을 표시합니다.\n\n## 네 교시 운영\n\n| 교시 | 활동 45분 | 휴식·정리 |\n|---|---|---|\n| 1 | 책 CH 11 읽기, 상품 표·Entity 매핑 | 15분 |\n| 2 | Entity·Repository 작성, 저장·실제 id 조회 | 15분 |\n| 3 | 조건 검색·JPQL, 예상과 실제 결과 비교 | 15분 |\n| 4 | 변경 감지, 두 DB 구분, 19일 준비 | 15분 |\n\nDB 기본 용어가 어려우면 [공통 DB 기초](../shared/db-basics/)와 [작업지](../shared/db-basics/STUDENT-WORKSHEET.md)로 돌아갑니다. 더 많은 용어 대신 노트 3000원 한 건 저장·조회를 먼저 성공시킵니다. 작업지 0~6의 단계마다 예상 → 실행 → 결과 비교 → 이유 설명으로 진행합니다.\n\n## 유지할 실행 경계\n\n- 오늘 JPA 테스트: ProductEntity → SpringDataProductRepository → 독립 테스트 DB, 기본 rollback.\n- 오늘 실제 HTTP: Controller → Service → MemoryProductRepository. 기존 CRUD·400·404는 유지합니다.\n- main 파일 DB 설정은 19일 API 전환에 사용합니다. JPA 테스트 성공이 API의 DB 전환이나 재시작 보존을 뜻하지 않습니다.\n- Product 도메인과 JPA Entity를 구분합니다. 기존 ProductRepository와 새 SpringDataProductRepository를 연결할 Adapter는 19일 작성합니다.\n- `flush`는 SQL 전송, `commit`은 확정, `clear`는 관리 객체를 비우는 동작입니다. 작업지의 실행 결과와 함께 설명합니다.\n- 기존 예제의 긴 이름 매핑·300자 왕복 테스트는 기존 API 계약을 보존하기 위한 수업 선택입니다. 새 이름 길이 제한을 추가하지 않습니다.\n\n전체 Java 참고 파일은 PPT 마지막 자료 화면에서 선택해 확인합니다. `source-data`는 기존 `code_examples.py` 원문과 동일하며, 본문에 코드를 14줄씩 나누어 강의하지 않습니다. 참고 코드는 교재 복제가 아닌 수업 독립 예제입니다.\n\n## 제출과 다음 시간\n\n기존 `sesac-spring-boot-study` / `practice/product-jpa-basics` / `[실습] 상품 Entity와 JPA 저장소`. 필수 Issue 1개·병합 PR 1개. README 실행·테스트 방법과 실제 SQL·결과를 기존 요구 범위에서 기록하고 PR에 `Closes #실제번호`를 넣습니다. 기본 Wrapper와 기존 테스트를 보존하고 DB 파일·비밀값은 제외합니다.\n\n주말 개인 `personal-project`는 별도 폴더로 보존합니다. 오늘 공통 학습의 출발 코드를 대신하지 않습니다. 19일에는 최신 main, Memory CRUD·JPA 테스트 결과, main/test DB 구분, 남은 오류를 준비합니다. 단축 URL은 [별도 과제](../assignments/short-url/)입니다.\n\n## 검증 범위\n\n`source/verify.py`는 짧은 진행용 슬라이드, 목차·ID·순서, 원본 source-data, Java 들여쓰기, 작업지·링크, JS 구문을 검사합니다. 기존 Java·SQL·ZIP은 변경하지 않습니다. 실제 DB·HTTP 실행 성공은 학생이 실행한 근거로 확인합니다.\n\n## 슬라이드별 진행 메모\n\n'
-notes="\n\n".join(f"### {i+1}. {d['title'].replace('<br>',' ')}\n\n{d['note'] or '책과 작업지의 해당 단계를 읽고 멘티가 직접 실행한 결과로 완료 여부를 확인합니다.'}" for i,d in enumerate(meta))
-(R.parent/'INSTRUCTOR.md').write_text(header+notes+"\n")
+R = Path(__file__).resolve().parent
+meta = json.loads((R / 'metadata-private.json').read_text())
+header = """# 2026-11-16 · 단축 URL 서비스 발표 · JPA
+
+## 진행
+
+먼저 ‘나만의 단축 URL 서비스 만들기’ 결과를 발표합니다. 서비스의 사용자와 목적, 구현 기능과 실제 동작, 백엔드 구조와 설계 결정, AI 도움을 받은 부분, 해결한 문제와 남은 작업을 설명합니다. 별도 발표용 PPT나 고정 발표 시간은 요구하지 않습니다.
+
+발표 다음에는 14일에 진행하지 못한 JPA 자료를 그대로 이어갑니다. JPA 부분의 제목·본문·코드·표·그림은 14일 자료와 동일합니다. 날짜와 전체 장표 번호만 오늘 자료에 맞춥니다. 기존 작업지와 참고 코드 파일은 보존하지만 오늘 장표에 새로운 실습·제출 요구를 추가하지 않습니다.
+
+## JPA 설명 흐름
+
+상품 객체와 DB 행 → JDBC·SQL Mapper·ORM 비교 → JPA·Hibernate·Spring Data JPA → Entity·Repository·DB 설정 → 영속성 컨텍스트·1차 캐시·변경 감지 → flush·commit·rollback → 코드 결과 예측과 면접 질문 순서입니다.
+
+코드와 예상 SQL, Entity 내부 상태와 DB 값의 차이를 함께 확인합니다. 전체 프로젝트를 새로 구현하거나 단축 URL 서비스를 JPA로 전환하는 것은 오늘 필수 과제로 추가하지 않습니다.
+
+## 장표별 메모
+
+"""
+notes = '\n\n'.join(
+    f"### {i + 1}. {d['title'].replace('<br>', ' ')}\n\n{d['note'] or '장표의 코드·표·그림과 결과를 함께 확인합니다.'}"
+    for i, d in enumerate(meta)
+)
+(R.parent / 'INSTRUCTOR.md').write_text(header + notes + '\n')
