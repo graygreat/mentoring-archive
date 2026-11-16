@@ -9,7 +9,7 @@ slide_path = '//section[contains(concat(" ", normalize-space(@class), " "), " sl
 slides = doc.xpath(slide_path)
 meta = json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 private = json.loads((R / 'metadata-private.json').read_text())
-assert len(slides) == len(meta) == len(private) == 36
+assert len(slides) == len(meta) == len(private) == 40
 assert meta[0] == {'ch': '발표', 'title': '나만의 단축 URL 서비스 만들기'}
 assert len(slides[0].xpath('.//ol/li')) == 4
 assert meta[1]['title'] == 'Spring Data JPA와 DB 연동'
@@ -34,8 +34,16 @@ start = next(i for i, item in enumerate(previous_meta) if item['title'] == 'Spri
 baseline = previous_meta[start:]
 originals = {item['title']: slide for item, slide in zip(baseline, previous_slides[start:])}
 carried = [item for item in meta[1:] if item['title'] in originals]
-assert [item['title'] for item in carried] == [item['title'] for item in baseline]
-assert len(meta) - 1 - len(carried) == 4
+assert {item['title'] for item in carried} == {item['title'] for item in baseline}
+moved_title = '조회한 상품을 트랜잭션 안에서 수정'
+assert [item['title'] for item in carried if item['title'] != moved_title] == [item['title'] for item in baseline if item['title'] != moved_title]
+assert len(meta) - 1 - len(carried) == 8
+titles = [item['title'] for item in meta]
+assert titles.index('어떻게 UPDATE가 나갈까?') < titles.index(moved_title) < titles.index('SQL 전달과 변경 확정은 다르다')
+optional_titles = {'직접 만든 Repository는 어디에 남을까?', 'save는 무엇을 할까?', '왜 Service에 @Transactional을 붙일까?'}
+for item in meta:
+    if item['title'] in optional_titles:
+        assert item['ch'].startswith('보충'), item['title']
 
 def comparable(element):
     text = html.tostring(element, encoding='unicode')
@@ -46,7 +54,10 @@ for copied, item in zip(slides[1:], meta[1:]):
         continue
     original = originals[item['title']]
     assert copied.get('class') == original.get('class')
-    for selector in ['./h1', './div[@class="content"]', './div[@class="topline"]']:
+    selectors = ['./h1', './div[@class="content"]']
+    if item['title'] not in optional_titles:
+        selectors.append('./div[@class="topline"]')
+    for selector in selectors:
         assert comparable(copied.xpath(selector)[0]) == comparable(original.xpath(selector)[0])
 visible = '\n'.join(s.text_content() for s in slides)
 assert not re.search(r'wiki|위키|교시|45분|Closes #|병합 PR', visible, re.I)
@@ -73,4 +84,4 @@ with tempfile.NamedTemporaryFile(suffix='.js', mode='w') as f:
     f.flush()
     result = subprocess.run(['node', '--check', f.name], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
-print(f'{OUT.name}: 36 slides; presentation, clarified JPA roles and provider examples; carried-over content and navigation verified')
+print(f'{OUT.name}: 40 slides; beginner roadmap, mapping, save and persistence visuals; original teaching content and navigation verified')
