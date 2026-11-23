@@ -50,7 +50,7 @@ const day2 = './2026-11-02/';
 const day5 = './2026-11-05/';
 
 test('every card starts hidden, has explicit release permission, and preserves its local link', () => {
-  assert.equal(sections.length, 11);
+  assert.equal(sections.length, 12);
   for (const [, attrs, body] of sections) {
     assert.match(attrs, /\bhidden\b/);
     assert.match(attrs, /data-published="true"/);
@@ -74,7 +74,7 @@ test('Korean midnight releases each lesson cumulatively', () => {
   assert.equal(harness('2026-11-04T15:00:00Z').status.hidden, true);
 });
 
-test('assignment and DB basics open on November 12, all by November 23', () => {
+test('assignment and DB basics open on November 12; Nov 26 remains scheduled', () => {
   const before12 = harness('2026-11-11T14:59:59Z').visible();
   assert.ok(!before12.includes('./assignments/short-url/'));
   assert.ok(!before12.includes('./shared/db-basics/'));
@@ -84,6 +84,9 @@ test('assignment and DB basics open on November 12, all by November 23', () => {
   assert.ok(day12.includes('./shared/db-basics/'));
   assert.ok(harness('2026-11-13T15:00:00Z').visible().includes('./shared/db-basics/'));
   assert.equal(harness('2026-11-22T15:00:00Z').visible().length, 11);
+  assert.ok(!harness('2026-11-25T14:59:59Z').visible().includes('./2026-11-26/'));
+  assert.ok(harness('2026-11-25T15:00:00Z').visible().includes('./2026-11-26/'));
+  assert.equal(harness('2026-11-25T15:00:00Z').visible().length, 12);
 });
 
 test('future, withheld, missing-permission and invalid dates remain hidden', () => {
