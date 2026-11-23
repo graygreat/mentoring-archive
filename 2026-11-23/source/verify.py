@@ -50,8 +50,8 @@ sequence = [
     '필요한 값을 Service에서 읽고 DTO로 전달',
     '주문 목록 1회 뒤 항목 조회가 반복됨',
     'fetch join으로 주문과 항목을 함께 읽기',
-    '나만의 단축 URL 서비스를 JPA로 전환',
     '같은 객체 안의 호출은 프록시를 다시 지나지 않음',
+    '나만의 단축 URL 서비스를 JPA로 전환',
 ]
 positions = [titles.index(t) for t in sequence]
 assert positions == sorted(positions)
@@ -59,11 +59,12 @@ assert titles[0] == '트랜잭션과 JPA'
 assert '16일 28쪽부터' in slides[0].text_content()
 assignment_start = titles.index('나만의 단축 URL 서비스를 JPA로 전환')
 assignment_end = assignment_start
-assert assignment_start == 32
+assert assignment_start == len(slides) - 1 == 47
 assert len(slides[assignment_start].xpath('.//ol/li')) == 3
-assert all(not p['ch'].startswith('보충') for p in private[:assignment_end + 1])
-assert all(p['ch'].startswith('보충') for p in private[assignment_end + 1:-1])
-assert titles[-1] == '공식 문서'
+assert all(not p['ch'].startswith('보충') for p in private[:32])
+assert all(p['ch'].startswith('보충') for p in private[32:-2])
+assert titles[-2] == '공식 문서'
+assert titles[-1] == '나만의 단축 URL 서비스를 JPA로 전환'
 
 # Explain each unfamiliar concept before its detailed operation or caveats.
 visible_slides = [s.text_content() for s in slides]
@@ -72,8 +73,8 @@ assert '프록시는 실제 Service 대신 호출' in visible_slides[6]
 assert '영속성 컨텍스트는 JPA가 Entity를 관리하는 공간' in visible_slides[7]
 assert 'flush는 객체 변경을 SQL로 DB에 동기화' in visible_slides[8]
 assert 'DTO는 응답에 필요한 값을 담는 객체' in visible_slides[titles.index('필요한 값을 Service에서 읽고 DTO로 전달')]
-assert not any('rollback-only' in s for s in visible_slides[:assignment_start])
-assert not any('clear' in s for s in visible_slides[:assignment_start])
+assert not any('rollback-only' in s for s in visible_slides[:32])
+assert not any('clear' in s for s in visible_slides[:32])
 visible = '\n'.join(visible_slides)
 assert not re.search(r'Wiki|위키|교시|45분|Closes #|practice/jpa-query-lab|자체.*병합', visible, re.I)
 assert not re.search(r'order-query-lab|ZIP|전체 파일|gradlew test|참고 코드', visible)
@@ -98,7 +99,7 @@ def content_signature(slide):
 original_titles = ['트랜잭션과 JPA', '오늘 다룰 내용', '객체의 가격과 DB 가격은 별개', '가격 변경만 저장되고 이력이 실패한다면?', 'DB 작업을 하나의 성공·실패 단위로 묶기', '함께 성공해야 할 범위를 Service에서 정하기', '프록시가 Service 호출 앞뒤를 처리합니다', '관리 중인 상품의 변경을 감지하기', 'flush는 SQL 전달, commit은 변경 확정', '같은 UPDATE 뒤에도 두 결과가 가능합니다', 'save 직후 INSERT가 보여도 commit은 별개', '어떤 예외에서 rollback할까?', '실패를 밖으로 전달하는지 확인하기', '조회인지 변경인지 실제 동작으로 판단하기', '객체 변경·SQL 실행·확정을 구분해 볼까?', '주문을 볼 때 어떤 데이터까지 필요할까?', 'PK와 FK로 어느 주문의 항목인지 연결', 'Java에서는 주문이 항목 목록을 가집니다', '항목이 필요해질 때 추가 조회할 수 있음', '필요한 값을 Service에서 읽고 DTO로 전달', '주문 목록 1회 뒤 항목 조회가 반복됨', 'fetch join으로 주문과 항목을 함께 읽기', 'SQL을 줄여도 같은 데이터여야 합니다', '객체·트랜잭션·관계 조회를 연결하기', '나만의 단축 URL 서비스를 JPA로 전환', '같은 객체 안의 호출은 프록시를 다시 지나지 않음', '기존 트랜잭션이 있으면 함께 참여', '이미 취소 표시된 트랜잭션은 정상 확정 불가', '동시 요청과 외부 처리는 별도 대책이 필요', 'clear는 DB 데이터를 삭제하지 않습니다', '트랜잭션의 네 가지 특성', '기존 저장소 인터페이스를 유지할 수 있음', 'save 반환값과 원본 객체를 구분하기', '공식 문서']
 preserved = [content_signature(slides[titles.index(title)]) for title in original_titles]
 assert hashlib.sha256(json.dumps(preserved, ensure_ascii=False).encode()).hexdigest() == '59a300e18125c44e30a2380b7acbbc5b49cf9df94b8579ef63fc0493005af53d', 'Existing lecture or simple assignment changed'
-assert [title for title in titles if title in original_titles] == original_titles
+assert [title for title in titles if title in original_titles] == [title for title in original_titles if title != '나만의 단축 URL 서비스를 JPA로 전환'] + ['나만의 단축 URL 서비스를 JPA로 전환']
 # Short diagnostic snippets are now requested; full source archives remain absent.
 for block in doc.xpath('//section//pre/code'):
     for line in block.text_content().splitlines():

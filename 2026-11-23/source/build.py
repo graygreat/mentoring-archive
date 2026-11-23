@@ -214,7 +214,6 @@ spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 """)+steps('목록 조회만 했을 때와 items를 읽은 뒤의 SELECT를 구분','동일 데이터·동일 조건에서 fetch join 전후 비교','조회 수뿐 아니라 주문·항목의 개수와 값도 확인')+call('준비용 INSERT나 다른 요청의 SQL을 섞어 세지 않습니다.<br>SQL 로그 출력만으로 바인딩 값이나 commit 완료까지 확인되는 것은 아닙니다.'),kind='code-slide')
 add('핵심 정리','객체·트랜잭션·관계 조회를 연결하기',steps('관리 Entity의 변경은 flush에서 SQL로 반영','commit은 확정 · rollback은 해당 DB 변경 취소','LAZY 관계는 실제 접근할 때 조회가 추가될 수 있음','필요한 관계를 읽고 DTO로 응답 · SQL 수와 결과 함께 확인')+call('이제 같은 원리를 본인이 만든 단축 URL 서비스에 적용합니다.'))
-add('과제','나만의 단축 URL 서비스를 JPA로 전환',steps('기존에 만든 단축 URL 서비스의 저장 방식을 JPA로 바꾸기','각 기능에 맞는 트랜잭션 범위를 고민하고 적용하기','PR description에 트랜잭션을 어디에 왜 적용했고 어떤 부분에 신경 썼는지 적기')+call('기존 방식대로 PR로 제출합니다.'))
 add('보충 · 자기 호출','같은 객체 안의 호출은 프록시를 다시 지나지 않음',self_call()+call('안쪽 메서드의 @Transactional 설정이 새로 적용되지 않습니다.<br>이미 바깥 트랜잭션이 있다면 그 범위는 계속 유효할 수 있습니다.'),note='기본 프록시 방식의 설명입니다. 외부에서 호출하는 Service 기능에 경계를 두거나 별도 Service 빈으로 분리합니다. private 메서드에 애너테이션을 옮기는 것으로 해결하지 않습니다.')
 add('보충 · 기본 전파 REQUIRED','기존 트랜잭션이 있으면 함께 참여',linear('기본 REQUIRED는 기존 트랜잭션에 참여하고 최종 확정은 바깥 경계에서 처리합니다',[('바깥 Service','트랜잭션 시작'),('안쪽 Service','같은 트랜잭션 참여'),('바깥 경계 종료','최종 commit·rollback')])+call('안쪽 메서드 종료가 독립적인 commit은 아닙니다.<br>바깥 readOnly 범위가 안쪽 애너테이션만으로 쓰기 범위가 되지는 않습니다.'))
 add('보충 · 예외를 잡았는데 취소되는 경우','이미 취소 표시된 트랜잭션은 정상 확정 불가',table([['상태','설명'],['rollback-only','이 트랜잭션은 취소해야 한다는 표시'],['안쪽 작업이 표시한 뒤 예외를 catch','예외를 잡아도 취소 표시가 사라지는 것은 아님'],['바깥에서 commit 시도','rollback되거나 UnexpectedRollbackException 등이 발생 가능']])+call('catch하면 무조건 commit, 예외가 나면 무조건 rollback으로 외우지 않습니다.'))
@@ -255,6 +254,7 @@ private Long version;
 // WHERE id = ? AND version = ?;
 """)+call('먼저 수정한 요청이 버전을 바꾸면, 이전 버전의 다른 요청은 충돌을 알 수 있습니다.<br>충돌한 트랜잭션은 끝내고, 정책에 따라 새 트랜잭션에서 재조회·제한 재시도를 합니다.'),kind='code-slide',note='flush 또는 commit 시 OptimisticLockException이 발생할 수 있고 Spring에서는 ObjectOptimisticLockingFailureException 등으로 변환될 수 있습니다. 모든 조회 수 증가에 @Version이 가장 좋은 답은 아닙니다. 높은 빈도의 단순 증가는 원자적 UPDATE 등을 비교합니다. DB UNIQUE는 고유성 제약이며 증가 유실의 해결책이 아닙니다.')
 add('참고','공식 문서','<div class="references"><a href="https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html"><b>Spring @Transactional ↗</b><span>프록시와 적용 범위</span></a><a href="https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/rolling-back.html"><b>Spring rollback ↗</b><span>예외와 취소 정책</span></a><a href="https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html"><b>트랜잭션 전파 ↗</b><span>기존 트랜잭션 참여</span></a><a href="https://docs.spring.io/spring-data/jpa/reference/jpa/entity-persistence.html"><b>Spring Data JPA ↗</b><span>Entity 저장과 관리</span></a><a href="https://docs.hibernate.org/orm/current/userguide/html_single/"><b>Hibernate ORM ↗</b><span>매핑·관계·SQL</span></a><a href="../shared/db-basics/"><b>DB 기초 ↗</b><span>표·PK·FK·SQL</span></a></div>')
+add('과제','나만의 단축 URL 서비스를 JPA로 전환',steps('기존에 만든 단축 URL 서비스의 저장 방식을 JPA로 바꾸기','각 기능에 맞는 트랜잭션 범위를 고민하고 적용하기','PR description에 트랜잭션을 어디에 왜 적용했고 어떤 부분에 신경 썼는지 적기')+call('기존 방식대로 PR로 제출합니다.'))
 
 css=(R/'theme.css').read_text();slides=[]
 for i,d in enumerate(S):
