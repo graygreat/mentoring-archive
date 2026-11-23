@@ -1,6 +1,7 @@
 """Verify a progressive, diagram-led Nov 23 lecture and its existing assignment."""
 from pathlib import Path
 import json
+import hashlib
 import re
 import subprocess
 import tempfile
@@ -14,7 +15,7 @@ slides = doc.xpath('//section[contains(concat(" ", normalize-space(@class), " ")
 meta = json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 private = json.loads((R / 'metadata-private.json').read_text())
 sources = json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])
-assert len(slides) == len(meta) == len(private) == 45
+assert len(slides) == len(meta) == len(private) == 34
 assert sources == {}
 assert not doc.xpath('//section//pre | //section//code | //section//*[@data-source-key]')
 assert not doc.xpath('//*[contains(concat(" ", normalize-space(@class), " "), " subtitle ")]')
@@ -49,7 +50,6 @@ sequence = [
     '주문 목록 1회 뒤 항목 조회가 반복됨',
     'fetch join으로 주문과 항목을 함께 읽기',
     '나만의 단축 URL 서비스를 JPA로 전환',
-    '기존 fork에서 개발하고 공용 저장소로 PR',
     '같은 객체 안의 호출은 프록시를 다시 지나지 않음',
 ]
 positions = [titles.index(t) for t in sequence]
@@ -57,7 +57,9 @@ assert positions == sorted(positions)
 assert titles[0] == '트랜잭션과 JPA'
 assert '16일 28쪽부터' in slides[0].text_content()
 assignment_start = titles.index('나만의 단축 URL 서비스를 JPA로 전환')
-assignment_end = titles.index('전환 전후의 차이를 설명하고 제출')
+assignment_end = assignment_start
+assert assignment_start == 24
+assert len(slides[assignment_start].xpath('.//ol/li')) == 3
 assert all(not p['ch'].startswith('보충') for p in private[:assignment_end + 1])
 assert all(p['ch'].startswith('보충') for p in private[assignment_end + 1:-1])
 assert titles[-1] == '공식 문서'
@@ -78,14 +80,21 @@ for token in [
     'CH 11', 'JDBC', 'RuntimeException', 'Error', 'IOException', 'rollbackFor',
     'rollback-only', '프록시', 'REQUIRED', 'readOnly', '자동 복원', 'clear', 'IDENTITY',
     '외부 API', '동시', 'UNIQUE', 'LAZY', '4 SELECT', '1 SELECT', 'fetch join',
-    '3개 주문', '6개', 'EAGER', 'DTO', '재시작', 'open-in-view=false', 'ddl-auto=update',
-    '기존 URL 생성', '고유', '유효성', '없는 코드', 'QA 체크리스트', '새 트랜잭션',
-    '1 · 조회', '2 · 변경과 이력', '3 · 동시 요청', '이름 자율',
-    'sesac-spring-boot-study', '공용 원본 main', '직접 병합하지 않습니다', 'Issue URL',
-    'README', 'gradle-wrapper.jar', 'HTML', 'CSS', 'JavaScript', 'CDN', '프롬프트는 자율',
-    '원자성', '일관성', '격리성', '지속성',
+    '3개 주문', '6개', 'EAGER', 'DTO', '원자성', '일관성', '격리성', '지속성',
 ]:
     assert token in visible, token
+assignment = slides[assignment_start].text_content()
+for token in ['기존에 만든 단축 URL 서비스', 'JPA로 바꾸기', '트랜잭션 범위', 'PR description', '어디에 왜', '신경 썼는지']:
+    assert token in assignment, token
+assert not re.search(r'QA|체크리스트|Issue|재시작|추가 과제|CDN|브랜치', assignment)
+
+def content_signature(slide):
+    return [slide.get('class'), *[
+        html.tostring(slide.xpath(selector)[0], encoding='unicode')
+        for selector in ['./div[@class="topline"]', './h1', './div[@class="content"]']
+    ]]
+preserved = [content_signature(slide) for slide in slides[:24] + slides[25:]]
+assert hashlib.sha256(json.dumps(preserved, ensure_ascii=False).encode()).hexdigest() == '61126b7b41e17e99dcb6f47cf1153a8315f9411bee77870f24a8847bc58390e3', 'Lecture or supplement content changed outside assignment scope'
 assert 'contenteditable=' not in raw and 'localStorage' not in raw
 
 diagrams = doc.xpath('//section//*[local-name()="svg"]')
@@ -101,7 +110,6 @@ expected_topics = {
     'lazy-timing', 'dto-boundary', 'n-plus-one', 'fetch-one', 'self-call',
 }
 assert expected_topics <= {d.get('data-diagram-topic') for d in diagrams}
-assert doc.xpath('//a[@href="SHORT-URL-JPA-ASSIGNMENT.md"]')
 for href in doc.xpath('//a/@href'):
     if href.startswith(('http:', 'https:', '#', 'mailto:')):
         continue
