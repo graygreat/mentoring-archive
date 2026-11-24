@@ -10,7 +10,7 @@ slides=doc.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," s
 meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
 assert len(slides)==len(meta)==len(private)
-assert 28 <= len(slides) <= 36
+assert 35 <= len(slides) <= 40
 assert json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])=={}
 assert not doc.xpath('//section//*[@data-source-key]')
 assert not doc.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," subtitle ")]')
@@ -27,7 +27,7 @@ assert not re.search(r'Wiki|위키|교시|45분|Closes #|필수 과제',visible,
 for token in ['AppUser','ShortLink','owner_id','mappedBy','ManyToOne','OneToMany',
               'OneToOne','ShortLinkTag','UNIQUE','LAZY','DTO','인증','인가',
               'DispatcherServlet','세션','BCryptPasswordEncoder','matches',
-              'CSRF','302','401','403','LinkFolder','folder_id','PR','자율 학습']:
+              'CSRF','302','401','403','MemberProfile','StudyMember','StudyMeeting','PR','자율 학습']:
     assert token in visible,token
 assert 'WebSecurityConfigurerAdapter' not in raw
 assert not re.search(r'csrf\s*\([^)]*disable|NoOpPasswordEncoder',raw)
@@ -36,21 +36,31 @@ titles=[m['title'] for m in meta]
 assert len(doc.xpath('//svg[@data-diagram-topic="many-to-many"]'))==1
 assert '과제' in private[-1]['ch']
 assert 'PR' in slides[-1].text_content()
-assert '모음함' in visible
+assert 'LinkFolder' not in visible and '모음함' not in visible
+assert '스터디' in visible
 expected=['PK는 내 행의 번호, FK는 연결할 행의 번호',
           '두 링크가 같은 사용자 객체를 참조',
           'owner 객체 참조와 owner_id 컬럼 연결',
           'mappedBy에는 owner_id가 아닌 owner',
           'FK를 갱신하는 기준은 ShortLink.owner',
           '목록에 넣기와 FK 변경은 다른 동작',
-          '인증과 인가','기본 로그인부터 단계적으로 학습',
-          '단축 URL 서비스에 링크 모음함 추가','구현 내용과 관계를 PR에 설명']
+          '인증과 인가','기본 로그인부터 단계적으로 학습']
 positions=[titles.index(t) for t in expected]
 assert positions==sorted(positions)
 assert titles.index('기본 로그인부터 단계적으로 학습')-titles.index('관계 정보와 접근 권한은 별개')<=8
-assert all('과제' in x['ch'] for x in meta[-3:])
-assert '선택 심화' in slides[-1].text_content()
-assert '빈 모음함' in slides[-2].text_content()
+assignment=titles.index('스터디 모집·모임 관리 서비스')
+assert len(slides)-assignment==9
+assert len(doc.xpath('//svg[@data-diagram-topic="study-project"]'))==1
+assignment_text='\n'.join(x.text_content() for x in slides[assignment:])
+for token in ['MemberProfile','StudyMember','StudyMeeting','UNIQUE','ACTIVE','WITHDRAWN',
+              'LEADER','MEMBER','joinedAt','creator','404','409','트랜잭션','자율','PR']:
+    assert token in assignment_text,token
+stage_titles=['스터디 모집·모임 관리 서비스','다섯 Entity의 관계',
+              '회원과 프로필 등록','스터디 개설과 모임 일정 등록',
+              '가입 정보로 회원과 스터디 연결','멤버 조회와 탈퇴 처리',
+              '정원과 재가입 규칙','스터디장 위임과 탈퇴','구현 단계와 연관관계를 PR에 설명']
+assert titles[assignment:]==stage_titles
+assert '선택' in slides[-1].text_content()
 # Optional security study and the JPA assignment must remain distinct.
 assert any('자율 학습' in m['ch'] or '자율 학습' in m['title'] for m in meta)
 keys=[]
