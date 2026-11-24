@@ -2,114 +2,48 @@
 
 짧은 코드와 장표의 표·화살표를 읽으며 자기 말로 설명한다. 필요한 질문만 고르거나 말로 답해도 된다. 별도 제출이나 완성 앱 실행은 필요하지 않다. 코드의 import·생성자·일부 설정은 생략되어 있다.
 
-## FK가 가리키는 행을 찾는다
+## 연관관계 이해 확인
 
-**app_users**
+장표와 같은 설명용 데이터다. 실제 저장 시 ID를 고정 숫자로 가정하지 않는다.
 
-| id | username | role |
-|---|---|---|
-| 101 | learner | USER |
-| 102 | other | USER |
-
-**short_links**
-
-| id | code | original_url | owner_id |
-|---|---|---|---|
-| 501 | abc | https://example.com/a | 101 |
-| 502 | xyz | https://example.com/b | 101 |
-| 503 | def | https://example.com/c | 102 |
-
-실제 app_users에는 passwordHash 필드도 있지만 이 표에는 표시하지 않는다. 위 ID는 장표와 같은 설명용 식별자이며 실제 저장 시 생성될 ID를 예측하는 값이 아니다.
-
-| 질문 | 내 설명 |
+| app_users.id | username |
 |---|---|
-| 각 표의 PK는 무엇인가? | |
-| 링크 502의 owner_id는 어느 사용자 행을 가리키는가? | |
-| learner의 링크 두 개를 어떻게 찾을 수 있는가? | |
-| 사용자가 링크 여러 개를 가져도 사용자 표에 링크 ID 열을 계속 늘리지 않는 이유는? | |
+| 101 | learner |
+| 102 | other |
 
-## 객체에서 사용자로 이동한다
+| short_links.id | code | owner_id |
+|---|---|---|
+| 501 | abc | 101 |
+| 502 | xyz | 101 |
+| 503 | def | 102 |
 
 ```java
-// ShortLink의 필드
+// ShortLink 내부
 @ManyToOne(fetch = FetchType.LAZY, optional = false)
 @JoinColumn(name = "owner_id", nullable = false)
 private AppUser owner;
-```
 
-| 질문 | 내 설명 |
-|---|---|
-| ShortLink에서 AppUser로 이동하는 Java 필드 이름은? | |
-| DB에서 연결을 저장하는 열 이름은? | |
-| 링크 여러 개가 같은 사용자를 참조할 수 있는가? | |
-| LAZY일 때 owner 접근과 실제 조회 시점을 구분해야 하는 이유는? | |
-
-관계 필드는 객체 참조다. DB의 owner_id 열 자체를 Java 객체라고 부르지 않는다.
-
-## 양방향에서는 두 참조를 맞춘다
-
-```java
-// AppUser의 역방향 필드
+// AppUser 내부
 @OneToMany(mappedBy = "owner")
 private List<ShortLink> links = new ArrayList<>();
 ```
 
 | 질문 | 내 설명 |
 |---|---|
-| mappedBy는 owner와 owner_id 중 무엇을 사용하는가? 왜 그런가? | |
-| 양방향이 되면 DB FK가 하나 더 생기는가? | |
-| FK 갱신 기준인 ‘연관관계 주인’은 어느 필드인가? | |
-| 여기서 ‘주인’과 실제 링크를 소유한 사용자의 의미는 어떻게 다른가? | |
+| @Entity·@Table·@Id는 각각 무엇과 연결되는가? | |
+| owner_id=101인 링크 두 개는 어느 사용자를 참조하는가? | |
+| DB의 owner_id 값과 Java의 owner 필드는 무엇이 다른가? | |
+| 링크에서 사용자 이름으로 탐색하는 Java 코드는? | |
+| 링크와 사용자는 각각 어느 쪽에서 N:1, 1:N인가? | |
+| 양방향 참조를 추가하면 DB FK도 하나 더 필요한가? | |
+| mappedBy는 owner와 owner_id 중 무엇을 사용하며 왜 그런가? | |
+| 이 매핑에서 FK 등록·수정 기준인 주인 필드는 무엇인가? | |
+| user.getLinks().add(link)만 하면 FK 설정이 끝나지 않는 이유는? | |
+| addLink 편의 메서드가 맞추는 두 참조와 새 링크 저장 호출은? | |
+| 일대일에서 FK에 UNIQUE 제약이 필요한 이유는? | |
+| 태그를 연결한 시각까지 저장한다면 연결 Entity가 필요한 이유는? | |
 
-다음 두 동작을 비교한다. 기본 매핑에는 cascade가 없다.
-
-```java
-// A: 역방향만 변경 — owner를 설정했다고 볼 수 없다
-user.getLinks().add(link);
-
-// B: AppUser의 편의 메서드
-public ShortLink addLink(String code, String url) {
-    ShortLink link = new ShortLink(this, code, url); // owner 설정
-    links.add(link);                              // 역방향도 맞춤
-    return link;
-}
-
-// Service: user는 이미 저장된 사용자라고 가정
-ShortLink created = user.addLink(code, url);
-linkRepository.save(created);                    // 저장을 명시
-```
-
-- A만 실행했을 때 FK가 설정되었다고 말할 수 없는 이유: `________________`
-- B에서 두 객체 참조가 맞춰지는 줄: `________________`
-- 새 링크 저장을 담당하는 줄: `________________`
-- 이 코드가 임의의 기존 링크 소유권 이전까지 처리하는가? `________________`
-
-## 저장 전파와 삭제를 예상한다
-
-각 행은 서로 다른 설정을 적용한 상황이다. 동일한 객체에 모든 설정이 동시에 있다고 가정하지 않는다.
-
-| 상황 | 예상과 이유 |
-|---|---|
-| cascade 없는 기본 예제에서 새 링크를 만들고 user만 저장하면 링크 저장까지 보장되는가? | |
-| AppUser.links에 PERSIST가 있으면 새 사용자 persist가 어떤 작업을 전파하는가? | |
-| AppUser.links에 REMOVE가 있고 사용자를 삭제하면 연결된 링크에도 무엇이 전파되는가? | |
-| orphanRemoval=true인 관리 사용자 컬렉션에서 자식 링크를 제거하면 무엇이 삭제 대상이 되는가? | |
-| ShortLink.owner에 REMOVE나 ALL을 넣고 링크 하나를 삭제하면 왜 위험한가? | |
-| 사용자 탈퇴 때 링크를 삭제할지 보존할지는 무엇을 먼저 정해야 하는가? | |
-
-매핑 방향과 저장·삭제 전파는 별개다. 삭제 실행 시점은 flush 등 영속성 처리와 함께 판단한다.
-
-## 응답에 필요한 값을 고른다
-
-사용자에게 내 링크 목록을 보여주려 한다.
-
-| 질문 | 내 설명 |
-|---|---|
-| 응답에 id·code·originalUrl 외에 무엇이 실제로 필요한가? | |
-| AppUser 전체를 그대로 응답하면 passwordHash에 어떤 위험이 있는가? | |
-| user.links → link.owner → user.links를 JSON으로 따라가면 어떤 문제가 생길 수 있는가? | |
-| DTO로 바꾸는 중 관계 조회를 반복하면 N+1이 자동으로 사라지는가? | |
-| 관리 컨텍스트가 닫힌 뒤 미초기화 LAZY 관계에 접근하면 왜 실패할 수 있는가? | |
+관계 방향과 저장·삭제 전파는 별개다. 단방향부터 매핑하고, 필요한 역방향 탐색만 추가한다. 응답은 DTO로 구성하며 LAZY·N+1 조회도 함께 확인한다.
 
 ## 인증과 인가를 구분한다
 

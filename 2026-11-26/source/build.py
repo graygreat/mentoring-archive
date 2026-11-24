@@ -47,14 +47,12 @@ def owning_side():
  inner=box(10,20,475,125,'AppUser.links','역방향 목록 · mappedBy="owner"')+box(660,20,475,125,'ShortLink.owner','FK를 쓰는 연관관계 주인')
  inner+=box(330,205,490,100,'short_links.owner_id','DB의 외래 키 한 개')+arrow(900,160,830,235,'갱신 기준')
  return svg('외래 키를 갱신하는 기준은 ShortLink.owner이며 AppUser.links는 역방향 탐색입니다',inner,325,'owning-side')
-def cascade_orphan():
- inner=box(10,20,350,115,'부모 삭제 요청','cascade REMOVE')+box(790,20,345,115,'연결된 자식 삭제','부모 작업의 전파')+arrow(380,78,770,78)
- inner+=box(10,190,350,115,'부모의 관계에서 제외','orphanRemoval = true')+box(790,190,345,115,'고아 자식 삭제','관계 해제의 의미')+arrow(380,248,770,248)
- return svg('cascade REMOVE는 부모 삭제의 자식 전파이고 orphanRemoval은 관계에서 제외된 자식 삭제입니다',inner,325,'cascade-orphan')
-def json_cycle():
- inner=box(10,70,370,130,'AppUser','links 목록')+box(765,70,370,130,'ShortLink','owner 참조')+arrow(400,100,745,100,'사용자 → 링크')+arrow(745,175,400,175,'링크 → 사용자')
- inner+=text(574,275,'직렬화·toString 등이 관계를 계속 따라갈 수 있음',25,'#9b4d25')
- return svg('양방향 객체를 그대로 순회하면 사용자와 링크 참조를 반복해서 따라갈 수 있습니다',inner,310,'json-cycle')
+def many_to_many():
+ inner=box(10,75,285,120,'ShortLink','id · code')+box(390,40,370,190,'ShortLinkTag','id · link · tag')+box(850,75,285,120,'Tag','id · name')
+ inner+=text(575,185,'createdAt · 연결한 시각',22,'#52665a')
+ inner+=arrow(375,135,310,135,'N:1')+arrow(775,135,835,135,'N:1')
+ inner+=text(574,295,'링크 하나에 여러 태그 · 태그 하나도 여러 링크에 연결',24,'#087f5b')
+ return svg('ShortLink와 Tag의 다대다 관계를 ShortLinkTag의 두 다대일 관계로 나눕니다',inner,325,'many-to-many')
 def security_flow():
  inner=linear('Spring Security 필터가 MVC Controller 실행 전에 요청 접근을 검사합니다',[('HTTP 요청','URL · 쿠키 등'),('Security 필터 체인','인증 · 인가 검사'),('DispatcherServlet','Controller 호출')],'security-filter')
  return inner
@@ -78,77 +76,44 @@ def csrf_attack():
  return svg('브라우저가 인증 쿠키를 자동 첨부할 수 있으므로 상태 변경 요청에는 CSRF 토큰 검증이 필요합니다',inner,325,'csrf')
 
 add('2026.11.26 · 4시간','JPA 연관관계와<br>Spring Security 기초',steps('사용자와 단축 URL을 FK와 객체 참조로 연결','연관관계의 주인과 양방향 관계 관리','로그인·권한·본인 데이터 접근 제한'),kind='cover',note='23일 트랜잭션·LAZY·N+1 다음에 이어갑니다. 전체 로그인 서비스를 완성하는 실습이 아니라 기본 구조를 읽고 판단하는 수업입니다.')
-add('학습 순서','관계로 연결하고 접근 권한을 검사하기',linear('한 사용자의 단축 URL 관계를 매핑하고 그 데이터를 누가 사용할 수 있는지 검사합니다',[('DB와 객체','FK · 다대일 관계'),('관계의 변경','주인 · 저장 · 삭제'),('요청의 접근','인증 · 인가 · 소유권')])+call('기존 프로젝트의 버전 관리를 따릅니다. <a href="UNDERSTANDING-WORKSHEET.md">이해 확인 작업지 ↗</a>에서 그림과 코드의 이유를 설명해 봅니다.'))
-add('이전 내용 연결','관리 객체와 조회 시점을 먼저 확인',table([['질문','전 시간과 연결'],['객체를 바꾸면 바로 확정되는가?','변경 감지 → flush → commit을 구분'],['관계 필드는 모두 읽힌 상태인가?','LAZY는 실제 접근 시 추가 조회 가능'],['DTO만 만들면 N+1이 없어지는가?','아니요. 관계를 읽는 조회 계획도 필요']])+call('오늘은 관계가 어떻게 매핑되는지와 누가 그 관계의 데이터를 사용할 수 있는지로 확장합니다.'))
-add('같은 서비스 사례','사용자마다 자기 링크 목록을 가진다면?',steps('learner 사용자는 abc·xyz 링크를 생성','다른 사용자는 def 링크를 생성','내 링크 목록에서는 본인 링크만 조회','공개 단축 주소 이동과 비공개 관리 기능을 구분')+call('사용자와 링크의 관계를 DB에 저장하고, 관리 요청에서 현재 사용자를 확인해야 합니다.'))
-add('DB의 관계','owner_id로 어느 사용자의 링크인지 연결',relation_tables()+call('short_links.owner_id → app_users.id를 가리킵니다.<br>표의 ID는 설명용이며 실제 생성 ID를 고정 숫자로 가정하지 않습니다.'))
-add('관계의 개수','한쪽에서 몇 개를 참조할까?',table([['관계','예시'],['다대일 · ManyToOne','여러 링크 → 사용자 한 명'],['일대다 · OneToMany','사용자 한 명 → 여러 링크'],['일대일 · OneToOne','사용자와 별도 프로필 정보 등'],['다대다 · ManyToMany','링크와 태그 · 필요하면 연결 Entity로 설계']])+call('오늘은 가장 자주 쓰는 다대일과 그 역방향 일대다를 중심으로 봅니다.'))
-add('다대일 단방향','링크 객체가 사용자 객체를 참조',object_links()+call('DB는 owner_id 값, Java는 AppUser 객체 참조로 연결합니다.<br>단방향은 Java에서 어느 쪽으로 탐색할 수 있는지를 뜻합니다.'))
-add('사용자 Entity · 발췌','사용자의 ID와 로그인 이름',code('''// jakarta.persistence import · getter 생략
-@Entity
-@Table(name = "app_users")
-public class AppUser {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(nullable = false, unique = true)
-    private String username;
-    protected AppUser() {}
-}
-''','app-user')+call('보안 부분에서 비밀번호 해시와 역할 속성을 추가로 연결합니다.<br>로그인 이름은 중복되지 않도록 실제 DB 제약도 확인합니다.'),kind='code-slide')
-add('링크 Entity · 관계 필드 발췌','FK를 AppUser 참조에 매핑하기',code('''// ShortLink 내부 · ID·code·originalUrl·기본 생성자·getter 생략
+add('학습 순서','관계로 연결하고 접근 권한을 검사하기',linear('한 사용자의 단축 URL 관계를 매핑하고 그 데이터를 누가 사용할 수 있는지 검사합니다',[('DB와 객체','FK · 다대일 관계'),('관계의 설계','방향 · 주인 · 저장'),('요청의 접근','인증 · 인가 · 소유권')])+call('기존 프로젝트의 버전 관리를 따릅니다. <a href="UNDERSTANDING-WORKSHEET.md">이해 확인 작업지 ↗</a>에서 그림과 코드의 이유를 설명해 봅니다.'))
+add('엔티티 매핑 복습','클래스·필드와 테이블·컬럼 연결',table([['매핑','이 예제의 의미'],['@Entity · @Table(name = "app_users")','AppUser 클래스를 app_users 테이블과 연결'],['@Id · @GeneratedValue','id를 PK로 지정하고 생성 전략 적용'],['@Column(name = "username")','username 필드와 컬럼 연결'],['public 또는 protected 기본 생성자','JPA가 객체를 만들 때 사용']])+call('다음 코드들은 jakarta.persistence를 사용한 발췌입니다.<br>컬럼의 nullable·unique 설정은 요청값 유효성 검사를 대신하지 않습니다.'))
+add('연관관계가 필요한 이유','사용자 ID 대신 사용자 객체를 참조',table([['ID만 가진 객체','연관관계가 있는 객체'],['Long ownerId','AppUser owner'],['ID로 사용자를 별도 조회','link.getOwner().getUsername()으로 탐색'],['DB에는 owner_id 값 저장','DB에는 동일하게 owner_id 값 저장']])+call('DB는 FK로 연결하고 Java는 객체 참조로 연결합니다.<br>객체 탐색을 제공하는 것이며 SQL이 없어지거나 조회가 항상 한 번이라는 뜻은 아닙니다.'))
+add('DB의 관계','owner_id로 어느 사용자의 링크인지 연결',relation_tables()+call('short_links.owner_id → app_users.id를 가리킵니다.<br>learner 사용자의 두 링크가 같은 사용자 행을 참조합니다. ID는 설명용입니다.'))
+add('관계의 개수와 방향','다중성과 단방향·양방향',table([['다중성','단축 URL 서비스에서의 예'],['N:1 · @ManyToOne','여러 링크 → 사용자 한 명'],['1:N · @OneToMany','사용자 한 명 → 여러 링크'],['1:1 · @OneToOne','사용자 한 명 ↔ 별도 프로필 하나'],['N:M · @ManyToMany','여러 링크 ↔ 여러 태그']])+call('단방향은 한쪽에만 참조 필드가 있고, 양방향은 양쪽에 있습니다.<br>방향은 Java 객체의 탐색 방향이며 DB FK를 두 개 만든다는 뜻이 아닙니다.'))
+add('다대일 단방향','FK를 AppUser 참조에 매핑하기',code('''// ShortLink 내부 · ID·code·originalUrl·기본 생성자·getter 생략
 @ManyToOne(fetch = FetchType.LAZY, optional = false)
 @JoinColumn(name = "owner_id", nullable = false)
 private AppUser owner;
-''','link-owner')+call('@ManyToOne은 여러 링크가 사용자 한 명을 참조하는 관계입니다.<br>@JoinColumn은 이 관계에 쓰는 FK 열 이름을 지정합니다.'),kind='code-slide',note='ManyToOne 기본 fetch는 EAGER이므로 LAZY를 명시합니다. JPA 명세상 LAZY는 힌트이며 프록시 가능 여부 등 구현 조건을 확인합니다. optional=false는 관계 필수, nullable=false는 열의 null 허용 매핑이며 빈 문자열 검증과 다릅니다.')
-add('단방향 저장 · Service 발췌','기존 사용자에 새 링크 연결하기',code('''@Transactional
+''','link-owner')+table([['설정','의미'],['@ManyToOne','여러 링크가 사용자 한 명을 참조'],['@JoinColumn(name = "owner_id")','short_links의 FK 컬럼 이름'],['LAZY','관계 데이터는 실제로 필요할 때 조회하도록 설정']])+call('owner의 타입은 Long이 아니라 AppUser입니다.<br>optional=false는 필수 관계, nullable=false는 FK 컬럼의 null 불허 매핑입니다.'),kind='code-slide')
+add('단방향 저장과 조회','기존 사용자에 새 링크 연결하기',code('''@Transactional
 public Long createForUser(Long ownerId, String code, String url) {
     AppUser owner = userRepository.findById(ownerId).orElseThrow();
     ShortLink link = new ShortLink(owner, code, url);
     return linkRepository.save(link).getId();
 }
-''','save-unidirectional')+call('기존 사용자 행을 참조하는 링크를 저장하고 실제 발급 ID를 사용합니다.<br>ownerId는 매핑 설명용 인자입니다. 실제 API에서는 인증 사용자에서 소유자를 결정합니다.'),kind='code-slide',note='생성자는 owner·code·originalUrl을 설정한다고 가정합니다. 주입·import·입력 검증은 생략했습니다. 소유자 공개 setter를 요구하지 않습니다. 소유권 이전은 이번 범위가 아닙니다.')
-add('양방향이 필요한 경우','사용자에서도 링크로 탐색하려면?',object_links(True)+call('Java의 역방향 탐색을 추가해도 DB의 owner_id는 하나입니다.<br>필요한 탐색이 있을 때 양방향 관계를 추가합니다.'))
+// 조회한 링크에서 사용자 탐색: link.getOwner().getUsername()
+''','save-unidirectional')+call('생성자는 owner·code·originalUrl을 설정한다고 가정합니다.<br>매핑 설명용 ownerId이며 실제 API는 인증 정보에서 사용자를 결정합니다.'),kind='code-slide')
+add('양방향이 필요한 경우','사용자에서도 링크로 탐색하려면?',object_links(True)+call('AppUser.links를 추가하면 사용자 → 링크 탐색도 가능합니다.<br>단방향만으로도 매핑은 가능합니다. 역방향 탐색이 필요할 때 추가합니다.'))
 add('역방향 매핑 · AppUser 내부','mappedBy는 반대쪽 필드 이름',code('''// AppUser 내부 · import와 다른 필드 생략
 @OneToMany(mappedBy = "owner")
 private List<ShortLink> links = new ArrayList<>();
-''','inverse-links')+table([['표현','의미'],['mappedBy = "owner"','ShortLink.owner가 FK 매핑을 관리'],['owner_id','DB의 열 이름 · mappedBy 값이 아님']]),kind='code-slide')
-add('연관관계의 주인','FK를 갱신하는 기준은 ShortLink.owner',owning_side()+call('여기서 “주인”은 FK를 갱신하는 매핑 용어입니다.<br>서비스에서 데이터를 소유한 사용자라는 뜻과 구분합니다.'))
-add('변경할 때 주의','역방향 목록만 바꾸면 충분하지 않음',code('''// user.links는 mappedBy가 있는 역방향 목록
-user.getLinks().add(link); // 이것만으로 owner FK 설정이 끝나지 않음
+''','inverse-links')+table([['표현','의미'],['mappedBy = "owner"','ShortLink.owner에 연결된 역방향 목록'],['owner_id','DB의 FK 컬럼 이름 · mappedBy 값이 아님']])+call('mappedBy가 있는 목록 자체는 FK 등록·수정의 기준이 아닙니다.'),kind='code-slide')
+add('연관관계의 주인','FK를 갱신하는 기준은 ShortLink.owner',owning_side()+call('DB FK는 하나인데 Java 참조는 owner와 links 두 군데입니다.<br>이 N:1 양방향 매핑에서는 FK가 있는 쪽의 owner가 주인입니다.<br>“주인”은 FK 갱신 기준이며 실제 데이터를 소유한 사용자와 다른 용어입니다.'))
+add('양방향 관계 관리','주인 필드와 역방향 목록을 함께 설정',code('''// 역방향만 변경하면 FK 설정이 끝나지 않습니다.
+user.getLinks().add(link);
 
-// DB에 저장할 관계는 ShortLink.owner에 연결되어 있어야 합니다.
-// 두 객체의 참조도 같은 관계를 나타내도록 함께 관리합니다.
-''','inverse-only')+call('주인 필드가 비어 있으면 FK가 설정되지 않거나 필수 관계 제약으로 실패할 수 있습니다.<br>Java 목록의 변경과 DB 외래 키의 변경을 같은 것으로 생각하지 않습니다.'),kind='code-slide')
-add('신규 링크용 편의 메서드','새 링크의 양쪽 참조를 함께 맞추기',code('''// AppUser 내부 · 신규 링크 생성 전용
+// AppUser 내부 · 새 링크 생성 전용 편의 메서드
 public ShortLink addLink(String code, String url) {
-    ShortLink link = new ShortLink(this, code, url);
+    ShortLink link = new ShortLink(this, code, url); // owner = this
     links.add(link);
     return link;
 }
-// ShortLink의 패키지 생성자 · Objects import 생략
-ShortLink(AppUser owner, String code, String url) {
-    this.owner = Objects.requireNonNull(owner);
-    this.code = code;
-    this.originalUrl = url;
-}
-''','association-helper')+call('owner 참조와 사용자 목록을 동시에 맞춥니다.<br>소유권 이전 기능은 별도 규칙이 필요하며 이번 메서드의 범위가 아닙니다.'),kind='code-slide')
-add('편의 메서드와 저장','관계를 맞춘 뒤 링크를 명시적으로 저장',code('''@Transactional
-public Long createForUser(Long ownerId, String code, String url) {
-    AppUser owner = userRepository.findById(ownerId).orElseThrow();
-    ShortLink link = owner.addLink(code, url);
-    return linkRepository.save(link).getId();
-}
-''','save-helper')+call('이 매핑에는 cascade를 지정하지 않았으므로 링크 저장을 직접 요청합니다.<br>양방향 관계를 맞추는 일과 저장 작업의 전파는 서로 다른 개념입니다.'),kind='code-slide')
-add('저장·삭제 전파','cascade는 어떤 작업을 전파할까?',table([['설정','의미'],['기본값 · cascade 없음','관련 Entity의 저장·삭제를 무조건 전파하지 않음'],['PERSIST','부모 persist 작업을 지정한 자식에 전파'],['REMOVE','부모 remove 작업을 지정한 자식에 전파'],['ALL','여러 영속 작업을 포함 · 삭제까지 전파할 수 있음']])+call('링크의 @ManyToOne(owner)에 REMOVE·ALL을 무심코 붙이지 않습니다.<br>링크 하나 삭제가 사용자 삭제로 전파되면 안 됩니다.'),note='cascade 방향은 애너테이션을 지정한 연관관계 방향입니다. SQL의 ON DELETE CASCADE와 같은 설정이 아닙니다.')
-add('관계 해제와 삭제','orphanRemoval과 삭제 전파 구분',cascade_orphan()+call('orphanRemoval은 관계에서 제외된 자식을 삭제하는 의미까지 가집니다.<br>사용자와 링크가 어떤 생명주기를 가지는지 먼저 정해야 합니다.'),note='관리 엔티티와 정상 트랜잭션의 자식 관계 변경을 전제로 합니다. 해당 옵션을 기본 코드에 무조건 추가하지 않습니다.')
-add('데이터 삭제 정책','사용자가 탈퇴하면 링크는 어떻게 할까?',table([['정책 선택','생각할 결과'],['사용자 삭제 제한','연결된 링크가 있으면 정리 전 삭제를 제한'],['계정 비활성화','사용자 행과 링크 보관 · 접근 정책 별도'],['링크까지 명시적으로 삭제','트랜잭션·기존 단축 주소·복구 요구 확인']])+call('애너테이션이 서비스의 삭제 정책을 대신 정해 주지는 않습니다.<br>사용자 삭제와 링크 공개 여부를 먼저 결정합니다.'))
-add('필요한 관계 조회','LAZY와 N+1을 연관관계에 연결',code('''// ShortLinkRepository 내부 · 특정 사용자의 링크와 owner를 함께 읽기
-@Query("select l from ShortLink l join fetch l.owner "
-        + "where l.owner.id = :ownerId order by l.id")
-List<ShortLink> findWithOwner(@Param("ownerId") Long ownerId);
-''','fetch-owner')+call('링크마다 owner 이름을 사용할 때 추가 조회가 생기는지 SQL을 확인합니다.<br>필요한 관계를 조회 범위에서 읽고 DTO로 변환합니다.'),kind='code-slide',note='owner 필수 관계를 전제로 inner fetch join을 사용합니다. LAZY가 항상 N+1을 만들거나 EAGER가 해결하는 것은 아닙니다. 앞의 컬렉션 fetch join 페이지 문제와 단일 객체 fetch join을 구분합니다.')
-add('양방향 객체의 주의점','Entity를 그대로 순회하면 생기는 문제',json_cycle()+call('응답은 필요한 값을 DTO로 구성합니다.<br>양방향 필드를 포함한 Lombok @Data의 toString·equals·hashCode 자동 생성도 검토합니다.'),note='모든 getter가 나쁘다는 뜻이 아닙니다. 관계를 순회하는 자동 메서드와 JSON 직렬화가 추가 쿼리·재귀를 만들 수 있다는 설명입니다.')
-add('관계 이해 확인','FK·주인·메모리 참조를 구분하기',steps('owner_id는 어느 테이블에 있고 무엇을 가리키나요?','mappedBy="owner"는 DB 열인가요, Java 필드인가요?','역방향 목록만 수정하면 왜 충분하지 않을까요?','cascade REMOVE와 orphanRemoval은 언제 삭제를 요청하나요?'))
+// Service에서는 linkRepository.save(user.addLink(code, url));
+''','association-helper')+call('ShortLink 생성자는 this.owner = Objects.requireNonNull(owner)로 연결합니다.<br>양쪽 참조를 맞추고 새 링크도 명시적으로 저장합니다. 소유권 이전은 별도 설계합니다.'),kind='code-slide')
+add('다른 관계를 선택할 때','일대다 단방향과 일대일',table([['선택','설계에서 확인할 점'],['일대다 단방향','FK 직접 매핑 시 사용자 객체가 short_links의 FK를 관리'],['이 수업의 권장 출발점','FK가 있는 링크의 @ManyToOne부터 매핑'],['일대일 · 사용자와 프로필','FK + UNIQUE 제약으로 같은 상대의 중복 연결 방지'],['양방향 일대일','FK를 매핑한 쪽이 주인 · 반대편은 mappedBy']])+call('일대다 단방향은 매핑 방식에 따라 조인 테이블이나 추가 UPDATE가 필요할 수 있습니다.<br>관계의 개수뿐 아니라 FK 위치와 필요한 탐색 방향도 함께 정합니다.'))
+add('다대다 관계','링크와 태그 사이에 연결 Entity 추가',many_to_many()+call('ShortLinkTag의 link·tag는 객체 참조이고, DB FK는 link_id·tag_id입니다.<br>연결한 시각(createdAt) 같은 속성이 필요하면 @ManyToMany보다 연결 Entity가 적합합니다.'))
+add('관계 정리','매핑·조회·저장을 구분하기',steps('owner_id는 FK, owner는 객체 참조, mappedBy="owner"는 반대쪽 필드 이름','단방향부터 매핑하고 역방향 탐색이 필요하면 양방향 추가','관계가 있다고 저장·삭제가 자동 전파되지는 않음','응답은 DTO 사용 · 양방향 순환 참조와 LAZY·N+1 조회는 따로 확인'))
 add('보안으로 연결','관계가 있다고 접근 권한까지 검사되지는 않음',ownership_attack()+call('owner_id는 데이터의 연결 정보입니다.<br>HTTP 요청자가 이 데이터를 볼 권한이 있는지는 별도로 검사해야 합니다.'))
 add('Spring Security 기초','인증과 인가는 다른 질문',table([['구분','질문','단축 URL 서비스 예'],['인증 · Authentication','누구인가?','로그인한 learner인가?'],['인가 · Authorization','이 행동을 해도 되는가?','관리자인가? 이 링크의 소유자인가?']])+call('로그인 성공만으로 모든 데이터 접근을 허용하지 않습니다.'))
 add('접근 정책','공개 이동과 관리 API를 구분',table([['요청 예시','정책'],['GET /s/abc','공개 단축 주소 이동'],['/api/links/**','로그인한 사용자의 관리 기능'],['/admin/**','관리자 역할 필요'],['로그인한 사용자의 개별 링크','역할 검사에 더해 소유권 검사']])+call('예시 URL은 본인 프로젝트의 실제 경로와 맞춰야 합니다.'))
@@ -239,7 +204,7 @@ const response = await fetch("/api/links", {
 if (!response.ok) throw new Error(`요청 실패: ${response.status}`);
 ''','csrf-fetch')+call('먼저 로그인한 동일 출처 화면에서 사용하는 발췌입니다.<br>로그인 redirect를 성공으로 보지 않습니다. 로그인·로그아웃 뒤 토큰을 새로 받습니다.'),kind='code-slide',note='프론트 전체 구현을 요구하지 않습니다. fetch의 redirect 추적으로 로그인 HTML을 API JSON으로 오해하지 않도록 인증 상태와 응답 형식도 확인합니다. 실제 요청 필드는 프로젝트 API 계약에 맞춥니다.')
 add('보충 · 계정 준비','DB 계정은 비밀번호 해시로 준비',table([['필드','개발용 별도 계정 데이터의 예'],['username','중복되지 않는 테스트 로그인 이름'],['passwordHash','PasswordEncoder.encode로 만든 해시'],['role','USER 또는 ADMIN · 현재 예제의 단일 역할'],['응답·로그·Git 저장소','평문 비밀번호와 비밀번호 해시 노출 금지']])+call('개발용 계정을 별도로 준비한 뒤 로그인합니다.<br>회원가입·비밀번호 재설정·토큰 인증 전체 구현은 후속 범위입니다.'),note='계정 생성 코드는 자동 실행하거나 운영 기본 관리자 계정을 추가하지 않습니다. 실제 비밀번호를 Git에 저장하지 않습니다.')
-add('수업 정리','연관관계와 접근 권한을 함께 설명',steps('FK를 갱신하는 쪽과 Java 양쪽 참조를 구분','저장·삭제 전파는 서비스의 데이터 정책에 맞게 선택','인증 결과로 현재 사용자를 확인하고 역할·소유권을 검사','세션 로그인에서는 비밀번호 검증과 CSRF 보호를 함께 이해'))
+add('수업 정리','연관관계와 접근 권한을 함께 설명',steps('FK를 갱신하는 쪽과 Java 양쪽 참조를 구분','단방향부터 매핑하고 필요한 역방향 탐색만 추가','인증 결과로 현재 사용자를 확인하고 역할·소유권을 검사','세션 로그인에서는 비밀번호 검증과 CSRF 보호를 함께 이해'))
 add('공식 자료','연관관계·인증·요청 인가 참고','<div class="references"><a href="https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/ManyToOne.html"><b>Jakarta ManyToOne ↗</b><span>다대일 매핑과 기본 설정</span></a><a href="https://docs.hibernate.org/orm/6.6/userguide/html_single/#associations"><b>Hibernate 연관관계 ↗</b><span>양방향 관계와 생명주기</span></a><a href="https://docs.spring.io/spring-security/reference/7.0/servlet/architecture.html"><b>Security Servlet 구조 ↗</b><span>필터 체인과 MVC 앞의 처리</span></a><a href="https://docs.spring.io/spring-security/reference/7.0/servlet/authorization/authorize-http-requests.html"><b>요청 인가 ↗</b><span>매처·권한·정책</span></a><a href="https://docs.spring.io/spring-security/reference/7.0/features/authentication/password-storage.html"><b>비밀번호 저장 ↗</b><span>PasswordEncoder</span></a><a href="https://docs.spring.io/spring-security/reference/7.0/servlet/exploits/csrf.html"><b>CSRF ↗</b><span>세션·토큰·브라우저 요청</span></a></div>')
 add('선택 적용','본인 서비스에서 관계와 접근 범위 정하기',steps('사용자와 단축 URL의 FK·객체 관계를 그려 보기','공개 이동과 로그인 필요한 관리 기능을 구분하기','현재 사용자만 본인 링크를 다루도록 구현 방향 정리'),note='새로운 필수 과제나 추가 제출을 요구하는 장표가 아닙니다. 기존 23일 과제의 제출 조건은 바꾸지 않습니다.')
 
@@ -247,7 +212,7 @@ css=(R/'theme.css').read_text();slides=[]
 for i,d in enumerate(S):
  slides.append('<section class="slide '+d['kind']+(' active' if i==0 else '')+'" data-index="'+str(i)+'" data-slide-id="lesson-26-'+str(i)+'" aria-label="'+esc(re.sub('<[^>]*>',' ',d['title']))+'" aria-hidden="'+('false' if i==0 else 'true')+'"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">'+esc(d['ch'])+'</span></div><h1>'+d['title']+'</h1><div class="content">'+d['body']+'</div><footer class="foot"><span>2026.11.26</span><span>'+f'{i+1:02} / {len(S):02}'+'</span></footer></section>')
 meta=[{k:d[k] for k in ('ch','title')} for d in S]
-out='<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="JPA 연관관계와 Spring Security 기초"><title>11월 26일 · JPA 연관관계와 Spring Security 기초</title><style>'+css+'</style></head><body data-deck-revision="2026-11-26-v1-relations-security"><main id="workspace" aria-label="강의 슬라이드"><div id="stage">'+''.join(slides)+(R/'controls.html').read_text()+'<script type="application/json" id="deck-data">'+json.dumps(meta,ensure_ascii=False).replace('<','\\u003c')+'</script><script type="application/json" id="source-data">{}</script><script>'+(R/'engine.js').read_text()+'</script></body></html>'
+out='<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="JPA 연관관계와 Spring Security 기초"><title>11월 26일 · JPA 연관관계와 Spring Security 기초</title><style>'+css+'</style></head><body data-deck-revision="2026-11-26-v2-concise-relations"><main id="workspace" aria-label="강의 슬라이드"><div id="stage">'+''.join(slides)+(R/'controls.html').read_text()+'<script type="application/json" id="deck-data">'+json.dumps(meta,ensure_ascii=False).replace('<','\\u003c')+'</script><script type="application/json" id="source-data">{}</script><script>'+(R/'engine.js').read_text()+'</script></body></html>'
 (OUT/'index.html').write_text(out)
 (R/'metadata-private.json').write_text(json.dumps(S,ensure_ascii=False,indent=2))
 (R/'slide-index.json').write_text(json.dumps([{'n':i+1,'title':d['title'],'chapter':d['ch']} for i,d in enumerate(S)],ensure_ascii=False,indent=2))

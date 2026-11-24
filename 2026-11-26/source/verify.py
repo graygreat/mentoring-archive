@@ -9,7 +9,7 @@ doc=html.fromstring(raw)
 slides=doc.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," slide ")]')
 meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
-assert len(slides)==len(meta)==len(private)==49
+assert len(slides)==len(meta)==len(private)==42
 assert json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])=={}
 assert not doc.xpath('//section//*[@data-source-key]')
 assert not doc.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," subtitle ")]')
@@ -24,7 +24,7 @@ for i,(slide,record) in enumerate(zip(slides,meta)):
 visible='\n'.join(s.text_content() for s in slides)
 assert not re.search(r'Wiki|위키|교시|45분|Closes #|필수 과제',visible,re.I)
 for token in ['AppUser','ShortLink','owner_id','mappedBy','연관관계 주인','ManyToOne','OneToMany',
-              'orphanRemoval','REMOVE','LAZY','DTO','인증','인가','SecurityFilterChain',
+              'OneToOne','ShortLinkTag','UNIQUE','LAZY','DTO','인증','인가','SecurityFilterChain',
               'DispatcherServlet','JSESSIONID','UserDetailsService','passwordHash','BCryptPasswordEncoder',
               'matches','hasRole','ROLE_ADMIN','Authentication','findByIdAndOwnerId','404','302','401','403',
               'CSRF','CORS','POST /logout','same-origin','headerName','프롬프트']:
@@ -35,12 +35,14 @@ assert 'WebSecurityConfigurerAdapter' not in raw
 assert not re.search(r'csrf\s*\([^)]*disable|NoOpPasswordEncoder',raw)
 assert 'contenteditable=' not in raw and 'localStorage' not in raw
 expected=[
+ '클래스·필드와 테이블·컬럼 연결',
+ '사용자 ID 대신 사용자 객체를 참조',
  'owner_id로 어느 사용자의 링크인지 연결',
- '링크 객체가 사용자 객체를 참조',
  'FK를 AppUser 참조에 매핑하기',
  '사용자에서도 링크로 탐색하려면?',
  'mappedBy는 반대쪽 필드 이름',
  'FK를 갱신하는 기준은 ShortLink.owner',
+ '링크와 태그 사이에 연결 Entity 추가',
  '관계가 있다고 접근 권한까지 검사되지는 않음',
  '인증과 인가는 다른 질문',
  'Security 필터가 Controller보다 먼저 검사',
@@ -53,6 +55,8 @@ indexes=[titles.index(t) for t in expected];assert indexes==sorted(indexes)
 assert private[-1]['ch']=='선택 적용'
 assert titles[-2]=='연관관계·인증·요청 인가 참고'
 assert len(slides[-1].xpath('.//ol/li'))==3
+assert len(slides[2:15])==13
+assert len(doc.xpath('//svg[@data-diagram-topic="many-to-many"]'))==1
 keys=[]
 for block in doc.xpath('//section//pre'):
     keys.append(block.get('data-code-key'))
@@ -65,7 +69,7 @@ for fragment in ['.anyRequest().denyAll()', '.formLogin(', '.logout(', '.roles(u
                  'Objects.requireNonNull(owner)', 'findByIdAndOwnerId(linkId, user.getId())']:
     assert fragment in visible,fragment
 svgs=doc.xpath('//section//*[local-name()="svg"]')
-assert len(svgs)>=12
+assert len(svgs)>=10
 for s in svgs:
     assert s.get('role')=='img' and s.get('aria-label')
     assert s.xpath('./*[local-name()="title"]')
