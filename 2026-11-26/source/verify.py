@@ -10,7 +10,7 @@ slides=doc.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," s
 meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
 assert len(slides)==len(meta)==len(private)
-assert 35 <= len(slides) <= 40
+assert len(slides) == 32
 assert json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])=={}
 assert not doc.xpath('//section//*[@data-source-key]')
 assert not doc.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," subtitle ")]')
@@ -27,7 +27,7 @@ assert not re.search(r'Wiki|위키|교시|45분|Closes #|필수 과제',visible,
 for token in ['AppUser','ShortLink','owner_id','mappedBy','ManyToOne','OneToMany',
               'OneToOne','ShortLinkTag','UNIQUE','LAZY','DTO','인증','인가',
               'DispatcherServlet','세션','BCryptPasswordEncoder','matches',
-              'CSRF','302','401','403','MemberProfile','StudyMember','StudyMeeting','PR','자율 학습']:
+              'CSRF','302','401','403','PR','자율 학습']:
     assert token in visible,token
 assert 'WebSecurityConfigurerAdapter' not in raw
 assert not re.search(r'csrf\s*\([^)]*disable|NoOpPasswordEncoder',raw)
@@ -49,18 +49,14 @@ positions=[titles.index(t) for t in expected]
 assert positions==sorted(positions)
 assert titles.index('기본 로그인부터 단계적으로 학습')-titles.index('관계 정보와 접근 권한은 별개')<=8
 assignment=titles.index('스터디 모집·모임 관리 서비스')
-assert len(slides)-assignment==9
-assert len(doc.xpath('//svg[@data-diagram-topic="study-project"]'))==1
+assert len(slides)-assignment==3
+assert not doc.xpath('//svg[@data-diagram-topic="study-project"]')
 assignment_text='\n'.join(x.text_content() for x in slides[assignment:])
-for token in ['MemberProfile','StudyMember','StudyMeeting','UNIQUE','ACTIVE','WITHDRAWN',
-              'LEADER','MEMBER','joinedAt','creator','404','409','트랜잭션','자율','PR']:
+for token in ['일대일','다대일','규칙','트랜잭션','PR']:
     assert token in assignment_text,token
-stage_titles=['스터디 모집·모임 관리 서비스','다섯 Entity의 관계',
-              '회원과 프로필 등록','스터디 개설과 모임 일정 등록',
-              '가입 정보로 회원과 스터디 연결','멤버 조회와 탈퇴 처리',
-              '정원과 재가입 규칙','스터디장 위임과 탈퇴','구현 단계와 연관관계를 PR에 설명']
-assert titles[assignment:]==stage_titles
-assert '선택' in slides[-1].text_content()
+for token in ['MemberProfile','StudyMember','StudyMeeting','LEADER','ACTIVE','WITHDRAWN','joinedAt','409']:
+    assert token not in assignment_text,token
+assert not any(x.xpath('.//pre') for x in slides[assignment:])
 # Optional security study and the JPA assignment must remain distinct.
 assert any('자율 학습' in m['ch'] or '자율 학습' in m['title'] for m in meta)
 keys=[]
