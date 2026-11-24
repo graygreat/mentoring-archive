@@ -9,7 +9,8 @@ doc=html.fromstring(raw)
 slides=doc.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," slide ")]')
 meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
-assert len(slides)==len(meta)==len(private)==42
+assert len(slides)==len(meta)==len(private)
+assert 28 <= len(slides) <= 36
 assert json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])=={}
 assert not doc.xpath('//section//*[@data-source-key]')
 assert not doc.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," subtitle ")]')
@@ -23,40 +24,35 @@ for i,(slide,record) in enumerate(zip(slides,meta)):
     assert 'note' not in record
 visible='\n'.join(s.text_content() for s in slides)
 assert not re.search(r'Wiki|위키|교시|45분|Closes #|필수 과제',visible,re.I)
-for token in ['AppUser','ShortLink','owner_id','mappedBy','연관관계 주인','ManyToOne','OneToMany',
-              'OneToOne','ShortLinkTag','UNIQUE','LAZY','DTO','인증','인가','SecurityFilterChain',
-              'DispatcherServlet','JSESSIONID','UserDetailsService','passwordHash','BCryptPasswordEncoder',
-              'matches','hasRole','ROLE_ADMIN','Authentication','findByIdAndOwnerId','404','302','401','403',
-              'CSRF','CORS','POST /logout','same-origin','headerName','프롬프트']:
-    if token=='프롬프트':
-        continue
+for token in ['AppUser','ShortLink','owner_id','mappedBy','ManyToOne','OneToMany',
+              'OneToOne','ShortLinkTag','UNIQUE','LAZY','DTO','인증','인가',
+              'DispatcherServlet','세션','BCryptPasswordEncoder','matches',
+              'CSRF','302','401','403','LinkFolder','folder_id','PR','자율 학습']:
     assert token in visible,token
 assert 'WebSecurityConfigurerAdapter' not in raw
 assert not re.search(r'csrf\s*\([^)]*disable|NoOpPasswordEncoder',raw)
 assert 'contenteditable=' not in raw and 'localStorage' not in raw
-expected=[
- '클래스·필드와 테이블·컬럼 연결',
- '사용자 ID 대신 사용자 객체를 참조',
- 'owner_id로 어느 사용자의 링크인지 연결',
- 'FK를 AppUser 참조에 매핑하기',
- '사용자에서도 링크로 탐색하려면?',
- 'mappedBy는 반대쪽 필드 이름',
- 'FK를 갱신하는 기준은 ShortLink.owner',
- '링크와 태그 사이에 연결 Entity 추가',
- '관계가 있다고 접근 권한까지 검사되지는 않음',
- '인증과 인가는 다른 질문',
- 'Security 필터가 Controller보다 먼저 검사',
- 'URL별 접근 규칙 지정하기',
- '링크 ID와 현재 사용자 ID를 함께 조회',
- '쿠키가 자동으로 따라가는 요청 주의',
-]
 titles=[m['title'] for m in meta]
-indexes=[titles.index(t) for t in expected];assert indexes==sorted(indexes)
-assert private[-1]['ch']=='선택 적용'
-assert titles[-2]=='연관관계·인증·요청 인가 참고'
-assert len(slides[-1].xpath('.//ol/li'))==3
-assert len(slides[2:15])==13
 assert len(doc.xpath('//svg[@data-diagram-topic="many-to-many"]'))==1
+assert '과제' in private[-1]['ch']
+assert 'PR' in slides[-1].text_content()
+assert '모음함' in visible
+expected=['PK는 내 행의 번호, FK는 연결할 행의 번호',
+          '두 링크가 같은 사용자 객체를 참조',
+          'owner 객체 참조와 owner_id 컬럼 연결',
+          'mappedBy에는 owner_id가 아닌 owner',
+          'FK를 갱신하는 기준은 ShortLink.owner',
+          '목록에 넣기와 FK 변경은 다른 동작',
+          '인증과 인가','기본 로그인부터 단계적으로 학습',
+          '단축 URL 서비스에 링크 모음함 추가','구현 내용과 관계를 PR에 설명']
+positions=[titles.index(t) for t in expected]
+assert positions==sorted(positions)
+assert titles.index('기본 로그인부터 단계적으로 학습')-titles.index('관계 정보와 접근 권한은 별개')<=8
+assert all('과제' in x['ch'] for x in meta[-3:])
+assert '선택 심화' in slides[-1].text_content()
+assert '빈 모음함' in slides[-2].text_content()
+# Optional security study and the JPA assignment must remain distinct.
+assert any('자율 학습' in m['ch'] or '자율 학습' in m['title'] for m in meta)
 keys=[]
 for block in doc.xpath('//section//pre'):
     keys.append(block.get('data-code-key'))
@@ -64,10 +60,9 @@ for block in doc.xpath('//section//pre'):
         assert '\t' not in line and line==line.rstrip(),line
         assert (len(line)-len(line.lstrip(' ')))%4==0,line
 assert all(keys) and len(keys)==len(set(keys))
-assert {'security-chain-1','security-chain-2','password-encoder','ownership-query','csrf-fetch'}<=set(keys)
-for fragment in ['.anyRequest().denyAll()', '.formLogin(', '.logout(', '.roles(user.getRole())',
-                 'Objects.requireNonNull(owner)', 'findByIdAndOwnerId(linkId, user.getId())']:
-    assert fragment in visible,fragment
+assert 'link-owner' in keys
+assert 'Objects.requireNonNull(owner)' in visible
+assert not {'security-chain-1','security-chain-2','user-details-service','csrf-fetch'} & set(keys)
 svgs=doc.xpath('//section//*[local-name()="svg"]')
 assert len(svgs)>=10
 for s in svgs:
