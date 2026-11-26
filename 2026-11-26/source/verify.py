@@ -24,8 +24,10 @@ for i,(slide,record) in enumerate(zip(slides,meta)):
     assert 'note' not in record
 visible='\n'.join(s.text_content() for s in slides)
 assert not re.search(r'Wiki|위키|교시|45분|Closes #',visible,re.I)
+for stale in ['ShortLink','AppUser','ShortLinkTag','owner_id','/api/links','단축 URL']:
+    assert stale not in visible,stale
 for token in ['ManyToOne','OneToMany','OneToOne','ManyToMany','JoinTable','JoinColumn',
-              'mappedBy','ShortLinkTag','UNIQUE','LAZY','DTO','인증','인가','SSO','IdP',
+              'mappedBy','StudyMember','UNIQUE','LAZY','DTO','인증','인가','SSO','IdP',
               'DelegatingFilterProxy','FilterChainProxy','SecurityFilterChain','DispatcherServlet',
               '세션','쿠키','CSRF']:
     assert token in visible,token

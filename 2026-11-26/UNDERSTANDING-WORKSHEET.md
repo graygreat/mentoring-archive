@@ -1,55 +1,55 @@
 # JPA 연관관계와 보안 개념 이해 확인
 
-장표의 짧은 코드와 그림을 보고 결과를 설명한다. 필요한 질문만 골라 말로 답해도 된다. 별도 제출 문서는 아니다. 코드는 import·일부 필드·생성자·getter가 생략된 발췌이며, 설명용 ID를 실제 생성 ID로 가정하지 않는다.
+장표의 짧은 코드와 그림을 보고 결과를 설명한다. 필요한 질문만 골라 말로 답해도 된다. 별도 제출 문서는 아니다. 코드는 import·일부 필드·생성자·getter가 생략된 발췌이며, 설명용 ID를 실제 생성 ID로 가정하지 않는다. 관계 이해용 예시이며 과제의 Entity 구성과 서비스 규칙은 자율이다.
 
 ## ① ManyToOne · 다대일
 
-abc와 xyz 링크는 모두 learner 사용자의 링크다. DB는 `short_links.owner_id`, Java는 `ShortLink.owner`로 연결한다.
+Java 스터디(id=201)에 연관관계 복습(id=501), 쿼리 연습(id=502) 모임이 있다. SQL 스터디(id=202)에는 SQL 문제 풀이(id=503) 모임이 있다. DB는 `study_meetings.study_id`, Java는 `StudyMeeting.study`로 연결한다.
 
 | 질문 | 내 설명 |
 |---|---|
-| 링크 하나에서 사용자는 왜 다대일 관계인가? | |
-| `@JoinColumn(name = "owner_id")`는 어느 테이블의 무엇을 매핑하는가? | |
-| 이 관계의 주인은 AppUser 전체인가, ShortLink.owner 필드인가? | |
-| 새 링크 객체에 user를 연결한 것과 DB에 저장한 것은 어떤 차이인가? | |
+| 모임 일정에서 스터디는 왜 다대일 관계인가? | |
+| `@JoinColumn(name = "study_id")`는 어느 테이블의 무엇을 매핑하는가? | |
+| 이 관계의 주인은 Study 전체인가, StudyMeeting.study 필드인가? | |
+| 새 모임 일정 객체에 study를 연결한 것과 DB에 저장한 것은 어떤 차이인가? | |
 
 ## ② OneToMany · 일대다
 
-앞의 ShortLink.owner를 유지하면서 사용자에 `@OneToMany(mappedBy = "owner")` 목록을 추가한다.
+앞의 StudyMeeting.study를 유지하면서 스터디에 `@OneToMany(mappedBy = "study")` 목록을 추가한다.
 
 | 질문 | 내 설명 |
 |---|---|
 | Java 참조는 두 방향인데 DB FK는 왜 하나인가? | |
-| mappedBy에는 왜 owner_id 대신 owner를 쓰는가? | |
-| 역방향 목록에만 링크를 추가하면 FK 설정이 완료되는가? | |
+| mappedBy에는 왜 study_id 대신 study를 쓰는가? | |
+| 역방향 목록에만 모임 일정을 추가하면 FK 설정이 완료되는가? | |
 | 주인 필드를 바꿔도 이미 읽은 반대 목록을 직접 맞춰야 하는 이유는? | |
-| 별도 대안인 일대다 단방향에서 AppUser.links에 @JoinColumn을 두면 FK 쓰기 관리 기준은 어디인가? | |
+| 별도 대안인 일대다 단방향에서 Study.meetings에 @JoinColumn을 두면 FK 쓰기 관리 기준은 어디인가? | |
 
-일대다 단방향 대안은 ShortLink.owner가 없는 별도 모델이다. 앞의 mappedBy 양방향 설정과 같은 필드에 동시에 적용하지 않는다. 주인은 모든 관계에서 무조건 다쪽이라는 뜻이 아니다.
+일대다 단방향 대안은 StudyMeeting.study가 없는 별도 모델이다. 앞의 mappedBy 양방향 설정과 같은 필드에 동시에 적용하지 않는다. 주인은 모든 관계에서 무조건 다쪽이라는 뜻이 아니다.
 
 ## ③ OneToOne · 일대일
 
-이번 예시는 `user_profiles.user_id`를 사용자 FK로 선택하고 UNIQUE를 둔다. UserProfile.user가 이 FK를 매핑한다.
+이번 예시는 `member_profiles.member_id`를 회원 FK로 선택하고 UNIQUE를 둔다. MemberProfile.member가 이 FK를 매핑한다. 서연 회원(id=101)의 프로필 행은 member_id=101로 연결된다.
 
 | 질문 | 내 설명 |
 |---|---|
-| 같은 user_id를 가진 프로필 두 개를 저장하면 어떤 제약에 걸리는가? | |
-| UNIQUE만으로 모든 사용자에게 프로필이 자동 생성되는가? | |
-| AppUser에서 역방향 profile을 추가한다면 mappedBy에는 무엇을 적는가? | |
+| 같은 member_id를 가진 프로필 두 개를 저장하면 어떤 제약에 걸리는가? | |
+| UNIQUE만으로 모든 회원에게 프로필이 자동 생성되는가? | |
+| Member에서 역방향 profile을 추가한다면 mappedBy에는 무엇을 적는가? | |
 
 ## ④ ManyToMany · 다대다
 
-abc에는 Java·공부 태그, xyz에는 Java 태그가 연결된다. DB 연결 테이블에는 `(abc, Java)`, `(abc, 공부)`, `(xyz, Java)` 세 행이 필요하다.
+서연(id=101)은 Java 스터디(id=201), 민수(id=102)는 Java 스터디와 SQL 스터디(id=202)에 참여한다. DB 연결 테이블에는 `(101, 201)`, `(102, 201)`, `(102, 202)` 세 행이 필요하다.
 
 | 질문 | 내 설명 |
 |---|---|
 | @ManyToMany + @JoinTable은 무엇을 저장하며 이 예시의 주인은 어느 필드인가? | |
-| 연결 시각을 저장하려면 연결 Entity가 더 적합한 이유는? | |
-| ShortLinkTag.link와 ShortLinkTag.tag는 각각 어떤 관계이고 어느 FK를 매핑하는가? | |
-| 연결 Entity에 id가 있어도 (link_id, tag_id) UNIQUE를 추가하는 이유는? | |
-| 새 태그 연결을 만들 때 새로 저장할 객체는 Tag인가, ShortLinkTag인가? | |
+| 가입한 시각을 저장하려면 연결 Entity가 더 적합한 이유는? | |
+| StudyMember.member와 StudyMember.study는 각각 어떤 관계이고 어느 FK를 매핑하는가? | |
+| 가입 Entity에 id가 있어도 (member_id, study_id) UNIQUE를 추가하는 이유는? | |
+| 새 스터디 가입을 만들 때 새로 저장할 객체는 Study인가, StudyMember인가? | |
 
-직접 @ManyToMany를 쓰는 모델과 연결 Entity 모델은 대안이다. 한 서비스에 같은 연결을 중복 매핑하라는 예제가 아니다. 양쪽 객체 참조, cascade, 응답 DTO, LAZY·N+1은 관계의 개수와 별도로 판단한다.
+직접 @ManyToMany를 쓰는 모델과 연결 Entity 모델은 대안이다. 한 서비스에 같은 가입 관계를 중복 매핑하라는 예제가 아니다. 양쪽 객체 참조, cascade, 응답 DTO, LAZY·N+1은 관계의 개수와 별도로 판단한다.
 
 ## Security 개념과 흐름
 
@@ -57,7 +57,7 @@ abc에는 Java·공부 태그, xyz에는 Java 태그가 연결된다. DB 연결 
 
 | 질문 | 내 설명 |
 |---|---|
-| 로그인한 사용자라도 다른 사람의 링크를 수정할 수 없는 이유는? | |
+| 로그인한 회원이라도 모든 스터디의 모임을 수정할 수 없는 이유는? | |
 | 쿠키, 세션, SecurityContext에는 각각 어떤 정보가 있는가? | |
 | 로그인 이후 요청에서 비밀번호 대신 세션 ID를 보내면 서버는 무엇을 확인하는가? | |
 | chain.doFilter는 무엇을 호출하며, 필터가 다음 단계로 보내지 않으면 어떻게 되는가? | |
