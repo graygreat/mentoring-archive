@@ -79,7 +79,10 @@ List<StudyMeeting> findByStudyId(Long studyId);
 """,'find-meetings-by-study')+call('목록 필드가 없어도 Repository로 해당 스터디의 모임들을 조회할 수 있습니다.<br>스터디 객체에서 목록으로 직접 탐색할 필요가 생기면 @OneToMany(mappedBy = "study")를 추가합니다.'),kind='code-slide')
 add('② OneToMany · 일대다','스터디에서도 모임 일정 목록으로 탐색',object_studies()+call('study.getMeetings()로 스터디 → 모임 일정 탐색을 추가합니다.<br>앞의 StudyMeeting.study는 유지합니다. Java 참조는 두 방향, DB FK는 study_id 하나입니다.'))
 add('② OneToMany · 일대다','두 객체가 다른 소속을 가리킨다면?',ownership_conflict()+call('같은 모임 501인데 meeting.study는 Java, SQL.meetings 목록도 이 모임을 가리킵니다.<br>두 참조가 서로 다르지만 DB의 study_id에는 한 값만 저장할 수 있어 기준이 필요합니다.'))
-add('② OneToMany · 일대다','양쪽 참조는 맞추고 DB 기준은 하나로',table([['이 다대일 양방향 매핑의 규칙','불일치 예시에서의 결과'],['FK를 결정하는 주인','StudyMeeting.study'],['모임의 study가 Java(201)를 가리킴','DB의 study_id는 201을 기준으로 함'],['SQL의 목록에만 모임을 추가','study_id가 202로 바뀌지 않음']])+call('관리 상태의 모임 501을 flush할 때도 FK의 기준은 주인 필드입니다.<br>양쪽 Java 참조는 모두 수정할 수 있고, 같은 소속을 나타내도록 편의 메서드에서 함께 맞춥니다.<br>역방향 목록은 mappedBy로 주인 필드를 가리킵니다. 다음 코드에서 연결해 봅니다.'))
+add('② OneToMany · 일대다','모임의 소속 설정과 스터디 목록 추가',code("""// 생성자는 meeting.study만 설정 · javaStudy.meetings는 처음에 빈 목록
+StudyMeeting meeting = new StudyMeeting(javaStudy, "연관관계 복습"); // ①
+javaStudy.getMeetings().add(meeting); // ②
+""",'set-both-references')+table([['작업 후','meeting.study','javaStudy.meetings'],['① 후','Java 스터디','빈 목록'],['② 후','Java 스터디','해당 모임 포함']])+call('①은 주인 meeting.study를 설정합니다. 저장할 때 FK의 기준이며, 현재 Java 목록은 비어 있습니다.<br>②는 목록에 추가하는 작업입니다. 이 목록만으로 FK를 결정하지 않습니다.<br>javaStudy는 저장된 스터디입니다. 두 줄은 객체 상태 설정이며 새 모임 저장은 별도로 필요합니다.'),kind='code-slide')
 add('② OneToMany · 일대다','양방향 목록은 mappedBy로 연결',code("""// Study 내부 · java.util.List, ArrayList 사용
 @OneToMany(mappedBy = "study")
 private List<StudyMeeting> meetings = new ArrayList<>();
@@ -155,7 +158,7 @@ List<StudyMember> rows = studyMemberRepository.findByMemberId(memberId);
 // 각 row.getStudy().getTitle()로 회원이 참여한 스터디 이름을 읽습니다.
 """,'study-member-save')+call('생성자는 member·study·joinedAt을 설정하며 Repository는 JpaRepository를 확장한다고 가정합니다.<br>조회 메서드는 List&lt;StudyMember&gt; findByMemberId(Long memberId)입니다.<br>양방향 목록은 필요할 때 추가합니다. 새 스터디까지 자동 저장·삭제된다고 가정하지 않습니다.'),kind='code-slide')
 add('관계별 정리','개수·FK·주인을 나눠 확인',table([['매핑 사례','FK·연결 정보','이 예시의 쓰기 관리 기준'],['N:1 양방향','study_meetings.study_id','StudyMeeting.study'],['1:N 단방향 대안','study_meetings.study_id','Study.meetings'],['1:1 · 프로필에 FK','member_profiles.member_id + UNIQUE','MemberProfile.member'],['N:M → 가입 Entity','study_members의 member_id·study_id','StudyMember.member · StudyMember.study']])+call('관계의 실제 개수에 맞게 매핑합니다. 일대일·다대다를 무조건 다대일 하나로 바꾸지는 않습니다.<br>일대다 관계는 다대일 단방향부터 시작하고, 필요한 역방향 탐색을 추가합니다.<br>양쪽 Java 참조는 개발자가 맞추고, DTO와 LAZY·N+1 조회도 따로 확인합니다.'))
-add('객체지향 설계','객체의 책임과 참조 방향',table([['객체·계층','스터디 종료 기능에서 맡을 일'],['Study','자기 상태와 종료 가능 여부 판단'],['StudyMeeting','자기 일정의 취소 조건 판단·상태 변경'],['Service','필요한 객체 조회·권한 확인 조율·작업 순서·트랜잭션 경계'],['Repository','조건에 맞는 객체 조회와 저장']])+call('이 책임 분리는 하나의 설계 예시입니다. 객체가 맡은 일을 하려면 누구를 알아야 할지 생각합니다.<br>FK 쓰기 기준인 연관관계의 주인과 업무 책임은 별개입니다.<br>이 예시의 Entity에는 HTTP 요청 처리나 Repository 조회 코드를 넣지 않습니다.'))
+add('객체지향 설계','객체의 책임과 참조 방향',table([['객체·계층','스터디 종료 기능에서 맡을 일'],['Study','자기 상태와 종료 가능 여부 판단'],['StudyMeeting','자기 일정의 취소 조건 판단·상태 변경'],['Service','필요한 객체 조회·권한 확인 조율·작업 순서·트랜잭션 경계'],['Repository','조건에 맞는 객체 조회와 저장']])+call('연결을 저장하는 방법을 봤으니, 이제 각 객체에 어떤 일을 맡길지 봅니다.<br>이 책임 분리는 하나의 설계 예시입니다. 맡은 일을 하려면 누구를 알아야 할지 생각합니다.<br>FK 쓰기 기준인 연관관계의 주인과 업무 책임은 별개입니다.<br>이 예시의 Entity에는 HTTP 요청 처리나 Repository 조회 코드를 넣지 않습니다.'))
 add('객체지향 설계','상태 변경과 캡슐화',code("""// StudyMeeting 내부 · 필드·enum 선언 등은 생략한 개념 예시
 public void cancelIfUpcoming(LocalDateTime now) {
     if (status == MeetingStatus.SCHEDULED && startsAt.isAfter(now)) {
@@ -175,7 +178,7 @@ public void close(LocalDateTime now) {
     status = StudyStatus.CLOSED;
 }
 """,'study-close-collaboration')+call('스터디가 모임들을 직접 사용해 종료를 수행하는 설계라면 meetings 참조가 유용합니다.<br>각 모임은 자기 취소 규칙을 판단합니다. 양방향이 항상 더 객체지향적인 것은 아닙니다.<br>Service가 필요한 데이터 조회와 트랜잭션을 준비합니다. 모임이 많다면 별도 처리도 검토합니다.'),kind='code-slide')
-add('객체지향 설계','목록 조회와 객체 탐색의 선택',table([['필요한 동작','설계 선택'],['화면의 목록·검색·페이징','Repository에서 목적에 맞게 조회'],['Study가 모임들을 직접 다루는 동작 수행','Study.meetings 역방향 참조 검토'],['Service가 모임들을 조회해 각 메서드 호출','양방향 없이도 종료 기능 구현 가능']])+call('객체의 책임을 먼저 정하고 필요한 참조만 둡니다. 양방향이면 양쪽 참조도 맞춥니다.<br>양방향 자체가 객체지향성이나 조회 SQL 감소를 보장하지는 않습니다.<br>어느 설계든 트랜잭션 경계와 실제 SQL을 확인합니다.'))
+add('객체지향 설계','목록 조회와 객체 탐색의 선택',table([['필요한 동작','설계 선택'],['화면의 목록·검색·페이징','Repository에서 목적에 맞게 조회'],['Study가 모임들을 직접 다루는 동작 수행','Study.meetings 역방향 참조 검토'],['Service가 모임들을 조회해 각 메서드 호출','양방향 없이도 종료 기능 구현 가능']])+call('객체의 책임을 먼저 정하고 필요한 참조만 둡니다. 양방향이면 양쪽 참조도 맞춥니다.<br>양방향 자체가 객체지향성이나 조회 SQL 감소를 보장하지는 않습니다.<br>어느 설계든 트랜잭션 경계와 실제 SQL을 확인합니다.<br>기능을 만들었다면 이제 누가 사용하고, 누가 수정할 수 있는지 확인해야 합니다.'))
 # Concept diagrams: simplified Servlet form-login/session and redirect-based web SSO.
 def sec_session_flow():
     inner=box(10,0,330,85,'브라우저 · 로그인','아이디·비밀번호 제출')+box(805,0,330,85,'서버 · 로그인 검증','계정·비밀번호 확인')
@@ -201,27 +204,15 @@ def mvc_interceptor_position():
     inner+=arrow(980,135,980,165)+arrow(715,222,540,222,'true면 계속')
     return svg('Filter 뒤의 DispatcherServlet이 HandlerMapping으로 handler와 Interceptor를 선택하고 preHandle을 거쳐 HandlerAdapter로 Controller를 호출합니다',inner,280,'mvc-interceptor-position')
 
-def sec_proxy_architecture():
-    inner=box(10,10,335,110,'DelegatingFilterProxy','컨테이너 → Spring 빈 위임')+box(405,10,335,110,'FilterChainProxy','요청에 맞는 보안 체인 선택')+box(800,10,335,110,'SecurityFilterChain','여러 보안 필터의 묶음')
-    inner+=arrow(360,65,390,65)+arrow(755,65,785,65)
-    inner+=box(405,205,335,100,'DispatcherServlet','Controller로 요청 전달')
-    inner+='<path d="M970,135 V170 H575 V190" fill="none" stroke="#087f5b" stroke-width="3" marker-end="url(#arrow)"/>'
-    inner+=text(725,160,'계속 진행하는 요청',21,'#087f5b')
-    return svg('Servlet 필터인 DelegatingFilterProxy가 FilterChainProxy에 위임하고 선택한 보안 필터들을 거친 요청이 MVC로 진행합니다',inner,325,'security-proxies')
-
-def sec_chain_selection():
-    inner=box(10,95,300,115,'GET /api/studies','FilterChainProxy가 선택')+box(505,5,630,120,'1번 체인 · /api/**','필터 A → 필터 B → 필터 C')
-    inner+=box(505,195,630,120,'2번 체인 · /**','필터 D → 필터 E · 이 요청에는 미실행')+arrow(330,140,485,70,'첫 일치')
-    return svg('api 경로 요청은 먼저 일치한 1번 체인 하나를 사용하며 그 체인 내부의 여러 필터를 순서대로 실행합니다',inner,325,'security-chain-selection')
-
-def sec_request_paths():
-    inner=box(10,5,290,100,'POST /login','아이디·비밀번호 제출')+box(430,5,290,100,'인증 필터','계정·비밀번호 확인')+box(850,5,285,100,'인증 성공 처리','세션 저장 · 화면 이동')
-    inner+=arrow(320,55,410,55)+arrow(740,55,830,55)
-    names=[('GET /api/studies','다음 일반 요청'),('인증 정보 복원','세션의 인증 결과'),('인가 검사','이 요청을 허용할지 판단'),('MVC','업무 처리')]
-    for i,(name,desc) in enumerate(names):
-        x=10+i*290;inner+=box(x,185,255,100,name,desc)
-        if i<3:inner+=arrow(x+265,235,x+280,235)
-    return svg('로그인 요청은 인증 필터의 성공 처리로 끝날 수 있고 일반 보호 요청은 인증 정보 복원과 인가를 거쳐 MVC로 진행합니다',inner,310,'security-request-paths')
+def simple_security_flow():
+    inner=box(10,10,1125,75,'SecurityFilterChain · 여러 보안 Filter의 묶음')
+    nodes=[('인증 정보 확인','로그인한 사용자인가?'),('접근 허용 확인','이 요청을 해도 되는가?'),('MVC 업무 처리','Controller · Service')]
+    for i,(name,desc) in enumerate(nodes):
+        x=10+i*410
+        inner+=box(x,155,305,110,name,desc)
+        if i<2:inner+=arrow(x+325,210,x+390,210)
+    inner+='<path d="M160,100 V140" fill="none" stroke="#087f5b" stroke-width="3" marker-end="url(#arrow)"/>'
+    return svg('보안 필터들이 인증 정보와 접근 허용 여부를 확인하고 요청을 허용하면 MVC 업무 처리를 계속하는 개념 흐름',inner,290,'simple-security-flow')
 
 def sec_sso_flow():
     inner=box(10,10,320,105,'앱 A에 접근','A의 로그인 시작')+box(410,10,320,105,'중앙 인증 서버 · IdP','처음에는 로그인 필요')+box(810,10,325,105,'앱 A','인증 응답 검증 · A 세션')
@@ -231,20 +222,14 @@ def sec_sso_flow():
     inner+=text(574,160,'브라우저가 로그인 경로로 이동하고 각 앱으로 돌아오는 흐름',22,'#087f5b')
     return svg('앱 A 로그인 후 앱 B도 같은 IdP로 이동하여 기존 인증 상태를 활용하고 각 앱은 자기 세션과 권한을 관리합니다',inner,325,'sso-flow')
 
-add('Security 기초','인증과 인가',table([['구분','확인하는 질문','예시'],['인증 · Authentication','누구인가?','아이디·비밀번호로 서연 회원인지 확인'],['인가 · Authorization','이 요청을 허용할까?','관리자 메뉴 접근 · 스터디 모임 수정 권한 확인']])+call('로그인에 성공해도 모든 스터디의 모임을 수정할 수 있는 것은 아닙니다.<br>참여 여부와 역할 등 서비스 정책에 맞게 권한을 확인합니다.'))
-add('로그인 상태','쿠키·세션·인증 정보',table([['용어','어디에 무엇이 있는가?'],['쿠키','브라우저가 보관하고 전송 조건에 맞는 요청에 보내는 값'],['세션','서버가 요청 사이에 유지하는 상태 · 세션 ID로 구분'],['SecurityContext','현재 요청에서 사용할 인증 결과(Authentication)를 담음'],['세션 로그인 예시','브라우저는 세션 ID, 서버 세션은 인증 결과를 보관']])+call('여기서는 웹 브라우저의 폼 로그인·서버 세션 방식을 봅니다.<br>기본 Servlet 환경에서는 보통 JSESSIONID 쿠키를 사용합니다.'))
-add('세션 로그인 흐름','로그인 이후에는 세션 ID로 상태 연결',sec_session_flow()+call('다음 요청에서 세션의 인증 결과를 복원해 현재 사용자를 확인합니다.<br>브라우저 쿠키에 비밀번호나 회원 Entity 전체를 넣는다는 뜻은 아닙니다.'))
-add('필터와 체인','Filter는 요청·응답을 처리하는 중간 단계',sec_filter_roundtrip()+call('chain.doFilter(request, response)는 다음 필터 또는 Servlet을 호출합니다.<br>필터는 요청 기록·CORS·보안 등에 쓰이며, 다음 단계로 보내지 않고 응답할 수도 있습니다.'))
+add('Security 기초','인증과 인가',table([['구분','확인하는 질문','스터디 서비스 예시'],['인증','누구인가?','서연 회원으로 로그인했는지 확인'],['인가','이 요청을 허용할까?','해당 스터디의 모임을 수정할 권한 확인']])+call('기능을 만들었다면 누가 사용하고 수정할 수 있는지도 정해야 합니다.<br>개발자가 접근 규칙을 설정하면 Spring Security가 로그인과 요청별 확인을 돕습니다.<br>로그인에 성공해도 모든 스터디의 모임을 수정할 수 있는 것은 아닙니다.'))
+add('로그인 상태','쿠키와 세션으로 로그인 상태 이어가기',sec_session_flow()+call('브라우저는 쿠키에 세션 ID를 보관하고, 전송 조건에 맞는 요청에 보냅니다.<br>서버는 세션에 인증 결과를 보관하고, 다음 요청의 세션 ID로 사용자를 확인합니다.'))
+add('Filter','Filter는 요청·응답을 처리하는 중간 단계',sec_filter_roundtrip()+call('Controller마다 같은 확인을 반복하지 않도록, 앞단에서 요청을 공통으로 처리할 수 있습니다.<br>chain.doFilter는 다음 필터 또는 Servlet으로 처리를 이어갑니다.<br>필터에서 응답을 끝내면 Controller까지 가지 않을 수도 있습니다.'))
 add('Filter와 Interceptor','Filter와 HandlerInterceptor의 실행 위치',mvc_interceptor_position()+table([['구분','처리 범위'],['Filter','Servlet 표준 · 매핑된 요청·응답의 공통 처리'],['HandlerInterceptor','Spring MVC · 선택된 handler 앞뒤의 공통 처리']]))
-add('MVC Interceptor','HandlerInterceptor의 세 가지 시점',table([['메서드','호출 시점과 역할'],['preHandle','대상 선택 후 실행 전. true면 계속, false면 중단하며 필요한 응답은 직접 처리'],['postHandle','핸들러 정상 반환 후 뷰 렌더링 전. REST 응답 본문은 이미 처리되므로 본문 수정 용도로 쓰지 않음'],['afterCompletion','MVC 처리 완료 뒤 정리·로그. 해당 Interceptor의 preHandle이 true였을 때 호출']])+call('정상 동기 요청의 예시입니다. 모임 API의 처리 메서드 이름 기록·수행 시간 로그 등에 활용합니다.<br>인증·인가는 Spring Security의 필터 기반 처리를 우선 검토합니다.<br>Interceptor만으로 보안을 대체하지 않습니다. 비동기 요청의 별도 동작은 여기서 다루지 않습니다.'))
-add('Spring Security 구조','보안 필터와 MVC가 연결되는 구조',sec_proxy_architecture()+call('DelegatingFilterProxy는 Spring의 보안 처리 빈으로 연결하는 다리입니다.<br>SecurityFilterChain은 Controller가 아니라 보안 필터들의 묶음입니다.'))
-add('필터와 체인','체인은 하나 선택하고 내부 필터는 여러 개 실행',sec_chain_selection()+call('설정한 우선순위대로 검사해 처음 일치한 SecurityFilterChain 하나를 선택합니다.<br>선택된 체인 안의 필터들은 정해진 순서로 실행합니다. 체인별 경로와 정책은 직접 설정합니다.'))
-add('요청 처리 흐름','로그인 요청과 일반 요청의 처리',sec_request_paths()+call('주요 역할만 묶은 개념도입니다. CSRF 등 다른 필터는 생략했습니다.<br>인가에서 거부되거나 인증 필터가 응답하면 Controller까지 진행하지 않을 수 있습니다.'))
-add('기본 보안 기능','비밀번호 검증과 CSRF 보호',table([['기능','무엇을 확인하는가?'],['PasswordEncoder','BCryptPasswordEncoder 등으로 해시 저장 · matches로 원문과 해시 검증'],['비밀번호 비교','해시 복호화나 새 encode 결과의 문자열 비교로 처리하지 않음'],['CSRF 보호','인증 쿠키를 악용한 원치 않는 변경 요청을 토큰 등으로 방어'],['응답 구분','미인증 보호 경로는 폼 로그인에서 보통 302 이동 · API는 정책에 따라 401 · 권한/CSRF 실패는 403 가능']])+call('세션 쿠키 인증에서는 변경 요청의 CSRF 보호도 함께 학습합니다.<br>403의 원인을 단정하거나 보호를 무조건 끄지 않습니다.'))
-add('SSO','한 번의 로그인으로 여러 앱 이용',table([['구성 요소','역할'],['SSO · Single Sign-On','중앙의 로그인 상태를 활용해 여러 앱에서 반복 로그인을 줄임'],['IdP · Identity Provider','사용자를 인증하고 앱이 확인할 수 있는 인증 결과 제공'],['각 앱','인증 결과를 검증하고 자기 로그인 상태와 접근 권한을 관리']])+call('예: 회사 포털에 로그인한 뒤 같은 인증 서버를 쓰는 업무 앱을 이용합니다.<br>SSO여도 앱마다 이용 권한이 다를 수 있고, 추가 인증이나 동의가 필요할 수 있습니다.'))
-add('SSO 흐름','앱 A 다음 앱 B에서 로그인할 때',sec_sso_flow()+call('일반적인 리다이렉트 기반 웹 SSO의 개념도입니다.<br>앱끼리 비밀번호를 전달하거나 모든 도메인이 같은 쿠키를 공유하는 구조가 아닙니다.'))
-add('보안 용어 구분','SSO·OAuth 2.0·OIDC·JWT',table([['용어','서로 다른 역할'],['SSO','여러 앱에서 로그인 상태를 활용하는 사용자 경험·구성'],['OAuth 2.0','다른 서비스 자원에 대한 제한된 접근을 위임하는 인가 프레임워크'],['OpenID Connect · OIDC','OAuth 2.0 위에서 사용자 인증과 신원 정보를 전달하는 표준'],['JWT','정보를 담는 토큰 형식 · 그 자체가 로그인이나 SSO를 완성하지는 않음']])+call('소셜 로그인은 외부 계정으로 로그인하는 기능이며 SSO와 같은 뜻은 아닙니다.<br>SSO는 OIDC나 SAML 등으로 구성할 수 있습니다.'))
-add('Security 자율 학습','개념을 확인한 뒤 작은 기능부터 구현','<div class="references"><a href="https://docs.spring.io/spring-security/reference/servlet/getting-started.html"><b>1. 기본 로그인 ↗</b><span>폼 로그인과 로그인 전·후 요청</span></a><a href="https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html"><b>2. 세션과 인증 상태 ↗</b><span>저장과 다음 요청의 복원</span></a><a href="https://docs.spring.io/spring-security/reference/servlet/architecture.html"><b>3. 필터 체인 구조 ↗</b><span>위임 · 체인 선택 · 필터 실행</span></a><a href="https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html"><b>4. 요청 인가 ↗</b><span>공개·로그인·관리자 경로와 데이터 권한</span></a><a href="https://docs.spring.io/spring-security/reference/servlet/oauth2/login/core.html"><b>5. 외부 계정 로그인 ↗</b><span>OAuth 2.0 Login · OIDC</span></a><a href="https://openid.net/developers/how-connect-works/"><b>6. OpenID Connect ↗</b><span>앱과 중앙 인증 서버의 역할</span></a></div>'+call('프로젝트 버전에 맞는 문서를 사용합니다. Security 구현은 스터디 과제의 필수 조건이 아닙니다.'))
+add('MVC Interceptor','HandlerInterceptor의 세 가지 시점',table([['메서드','언제 무엇을 하는가?'],['preHandle','대상 선택 후 실행 전. true면 계속, false면 중단하며 응답은 직접 처리'],['postHandle','정상 반환 후 뷰 렌더링 전. REST 응답 본문은 이미 처리되어 본문 수정에 쓰지 않음'],['afterCompletion','MVC 완료 뒤 정리·로그. 자신의 preHandle이 true였을 때 호출']])+call('정상 동기 요청의 예시입니다. 모임 API의 처리 메서드 이름·수행 시간 로그 등에 활용합니다.<br>인증·인가는 Spring Security를 우선 검토합니다. Interceptor만으로 보안을 대체하지 않습니다.'))
+add('Spring Security','Spring Security의 요청 확인 순서',simple_security_flow()+call('경로에 맞는 SecurityFilterChain 하나를 선택하고, 안의 여러 Filter를 순서대로 실행합니다.<br>그림은 주요 역할만 묶었습니다. 허용되지 않은 요청은 MVC 업무 처리 전에 끝날 수 있습니다.'))
+add('SSO','SSO는 여러 서비스의 반복 로그인을 줄입니다',sec_sso_flow()+call('SSO는 같은 중앙 인증 서버의 로그인 상태를 활용해 반복 로그인을 줄이는 구성입니다.<br>앱 A와 B는 인증 결과를 확인하고 각자의 로그인 상태와 접근 권한을 관리합니다.'))
+add('Security 자율 학습','Security는 기본 로그인부터 직접 학습','<div class="references"><a href="https://docs.spring.io/spring-security/reference/servlet/getting-started.html"><b>1. 기본 로그인 ↗</b><span>로그인 전·후 요청 비교</span></a><a href="https://docs.spring.io/spring-security/reference/servlet/authentication/session-management.html"><b>2. 세션과 로그인 상태 ↗</b><span>다음 요청에서도 사용자 확인</span></a><a href="https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html"><b>3. 경로별 접근 허용 ↗</b><span>공개·로그인·운영자 요청 구분</span></a></div>'+call('예: 스터디 조회는 공개, 참여는 로그인 필요, 모임 수정은 해당 스터디 운영자만 허용합니다.<br>운영자 여부처럼 데이터에 따른 권한도 확인합니다. 프로젝트 버전에 맞는 문서를 봅니다.<br>Security 구현은 이번 스터디 과제의 필수 조건이 아닙니다.'))
 
 add('JPA 과제','스터디 모집·모임 관리 서비스',table([['핵심 기능','만들 서비스'],['회원·프로필','회원 정보와 자기소개 관리'],['스터디','스터디 개설과 목록·상세 조회'],['참여','스터디 참여·탈퇴와 참여 목록 조회'],['모임 일정','스터디별 일정 등록·조회']])+call('회원들이 스터디를 만들고 참여하며 모임 일정을 관리하는 새 REST API 프로젝트입니다.<br>기능에 필요한 데이터와 구체적인 동작은 직접 설계합니다.'))
 add('JPA 과제 · 자율 설계','연관관계와 서비스 규칙 정하기',steps('Entity 구성·필드·API를 직접 설계','일대일·일대다/다대일·여러 회원과 여러 스터디의 관계를 JPA로 표현','관계 방향·FK와 가입 정보의 표현 방식을 결정하고 이유 정리','중복 참여·정원·탈퇴 등 서비스 규칙을 직접 정의')+call('여력이 있다면 재가입·스터디장 위임 등 원하는 기능을 확장해 봅니다.<br>선택한 관계와 규칙이 서비스 동작에 맞는지 설명할 수 있어야 합니다.'))
@@ -254,7 +239,7 @@ css=(R/'theme.css').read_text();slides=[]
 for i,d in enumerate(S):
  slides.append('<section class="slide '+d['kind']+(' active' if i==0 else '')+'" data-index="'+str(i)+'" data-slide-id="lesson-26-'+str(i)+'" aria-label="'+esc(re.sub('<[^>]*>',' ',d['title']))+'" aria-hidden="'+('false' if i==0 else 'true')+'"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">'+esc(d['ch'])+'</span></div><h1>'+d['title']+'</h1><div class="content">'+d['body']+'</div><footer class="foot"><span>2026.11.26</span><span>'+f'{i+1:02} / {len(S):02}'+'</span></footer></section>')
 meta=[{k:d[k] for k in ('ch','title')} for d in S]
-out='<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="JPA 연관관계와 Spring Security 기초"><title>11월 26일 · JPA 연관관계와 Spring Security 기초</title><style>'+css+'</style></head><body data-deck-revision="2026-11-26-v12-mvc-interceptor"><main id="workspace" aria-label="강의 슬라이드"><div id="stage">'+''.join(slides)+(R/'controls.html').read_text()+'<script type="application/json" id="deck-data">'+json.dumps(meta,ensure_ascii=False).replace('<','\\u003c')+'</script><script type="application/json" id="source-data">{}</script><script>'+(R/'engine.js').read_text()+'</script></body></html>'
+out='<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="JPA 연관관계와 Spring Security 기초"><title>11월 26일 · JPA 연관관계와 Spring Security 기초</title><style>'+css+'</style></head><body data-deck-revision="2026-11-26-v13-simple-security"><main id="workspace" aria-label="강의 슬라이드"><div id="stage">'+''.join(slides)+(R/'controls.html').read_text()+'<script type="application/json" id="deck-data">'+json.dumps(meta,ensure_ascii=False).replace('<','\\u003c')+'</script><script type="application/json" id="source-data">{}</script><script>'+(R/'engine.js').read_text()+'</script></body></html>'
 (OUT/'index.html').write_text(out)
 (R/'metadata-private.json').write_text(json.dumps(S,ensure_ascii=False,indent=2))
 (R/'slide-index.json').write_text(json.dumps([{'n':i+1,'title':d['title'],'chapter':d['ch']} for i,d in enumerate(S)],ensure_ascii=False,indent=2))

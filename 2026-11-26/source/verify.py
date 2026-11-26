@@ -10,7 +10,7 @@ slides=doc.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," s
 meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
 assert len(slides)==len(meta)==len(private)
-assert 30 <= len(slides) <= 44
+assert len(slides)==38
 assert json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])=={}
 assert not doc.xpath('//section//*[@data-source-key]')
 assert not doc.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," subtitle ")]')
@@ -28,8 +28,8 @@ for stale in ['ShortLink','AppUser','ShortLinkTag','owner_id','/api/links','단�
     assert stale not in visible,stale
 for token in ['ManyToOne','OneToMany','OneToOne','ManyToMany','JoinTable','JoinColumn',
               'mappedBy','StudyMember','UNIQUE','LAZY','DTO','인증','인가','SSO','IdP',
-              'DelegatingFilterProxy','FilterChainProxy','SecurityFilterChain','DispatcherServlet',
-              '세션','쿠키','CSRF']:
+              'SecurityFilterChain','DispatcherServlet','HandlerInterceptor',
+              '세션','쿠키','preHandle','postHandle','afterCompletion']:
     assert token in visible,token
 # Each mapping has a distinct, contiguous case section.
 case_order=['ManyToOne','OneToMany','OneToOne','ManyToMany']
@@ -40,6 +40,16 @@ for case in case_order:
     assert positions==list(range(min(positions),max(positions)+1)),case
     case_positions.append(min(positions))
 assert case_positions==sorted(case_positions)
+# The simplified security section follows the object-design section.
+assert meta[9]['title']=='모임의 소속 설정과 스터디 목록 추가'
+assert [m['title'] for m in meta[27:35]]==[
+    '인증과 인가','쿠키와 세션으로 로그인 상태 이어가기',
+    'Filter는 요청·응답을 처리하는 중간 단계',
+    'Filter와 HandlerInterceptor의 실행 위치','HandlerInterceptor의 세 가지 시점',
+    'Spring Security의 요청 확인 순서','SSO는 여러 서비스의 반복 로그인을 줄입니다',
+    'Security는 기본 로그인부터 직접 학습']
+for removed in ['DelegatingFilterProxy','FilterChainProxy','SecurityContext','PasswordEncoder','CSRF','JWT','OAuth 2.0','OIDC']:
+    assert removed not in visible,removed
 assert 'WebSecurityConfigurerAdapter' not in raw
 assert not re.search(r'csrf\s*\([^)]*disable|NoOpPasswordEncoder',raw)
 assert 'contenteditable=' not in raw and 'localStorage' not in raw
