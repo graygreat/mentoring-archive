@@ -10,7 +10,7 @@ slides=doc.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," s
 meta=json.loads(doc.xpath('//script[@id="deck-data"]/text()')[0])
 private=json.loads((R/'metadata-private.json').read_text())
 assert len(slides)==len(meta)==len(private)
-assert 30 <= len(slides) <= 42
+assert 30 <= len(slides) <= 44
 assert json.loads(doc.xpath('//script[@id="source-data"]/text()')[0])=={}
 assert not doc.xpath('//section//*[@data-source-key]')
 assert not doc.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," subtitle ")]')

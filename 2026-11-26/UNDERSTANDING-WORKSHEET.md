@@ -86,6 +86,11 @@ Java 스터디(id=201)에 연관관계 복습(id=501), 쿼리 연습(id=502) 모
 | 로그인 이후 요청에서 비밀번호 대신 세션 ID를 보내면 서버는 무엇을 확인하는가? | |
 | chain.doFilter는 무엇을 호출하며, 필터가 다음 단계로 보내지 않으면 어떻게 되는가? | |
 | 보안 체인 하나를 선택하는 일과 체인 내부 필터를 실행하는 일은 어떻게 다른가? | |
+| Filter와 HandlerInterceptor는 각각 Servlet과 MVC 흐름의 어디에서 동작하는가? | |
+| preHandle보다 먼저 HandlerMapping이 결정하는 것은 무엇인가? | |
+| preHandle이 false를 반환하면 자동으로 403 응답이 되는가? | |
+| REST 응답 본문을 바꾸는 용도로 postHandle이 적합하지 않은 이유는? | |
+| 정상 동기 요청에서 afterCompletion은 언제 호출되며 어떤 정리 작업에 쓸 수 있는가? | |
 | 인증이 거부된 요청도 반드시 Controller까지 진행하는가? | |
 | 비밀번호의 새 encode 결과끼리 비교하지 않고 matches를 사용하는 이유는? | |
 | 세션 쿠키를 사용하는 변경 요청에 CSRF 보호가 필요한 이유는? | |
@@ -113,3 +118,10 @@ PR에는 구현 기능, Entity 관계도, 관계와 트랜잭션 설계 이유, 
 
 - [Martin Fowler: Domain Model](https://martinfowler.com/eaaCatalog/domainModel.html) — 데이터와 업무 동작을 함께 표현하는 객체 모델
 - [Martin Fowler: Anemic Domain Model](https://martinfowler.com/bliki/AnemicDomainModel.html) — 도메인 객체의 동작과 Service의 조율 책임을 생각해 볼 참고 글
+
+## MVC Interceptor 참고
+
+정상 동기 요청에서는 HandlerMapping이 handler와 Interceptor를 선택한 뒤 preHandle이 실행된다. true면 HandlerAdapter를 통해 Controller 처리를 계속하고, false면 중단하므로 필요한 응답은 직접 처리한다. 정상 반환 후 postHandle, MVC 처리 완료 뒤 afterCompletion으로 이어진다. afterCompletion은 해당 Interceptor의 preHandle이 true였을 때 호출된다. REST의 응답 본문은 postHandle 전에 처리되므로 본문 수정 용도로 사용하지 않는다. 비동기 요청의 별도 동작은 이 예시에서 다루지 않는다.
+
+- [Spring Framework: Interception](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-servlet/handlermapping-interceptor.html)
+- [Spring Framework 6.2.1: HandlerInterceptor API](https://docs.spring.io/spring-framework/docs/6.2.1/javadoc-api/org/springframework/web/servlet/HandlerInterceptor.html)

@@ -193,6 +193,14 @@ def sec_filter_roundtrip():
     inner+=arrow(1000,205,145,205)+text(574,250,'응답은 호출이 끝나는 순서대로 B → A → 브라우저',23,'#087f5b')
     return svg('필터는 chain.doFilter로 다음 필터와 Servlet을 호출하며 반환 시 앞선 필터로 되돌아옵니다',inner,285,'filter-roundtrip')
 
+def mvc_interceptor_position():
+    inner=text(574,20,'정상 동기 요청 · DispatcherServlet이 MVC 내부 순서를 조율',23,'#087f5b')
+    inner+=box(10,35,300,85,'Filter','Servlet 앞의 공통 처리')+box(420,35,300,85,'DispatcherServlet','MVC 요청 처리 시작')+box(830,35,305,85,'HandlerMapping','handler·Interceptor 선택')
+    inner+=arrow(330,78,400,78)+arrow(740,78,810,78)
+    inner+=box(735,180,400,85,'preHandle','선택된 handler 실행 전')+box(10,180,510,85,'HandlerAdapter','선택된 Controller 호출')
+    inner+=arrow(980,135,980,165)+arrow(715,222,540,222,'true면 계속')
+    return svg('Filter 뒤의 DispatcherServlet이 HandlerMapping으로 handler와 Interceptor를 선택하고 preHandle을 거쳐 HandlerAdapter로 Controller를 호출합니다',inner,280,'mvc-interceptor-position')
+
 def sec_proxy_architecture():
     inner=box(10,10,335,110,'DelegatingFilterProxy','컨테이너 → Spring 빈 위임')+box(405,10,335,110,'FilterChainProxy','요청에 맞는 보안 체인 선택')+box(800,10,335,110,'SecurityFilterChain','여러 보안 필터의 묶음')
     inner+=arrow(360,65,390,65)+arrow(755,65,785,65)
@@ -227,6 +235,8 @@ add('Security 기초','인증과 인가',table([['구분','확인하는 질문',
 add('로그인 상태','쿠키·세션·인증 정보',table([['용어','어디에 무엇이 있는가?'],['쿠키','브라우저가 보관하고 전송 조건에 맞는 요청에 보내는 값'],['세션','서버가 요청 사이에 유지하는 상태 · 세션 ID로 구분'],['SecurityContext','현재 요청에서 사용할 인증 결과(Authentication)를 담음'],['세션 로그인 예시','브라우저는 세션 ID, 서버 세션은 인증 결과를 보관']])+call('여기서는 웹 브라우저의 폼 로그인·서버 세션 방식을 봅니다.<br>기본 Servlet 환경에서는 보통 JSESSIONID 쿠키를 사용합니다.'))
 add('세션 로그인 흐름','로그인 이후에는 세션 ID로 상태 연결',sec_session_flow()+call('다음 요청에서 세션의 인증 결과를 복원해 현재 사용자를 확인합니다.<br>브라우저 쿠키에 비밀번호나 회원 Entity 전체를 넣는다는 뜻은 아닙니다.'))
 add('필터와 체인','Filter는 요청·응답을 처리하는 중간 단계',sec_filter_roundtrip()+call('chain.doFilter(request, response)는 다음 필터 또는 Servlet을 호출합니다.<br>필터는 요청 기록·CORS·보안 등에 쓰이며, 다음 단계로 보내지 않고 응답할 수도 있습니다.'))
+add('Filter와 Interceptor','Filter와 HandlerInterceptor의 실행 위치',mvc_interceptor_position()+table([['구분','처리 범위'],['Filter','Servlet 표준 · 매핑된 요청·응답의 공통 처리'],['HandlerInterceptor','Spring MVC · 선택된 handler 앞뒤의 공통 처리']]))
+add('MVC Interceptor','HandlerInterceptor의 세 가지 시점',table([['메서드','호출 시점과 역할'],['preHandle','대상 선택 후 실행 전. true면 계속, false면 중단하며 필요한 응답은 직접 처리'],['postHandle','핸들러 정상 반환 후 뷰 렌더링 전. REST 응답 본문은 이미 처리되므로 본문 수정 용도로 쓰지 않음'],['afterCompletion','MVC 처리 완료 뒤 정리·로그. 해당 Interceptor의 preHandle이 true였을 때 호출']])+call('정상 동기 요청의 예시입니다. 모임 API의 처리 메서드 이름 기록·수행 시간 로그 등에 활용합니다.<br>인증·인가는 Spring Security의 필터 기반 처리를 우선 검토합니다.<br>Interceptor만으로 보안을 대체하지 않습니다. 비동기 요청의 별도 동작은 여기서 다루지 않습니다.'))
 add('Spring Security 구조','보안 필터와 MVC가 연결되는 구조',sec_proxy_architecture()+call('DelegatingFilterProxy는 Spring의 보안 처리 빈으로 연결하는 다리입니다.<br>SecurityFilterChain은 Controller가 아니라 보안 필터들의 묶음입니다.'))
 add('필터와 체인','체인은 하나 선택하고 내부 필터는 여러 개 실행',sec_chain_selection()+call('설정한 우선순위대로 검사해 처음 일치한 SecurityFilterChain 하나를 선택합니다.<br>선택된 체인 안의 필터들은 정해진 순서로 실행합니다. 체인별 경로와 정책은 직접 설정합니다.'))
 add('요청 처리 흐름','로그인 요청과 일반 요청의 처리',sec_request_paths()+call('주요 역할만 묶은 개념도입니다. CSRF 등 다른 필터는 생략했습니다.<br>인가에서 거부되거나 인증 필터가 응답하면 Controller까지 진행하지 않을 수 있습니다.'))
@@ -244,7 +254,7 @@ css=(R/'theme.css').read_text();slides=[]
 for i,d in enumerate(S):
  slides.append('<section class="slide '+d['kind']+(' active' if i==0 else '')+'" data-index="'+str(i)+'" data-slide-id="lesson-26-'+str(i)+'" aria-label="'+esc(re.sub('<[^>]*>',' ',d['title']))+'" aria-hidden="'+('false' if i==0 else 'true')+'"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">'+esc(d['ch'])+'</span></div><h1>'+d['title']+'</h1><div class="content">'+d['body']+'</div><footer class="foot"><span>2026.11.26</span><span>'+f'{i+1:02} / {len(S):02}'+'</span></footer></section>')
 meta=[{k:d[k] for k in ('ch','title')} for d in S]
-out='<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="JPA 연관관계와 Spring Security 기초"><title>11월 26일 · JPA 연관관계와 Spring Security 기초</title><style>'+css+'</style></head><body data-deck-revision="2026-11-26-v11-oop-responsibilities"><main id="workspace" aria-label="강의 슬라이드"><div id="stage">'+''.join(slides)+(R/'controls.html').read_text()+'<script type="application/json" id="deck-data">'+json.dumps(meta,ensure_ascii=False).replace('<','\\u003c')+'</script><script type="application/json" id="source-data">{}</script><script>'+(R/'engine.js').read_text()+'</script></body></html>'
+out='<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="JPA 연관관계와 Spring Security 기초"><title>11월 26일 · JPA 연관관계와 Spring Security 기초</title><style>'+css+'</style></head><body data-deck-revision="2026-11-26-v12-mvc-interceptor"><main id="workspace" aria-label="강의 슬라이드"><div id="stage">'+''.join(slides)+(R/'controls.html').read_text()+'<script type="application/json" id="deck-data">'+json.dumps(meta,ensure_ascii=False).replace('<','\\u003c')+'</script><script type="application/json" id="source-data">{}</script><script>'+(R/'engine.js').read_text()+'</script></body></html>'
 (OUT/'index.html').write_text(out)
 (R/'metadata-private.json').write_text(json.dumps(S,ensure_ascii=False,indent=2))
 (R/'slide-index.json').write_text(json.dumps([{'n':i+1,'title':d['title'],'chapter':d['ch']} for i,d in enumerate(S)],ensure_ascii=False,indent=2))
