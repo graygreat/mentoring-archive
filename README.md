@@ -15,6 +15,7 @@ Spring Boot & AI 과정의 수업 자료를 모아두는 저장소입니다.
 | 2026-11-16 | 4시간 | 나만의 단축 URL 서비스 발표 → 14일에서 이월한 ORM·SQL Mapper·JPA·영속성 컨텍스트 설명 | [수업 자료](./2026-11-16/index.html) |
 | 2026-11-19 | 4시간 · 이준형 강사 대강 | 사전 점검·작업지·오류 힌트로 상품 저장소 JPA 전환·API/DB 보존 검증 | [수업 자료](./2026-11-19/index.html) |
 | 2026-11-23 | 4시간 | 16일 28쪽부터 이어서 @Transactional·flush·commit·rollback → 관계·지연 로딩·N+1 → 개인 단축 URL JPA 전환 | [수업 자료](./2026-11-23/index.html) |
+| 2026-11-26 | 4시간 | JPA 관계별 매핑·연결 Entity → 인증·인가·필터 체인·SSO → 스터디 모집·모임 관리 자율 설계 과제 | [수업 자료](./2026-11-26/index.html) |
 
 ## 진행 기준
 
@@ -54,6 +55,7 @@ DB 입문: [용어·SQL 안내](./shared/db-basics/) · [상품 표·SQL 예상 
 - 11월 16일 수업: https://graygreat.github.io/mentoring-archive/2026-11-16/
 - 11월 19일 수업: https://graygreat.github.io/mentoring-archive/2026-11-19/
 - 11월 23일 수업: https://graygreat.github.io/mentoring-archive/2026-11-23/
+- 11월 26일 수업: https://graygreat.github.io/mentoring-archive/2026-11-26/
 
 최초 설정: **Settings → Pages → Build and deployment → Deploy from a branch → main / (root) → Save**
 
