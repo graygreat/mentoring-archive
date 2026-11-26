@@ -155,6 +155,27 @@ List<StudyMember> rows = studyMemberRepository.findByMemberId(memberId);
 // 각 row.getStudy().getTitle()로 회원이 참여한 스터디 이름을 읽습니다.
 """,'study-member-save')+call('생성자는 member·study·joinedAt을 설정하며 Repository는 JpaRepository를 확장한다고 가정합니다.<br>조회 메서드는 List&lt;StudyMember&gt; findByMemberId(Long memberId)입니다.<br>양방향 목록은 필요할 때 추가합니다. 새 스터디까지 자동 저장·삭제된다고 가정하지 않습니다.'),kind='code-slide')
 add('관계별 정리','개수·FK·주인을 나눠 확인',table([['매핑 사례','FK·연결 정보','이 예시의 쓰기 관리 기준'],['N:1 양방향','study_meetings.study_id','StudyMeeting.study'],['1:N 단방향 대안','study_meetings.study_id','Study.meetings'],['1:1 · 프로필에 FK','member_profiles.member_id + UNIQUE','MemberProfile.member'],['N:M → 가입 Entity','study_members의 member_id·study_id','StudyMember.member · StudyMember.study']])+call('관계의 실제 개수에 맞게 매핑합니다. 일대일·다대다를 무조건 다대일 하나로 바꾸지는 않습니다.<br>일대다 관계는 다대일 단방향부터 시작하고, 필요한 역방향 탐색을 추가합니다.<br>양쪽 Java 참조는 개발자가 맞추고, DTO와 LAZY·N+1 조회도 따로 확인합니다.'))
+add('객체지향 설계','객체의 책임과 참조 방향',table([['객체·계층','스터디 종료 기능에서 맡을 일'],['Study','자기 상태와 종료 가능 여부 판단'],['StudyMeeting','자기 일정의 취소 조건 판단·상태 변경'],['Service','필요한 객체 조회·권한 확인 조율·작업 순서·트랜잭션 경계'],['Repository','조건에 맞는 객체 조회와 저장']])+call('이 책임 분리는 하나의 설계 예시입니다. 객체가 맡은 일을 하려면 누구를 알아야 할지 생각합니다.<br>FK 쓰기 기준인 연관관계의 주인과 업무 책임은 별개입니다.<br>이 예시의 Entity에는 HTTP 요청 처리나 Repository 조회 코드를 넣지 않습니다.'))
+add('객체지향 설계','상태 변경과 캡슐화',code("""// StudyMeeting 내부 · 필드·enum 선언 등은 생략한 개념 예시
+public void cancelIfUpcoming(LocalDateTime now) {
+    if (status == MeetingStatus.SCHEDULED && startsAt.isAfter(now)) {
+        status = MeetingStatus.CANCELLED;
+    }
+}
+""",'meeting-encapsulation')+call('예시 규칙: 예정 상태이며 시작 시각이 현재보다 뒤인 모임만 취소합니다.<br>호출하는 쪽은 동작을 요청하고, 모임 객체가 자기 상태·시각을 보고 변경 여부를 판단합니다.<br>여러 곳의 setStatus 대신 규칙을 메서드에 모읍니다. 캡슐화는 허용할 변경 방법도 정하는 일입니다.<br>Java 상태 변경의 DB 반영은 영속 상태·트랜잭션도 확인합니다.'),kind='code-slide')
+def study_close_flow():
+    inner=box(10,5,350,85,'Study.close(now)','스터디 종료 요청')+box(615,5,520,85,'각 StudyMeeting','cancelIfUpcoming(now)')
+    inner+=arrow(380,48,595,48,'목록의 모임에 요청')
+    return svg('스터디가 목록의 각 모임에 취소 판단을 요청하고 자기 상태를 종료로 바꾸는 설계 예시',inner,100,'object-collaboration')
+add('객체지향 설계','양방향 참조와 객체의 동작',study_close_flow()+code("""// Study 내부 · 종료 가능 상태 검사는 별도 구현한다고 가정
+public void close(LocalDateTime now) {
+    for (StudyMeeting meeting : meetings) {
+        meeting.cancelIfUpcoming(now);
+    }
+    status = StudyStatus.CLOSED;
+}
+""",'study-close-collaboration')+call('스터디가 모임들을 직접 사용해 종료를 수행하는 설계라면 meetings 참조가 유용합니다.<br>각 모임은 자기 취소 규칙을 판단합니다. 양방향이 항상 더 객체지향적인 것은 아닙니다.<br>Service가 필요한 데이터 조회와 트랜잭션을 준비합니다. 모임이 많다면 별도 처리도 검토합니다.'),kind='code-slide')
+add('객체지향 설계','목록 조회와 객체 탐색의 선택',table([['필요한 동작','설계 선택'],['화면의 목록·검색·페이징','Repository에서 목적에 맞게 조회'],['Study가 모임들을 직접 다루는 동작 수행','Study.meetings 역방향 참조 검토'],['Service가 모임들을 조회해 각 메서드 호출','양방향 없이도 종료 기능 구현 가능']])+call('객체의 책임을 먼저 정하고 필요한 참조만 둡니다. 양방향이면 양쪽 참조도 맞춥니다.<br>양방향 자체가 객체지향성이나 조회 SQL 감소를 보장하지는 않습니다.<br>어느 설계든 트랜잭션 경계와 실제 SQL을 확인합니다.'))
 # Concept diagrams: simplified Servlet form-login/session and redirect-based web SSO.
 def sec_session_flow():
     inner=box(10,0,330,85,'브라우저 · 로그인','아이디·비밀번호 제출')+box(805,0,330,85,'서버 · 로그인 검증','계정·비밀번호 확인')
@@ -223,7 +244,7 @@ css=(R/'theme.css').read_text();slides=[]
 for i,d in enumerate(S):
  slides.append('<section class="slide '+d['kind']+(' active' if i==0 else '')+'" data-index="'+str(i)+'" data-slide-id="lesson-26-'+str(i)+'" aria-label="'+esc(re.sub('<[^>]*>',' ',d['title']))+'" aria-hidden="'+('false' if i==0 else 'true')+'"><div class="topline"><span class="brand">SPRING BOOT &amp; AI</span><span class="chapter-tag">'+esc(d['ch'])+'</span></div><h1>'+d['title']+'</h1><div class="content">'+d['body']+'</div><footer class="foot"><span>2026.11.26</span><span>'+f'{i+1:02} / {len(S):02}'+'</span></footer></section>')
 meta=[{k:d[k] for k in ('ch','title')} for d in S]
-out='<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="JPA 연관관계와 Spring Security 기초"><title>11월 26일 · JPA 연관관계와 Spring Security 기초</title><style>'+css+'</style></head><body data-deck-revision="2026-11-26-v10-owning-rationale"><main id="workspace" aria-label="강의 슬라이드"><div id="stage">'+''.join(slides)+(R/'controls.html').read_text()+'<script type="application/json" id="deck-data">'+json.dumps(meta,ensure_ascii=False).replace('<','\\u003c')+'</script><script type="application/json" id="source-data">{}</script><script>'+(R/'engine.js').read_text()+'</script></body></html>'
+out='<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="JPA 연관관계와 Spring Security 기초"><title>11월 26일 · JPA 연관관계와 Spring Security 기초</title><style>'+css+'</style></head><body data-deck-revision="2026-11-26-v11-oop-responsibilities"><main id="workspace" aria-label="강의 슬라이드"><div id="stage">'+''.join(slides)+(R/'controls.html').read_text()+'<script type="application/json" id="deck-data">'+json.dumps(meta,ensure_ascii=False).replace('<','\\u003c')+'</script><script type="application/json" id="source-data">{}</script><script>'+(R/'engine.js').read_text()+'</script></body></html>'
 (OUT/'index.html').write_text(out)
 (R/'metadata-private.json').write_text(json.dumps(S,ensure_ascii=False,indent=2))
 (R/'slide-index.json').write_text(json.dumps([{'n':i+1,'title':d['title'],'chapter':d['ch']} for i,d in enumerate(S)],ensure_ascii=False,indent=2))
